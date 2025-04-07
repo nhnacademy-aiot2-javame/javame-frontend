@@ -55,7 +55,7 @@ jobs:
         script_stop: true
         script: "./startup.sh"
 
-  - name: Setup SSH key
+    - name: Setup SSH key
     run: |
       mkdir -p ~/.ssh
       echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
