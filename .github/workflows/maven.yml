@@ -33,6 +33,12 @@ jobs:
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     #- name: Update dependency graph
     #  uses: advanced-security/maven-dependency-submission-action@571e99aab1055c2e71a1e2309b9691de18d6b7d6
+    - name: Stop running app
+      run: |
+        PID=$(lsof -ti :10251)
+        if [ -n "$PID" ]; then
+          kill -9 $PID
+        fi
 
     - name: upload file
       uses: appleboy/scp-action@v0.1.7
@@ -60,3 +66,9 @@ jobs:
         mkdir -p ~/.ssh
         echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
+
+   
+
+    - name: Run Spring Boot app
+      run: |
+        nohup java -jar hello.jar > log.txt 2>&1 &
