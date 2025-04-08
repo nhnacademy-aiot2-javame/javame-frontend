@@ -53,4 +53,7 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
         script_stop: true
-        script: "./startup.sh"
+        script: |
+          chmod +x ~/startup.sh
+          ~/startup.sh
+    
