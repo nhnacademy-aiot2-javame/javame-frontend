@@ -41,7 +41,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           source: "target/*.jar"
-          target: "~/frontend/target"
+          target: "~/frontend"
           rm: false
 
       - name: execute shell script
