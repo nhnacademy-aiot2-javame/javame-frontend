@@ -2,10 +2,70 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-   <script type="text/javascript" src="/static/startbootstrap-coming-soon-gh-pages/js/login.js"></script>
+    <title>Join Us</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to right, #f0f4ff, #fef6ff);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .register-container {
+            background: white;
+            padding: 3rem;
+            border-radius: 2rem;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .form-control {
+            margin-bottom: 1rem;
+            border-radius: 1rem;
+        }
+
+        .btn-custom {
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            border-radius: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-register {
+            background-color: #b4d4ff;
+            color: #1a1a1a;
+        }
+
+        .btn-register:hover {
+            background-color: #a2c6f5;
+            box-shadow: 0 8px 16px rgba(180, 212, 255, 0.6);
+            transform: translateY(-2px);
+        }
+    </style>
 </head>
 <body>
 
+<div class="register-container">
+    <h2 class="mb-4">Create your account</h2>
+    <form id="registerForm">
+        <input type="email" class="form-control" placeholder="Email" required>
+        <input type="text" class="form-control" placeholder="Username" required>
+        <input type="password" class="form-control" placeholder="Password" required>
+        <button type="submit" class="btn btn-custom btn-register w-100">Sign Up</button>
+    </form>
+
+    <a href="/index.html" class="btn btn-outline-secondary w-100 mt-2" style="border-radius: 1rem">
+        <- Back to Home
+    </a>
+</div>
+
+<script src="/static/startbootstrap-coming-soon-gh-pages/js/register.js"></script>
 </body>
 </html>
