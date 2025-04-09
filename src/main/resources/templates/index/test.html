@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>비동기 서버 데이터 추가</title>
+</head>
+<body>
+<button onclick="fetchTextAsync()">서버에서 텍스트 가져오기</button>
+<div id="textContainer"></div>
+
+<script>
+    async function fetchTextAsync() {
+        try {
+            // 서버에서 데이터 가져오기
+            const response = await fetch('http://s2.java21.net:10254/api/', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('서버 응답 오류: ' + response.status);
+            }
+
+            const data = await response.json(); // JSON 파싱
+            const message = data.message;
+
+            // 텍스트 추가
+            const container = document.getElementById("textContainer");
+            const newText = document.createElement("p");
+            newText.textContent = message;
+            container.appendChild(newText);
+        } catch (error) {
+            console.error('에러 발생:', error);
+            const container = document.getElementById("textContainer");
+            container.innerHTML = '<p>오류: 데이터를 가져오지 못했습니다.</p>';
+        }
+    }
+</script>
+</body>
+</html>
