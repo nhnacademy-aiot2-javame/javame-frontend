@@ -689,6 +689,10 @@ progress {
   flex: 1 0 0%;
 }
 
+.coltest {
+  flex: 70%;
+}
+
 .row-cols-auto > * {
   flex: 0 0 auto;
   width: auto;
@@ -10901,8 +10905,7 @@ video.bg-video {
   font-weight: 700;
 }
 .masthead .masthead-content .input-group-newsletter input {
-  height: auto;
-  width: 100%;
+  width: 10px;
   font-size: 1rem;
   padding: 1rem;
 }

@@ -42,7 +42,7 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
         source: "target/*.jar"
-        target: "~/"
+        target: "~/frontend/"
         rm: false
 
     - name: execute shell script
@@ -53,7 +53,5 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
         script_stop: true
-        script: |
-          chmod +x ~/startup.sh
-          ~/startup.sh
+        script: "/frontend/startup.sh"
     
