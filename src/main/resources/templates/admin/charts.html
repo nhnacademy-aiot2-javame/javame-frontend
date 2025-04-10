@@ -1,19 +1,19 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <meta name="description" content="" />
-  <meta name="author" content="" />
-  <title>차트 - SB Admin</title>
+  <meta name="description" content="IoT 센서 데이터 차트" />
+  <meta name="author" content="NHN Academy" />
+  <title>NHN Academy IoT 센서 관리 - 차트</title>
   <link href="/admin/css/styles.css" rel="stylesheet" />
   <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
 </head>
 <body class="sb-nav-fixed">
 <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
   <!-- Navbar Brand-->
-  <a class="navbar-brand ps-3" href="/admin/">SB Admin</a>
+  <a class="navbar-brand ps-3" href="/admin/">NHN Academy 센서 관리</a>
   <!-- Sidebar Toggle-->
   <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
   <!-- Navbar Search-->
@@ -46,50 +46,7 @@
             <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
             대시보드
           </a>
-          <div class="sb-sidenav-menu-heading">인터페이스</div>
-          <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts" aria-expanded="false" aria-controls="collapseLayouts">
-            <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
-            레이아웃
-            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-          </a>
-          <div class="collapse" id="collapseLayouts" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
-            <nav class="sb-sidenav-menu-nested nav">
-              <a class="nav-link" href="#!">정적 내비게이션</a>
-              <a class="nav-link" href="#!">Light Sidenav</a>
-            </nav>
-          </div>
-          <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapsePages" aria-expanded="false" aria-controls="collapsePages">
-            <div class="sb-nav-link-icon"><i class="fas fa-book-open"></i></div>
-            페이지
-            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-          </a>
-          <div class="collapse" id="collapsePages" aria-labelledby="headingTwo" data-bs-parent="#sidenavAccordion">
-            <nav class="sb-sidenav-menu-nested nav accordion" id="sidenavAccordionPages">
-              <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#pagesCollapseAuth" aria-expanded="false" aria-controls="pagesCollapseAuth">
-                인증
-                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-              </a>
-              <div class="collapse" id="pagesCollapseAuth" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordionPages">
-                <nav class="sb-sidenav-menu-nested nav">
-                  <a class="nav-link" href="#!">로그인</a>
-                  <a class="nav-link" href="#!">회원가입</a>
-                  <a class="nav-link" href="#!">비밀번호 찾기</a>
-                </nav>
-              </div>
-              <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#pagesCollapseError" aria-expanded="false" aria-controls="pagesCollapseError">
-                오류
-                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-              </a>
-              <div class="collapse" id="pagesCollapseError" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordionPages">
-                <nav class="sb-sidenav-menu-nested nav">
-                  <a class="nav-link" href="#!">401 페이지</a>
-                  <a class="nav-link" href="#!">404 페이지</a>
-                  <a class="nav-link" href="#!">500 페이지</a>
-                </nav>
-              </div>
-            </nav>
-          </div>
-          <div class="sb-sidenav-menu-heading">애드온</div>
+          <div class="sb-sidenav-menu-heading">분석</div>
           <a class="nav-link" href="/admin/charts">
             <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
             차트
@@ -116,37 +73,46 @@
         </ol>
         <div class="card mb-4">
           <div class="card-body">
-            Chart.js는 HTML5 캔버스 요소를 이용하여 차트를 그릴 수 있는 JavaScript 라이브러리입니다.
-            이 페이지에서는 Chart.js를 사용한 몇 가지 예제를 보여줍니다.
-            Chart.js에 대한 자세한 정보는
-            <a target="_blank" href="https://www.chartjs.org/docs/latest/">Chart.js 문서</a>
-            를 참조하세요.
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="sensorTypeDropdown" class="form-label">센서 타입 선택:</label>
+                <select id="sensorTypeDropdown" class="form-select">
+                  <option value="">센서 타입 로딩 중...</option>
+                </select>
+              </div>
+            </div>
+            <p>
+              IoT 센서 데이터를 다양한 차트로 시각화하여 분석할 수 있습니다.
+              센서 타입을 선택하여 해당 센서의 데이터 추이를 확인해보세요.
+            </p>
           </div>
         </div>
-        <div class="card mb-4">
+
+        <div id="areaChartCard" class="card mb-4">
           <div class="card-header">
             <i class="fas fa-chart-area me-1"></i>
-            영역 차트 예시
+            영역 차트
           </div>
           <div class="card-body"><canvas id="myAreaChart" width="100%" height="30"></canvas></div>
           <div class="card-footer small text-muted">마지막 업데이트: 오늘 00:00</div>
         </div>
+
         <div class="row">
           <div class="col-lg-6">
-            <div class="card mb-4">
+            <div id="barChartCard" class="card mb-4">
               <div class="card-header">
                 <i class="fas fa-chart-bar me-1"></i>
-                막대 차트 예시
+                막대 차트
               </div>
               <div class="card-body"><canvas id="myBarChart" width="100%" height="50"></canvas></div>
               <div class="card-footer small text-muted">마지막 업데이트: 오늘 00:00</div>
             </div>
           </div>
           <div class="col-lg-6">
-            <div class="card mb-4">
+            <div id="pieChartCard" class="card mb-4">
               <div class="card-header">
                 <i class="fas fa-chart-pie me-1"></i>
-                파이 차트 예시
+                파이 차트
               </div>
               <div class="card-body"><canvas id="myPieChart" width="100%" height="50"></canvas></div>
               <div class="card-footer small text-muted">마지막 업데이트: 오늘 00:00</div>
@@ -158,9 +124,9 @@
     <footer class="py-4 bg-light mt-auto">
       <div class="container-fluid px-4">
         <div class="d-flex align-items-center justify-content-between small">
-          <div class="text-muted">Copyright &copy; Your Website 2023</div>
+          <div class="text-muted">Copyright &copy; NHN Academy 2025</div>
           <div>
-            <a href="#">개인정보 정책</a>
+            <a href="#">개인정보 처리방침</a>
             &middot;
             <a href="#">이용약관</a>
           </div>
@@ -172,8 +138,10 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 <script src="/admin/js/scripts.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
-<script src="/admin/assets/demo/chart-area-demo.js"></script>
-<script src="/admin/assets/demo/chart-bar-demo.js"></script>
-<script src="/admin/assets/demo/chart-pie-demo.js"></script>
+
+<!-- IoT 센서 API 클라이언트 -->
+<script src="/admin/js/iotSensorApi.js"></script>
+<script src="/admin/js/chartUtils.js"></script>
+<script src="/admin/js/charts.js"></script>
 </body>
 </html>
