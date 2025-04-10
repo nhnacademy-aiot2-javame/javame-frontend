@@ -59,7 +59,7 @@ export function authHeader() {
     const token = getAccessToken();
     if (token) {
         return {
-            Authorization: Bearer ${token},
+            Authorization: `Bearer ${token}`,
         };
     }
     return {};
