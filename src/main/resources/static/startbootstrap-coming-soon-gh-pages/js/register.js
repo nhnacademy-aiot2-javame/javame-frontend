@@ -1,9 +1,9 @@
 const BASE_URL = location.hostname === 'localhost'
-    ? 'http://localhost:10258/api'
+    ? 'http://localhost:10259/api/auth'
     : 'https://javame.live';
 
 async function register(memberData) {
-    const response = await fetch(`${BASE_URL}/auth/register`, {
+    const response = await fetch(`${BASE_URL}/register`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
