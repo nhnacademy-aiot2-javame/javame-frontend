@@ -14,12 +14,12 @@ const REFRESH_KEY = 'refreshToken';
  */
 
 export async function login(username, password) {
-    const response = await fetch('https://javame.live:10259/api/auth/login', {
+    const response = await fetch('http://localhost:10259/api/auth/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({username, password}),
+        body: JSON.stringify({id: username, password}),
     });
 
     if (!response.ok){
@@ -30,7 +30,6 @@ export async function login(username, password) {
 
     sessionStorage.setItem(TOKEN_KEY, data.accessToken);
     sessionStorage.setItem(REFRESH_KEY, data.refreshToken);
-
 }
 
 /**
