@@ -1,6 +1,8 @@
-const BASE_URL = 'http://localhost:10259/api/auth';
+const BASE_URL_V1 = 'http://localhost:10259/api/v1/auth'; // /v1 포함된 경로 사용
+
 async function register(memberData) {
-    const response = await fetch(`${BASE_URL}/register`, {
+    // 수정된 URL 사용
+    const response = await fetch(`${BASE_URL_V1}/register`, { // <<<--- BASE_URL_V1 사용 또는 직접 경로 입력
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -9,11 +11,20 @@ async function register(memberData) {
     });
 
     if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || '알맞은 정보를 입력해 주세요');
+        // 404 오류는 이제 발생하지 않아야 함. 다른 오류(400, 409, 500 등) 처리
+        let errorMsg = `회원가입 실패: ${response.status}`;
+        try {
+            const errorData = await response.json(); // 에러 응답 본문이 JSON일 경우
+            errorMsg = errorData.message || errorMsg;
+        } catch (e) {
+            // 에러 응답 본문이 없거나 JSON이 아닐 경우
+            errorMsg = `${errorMsg} - ${await response.text()}`;
+        }
+        console.error(errorMsg);
+        throw new Error(errorMsg);
     }
-
-    return await response.json();
+    // 회원가입 성공 시 Member API 응답 본문이 있다면 반환 (현재는 Void이므로 불필요)
+    // return await response.json(); // 필요시 주석 해제
 }
 
 document.addEventListener('DOMContentLoaded', () => {
