@@ -1,9 +1,8 @@
-<svg width="5000" height="2000" viewBox="0 0 600 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect x="80" y="30" width="440" height="110" rx="10" fill="#0A3478"/>
-  <text x="50%" y="60%" dominant-baseline="middle" text-anchor="middle"
-        font-family="'Montserrat'"
-        font-size="72" font-weight="bold" fill="#FFD600" letter-spacing="-2">
-    CatchServer
-  </text>
+ <svg width="5000" height="2000" viewBox="0 0 600 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="80" y="45" width="440" height="110" rx="10" fill="#0A3478"/>
+<text x="50%" y="60%" dominant-baseline="middle" text-anchor="middle"
+font-family="'Montserrat'"
+font-size="72" font-weight="bold" fill="#FFD600" letter-spacing="-2">
+CatchServer
+</text>
 </svg>
-
