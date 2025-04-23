@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.nhnacademy</groupId>
-    <artifactId>hello</artifactId>
+    <artifactId>javame-frontend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>hello</name>
     <description>hello</description>
