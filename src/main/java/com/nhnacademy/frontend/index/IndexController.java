@@ -2,6 +2,7 @@ package com.nhnacademy.frontend.index; // 패키지 이름 확인
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 public class IndexController {
