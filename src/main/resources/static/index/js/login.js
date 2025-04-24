@@ -1,5 +1,6 @@
 // login.js
 import { login } from './auth.js';
+import { updateNavBar } from './nav.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.querySelector('#loginForm');
@@ -14,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 await login(username, password);
                 alert('로그인 성공!');
+                updateNavBar();
                 location.href = '/'; // 홈페이지로 이동
             } catch (err) {
                 alert('로그인 실패: ' + err.message);

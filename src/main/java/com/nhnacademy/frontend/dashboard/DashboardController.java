@@ -8,17 +8,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("api/v1/environment")
 public class DashboardController {
 
-    @GetMapping({"dashboard", "/"})
+    @GetMapping({"/dashboard", "/"})
     public String adminDashboard() {
         return "dashboard/dashboard";
     }
 
-    @GetMapping("charts")
+    @GetMapping("/charts")
     public String charts() {
         return "dashboard/charts";
     }
 
-    @GetMapping("tables")
+    @GetMapping("/tables")
     public String tables() {
         return "dashboard/tables";
     }

@@ -11,10 +11,9 @@
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
 </head>
 <body class="sb-nav-fixed">
-<div th:replace="~{fragments/sidebar :: sidebarFragment}"></div>
 <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
     <!-- Navbar Brand-->
-    <a class="navbar-brand ps-3" href="/admin/">NHN Academy 센서 관리</a>
+    <a class="navbar-brand ps-3" href="/api/v1/environment/dashboard">NHN Academy 센서 관리</a>
     <!-- Sidebar Toggle-->
     <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
     <!-- Navbar Search-->
@@ -43,16 +42,16 @@
             <div class="sb-sidenav-menu">
                 <div class="nav">
                     <div class="sb-sidenav-menu-heading">핵심</div>
-                    <a class="nav-link" href="/admin/">
+                    <a class="nav-link" href="/api/v1/environment/dashboard">
                         <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                         대시보드
                     </a>
                     <div class="sb-sidenav-menu-heading">분석</div>
-                    <a class="nav-link" href="/admin/charts">
+                    <a class="nav-link" href="/api/v1/environment/charts">
                         <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
                         차트
                     </a>
-                    <a class="nav-link" href="/admin/tables">
+                    <a class="nav-link" href="/api/v1/environment/tables">
                         <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
                         테이블
                     </a>
@@ -76,7 +75,7 @@
                         <div id="card-1" class="card bg-primary text-white mb-4">
                             <div class="card-body">센서 데이터 로딩 중...</div>
                             <div class="card-footer d-flex align-items-center justify-content-between">
-                                <a class="small text-white stretched-link" href="/admin/tables">상세 보기</a>
+                                <a class="small text-white stretched-link" href="/api/v1/environment/tables">상세 보기</a>
                                 <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                             </div>
                         </div>
@@ -85,7 +84,7 @@
                         <div id="card-2" class="card bg-warning text-white mb-4">
                             <div class="card-body">센서 데이터 로딩 중...</div>
                             <div class="card-footer d-flex align-items-center justify-content-between">
-                                <a class="small text-white stretched-link" href="/admin/tables">상세 보기</a>
+                                <a class="small text-white stretched-link" href="/api/v1/environment/tables">상세 보기</a>
                                 <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                             </div>
                         </div>
@@ -94,7 +93,7 @@
                         <div id="card-3" class="card bg-success text-white mb-4">
                             <div class="card-body">센서 데이터 로딩 중...</div>
                             <div class="card-footer d-flex align-items-center justify-content-between">
-                                <a class="small text-white stretched-link" href="/admin/tables">상세 보기</a>
+                                <a class="small text-white stretched-link" href="/api/v1/environment/tables">상세 보기</a>
                                 <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                             </div>
                         </div>
@@ -103,7 +102,7 @@
                         <div id="card-4" class="card bg-danger text-white mb-4">
                             <div class="card-body">센서 데이터 로딩 중...</div>
                             <div class="card-footer d-flex align-items-center justify-content-between">
-                                <a class="small text-white stretched-link" href="/admin/tables">상세 보기</a>
+                                <a class="small text-white stretched-link" href="/api/v1/environment/tables">상세 보기</a>
                                 <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                             </div>
                         </div>

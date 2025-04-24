@@ -13,7 +13,6 @@ public class AuthController {
 
     @GetMapping("/login")
     public String loginPage() {
-        log.info("test");
         return "auth/login";
     }
 

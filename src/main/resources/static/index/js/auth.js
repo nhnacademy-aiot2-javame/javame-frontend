@@ -34,7 +34,7 @@ export async function login(username, password) {
                 } else {
                     reject(new Error('Invalid username or password'));
                 }
-            }, 500); // 0.5초 지연으로 실제 API 호출 느낌 주기
+            }, 0); // 0.5초 지연으로 실제 API 호출 느낌 주기
         });
     } else {
         // 실제 API 호출 (백엔드 준비 시 사용)
@@ -63,7 +63,7 @@ export function logout() {
     sessionStorage.removeItem(TOKEN_KEY);
     sessionStorage.removeItem(REFRESH_KEY);
     sessionStorage.removeItem('user');
-    location.href = '/auth/login.html';
+    location.href = '/'; // 로그아웃 후 홈페이지로 이동
 }
 
 /**
