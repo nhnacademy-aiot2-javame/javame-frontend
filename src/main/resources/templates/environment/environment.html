@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Environment</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #888;
+            padding: 8px;
+            text-align: center;
+        }
+        caption {
+            caption-side: top;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        th {
+            background-color: #f0f0f0;
+        }
+        select {
+            margin-bottom: 20px;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>실시간 센서 데이터</h2>
+
+<label for="measurementSelect">Measurement 선택: </label>
+<select id="measurementSelect">
+    <option value="">전체 보기</option>
+</select>
+
+<div id="table-container"></div>
+
+<script>
+    const container = document.getElementById('table-container');
+    const measurementSelect = document.getElementById('measurementSelect');
+    const paramKeys = ["companyDomain", "building", "place", "deviceId", "location", "origin"];
+    const paramSelects = {}; // 드롭다운 참조 저장
+    let allData = {};
+    let eventSource;
+
+    window.onload = async () => {
+        await setupDynamicFilters(); // 드롭다운 동적 구성
+        setupMeasurementSelect();   // 측정값 선택 변경 감지
+        startEventSource();         // SSE 연결 시작
+    };
+
+    async function setupDynamicFilters() {
+        const paramContainer = document.createElement("div");
+        document.body.insertBefore(paramContainer, container);
+
+        for (const key of paramKeys) {
+            const label = document.createElement("label");
+            label.textContent = `${key}: `;
+
+            const select = document.createElement("select");
+            select.id = key;
+            select.innerHTML = `<option value="">전체</option>`;
+            paramSelects[key] = select;
+
+            label.appendChild(select);
+            paramContainer.appendChild(label);
+
+            try {
+                const response = await fetch(`http://localhost:10279/api/v1/environment/nhnacademy/sensor-${key}s?origin=sensor_data`);
+                const values = await response.json();
+
+                values.forEach(val => {
+                    const option = document.createElement("option");
+                    option.value = val;
+                    option.textContent = val;
+                    select.appendChild(option);
+                });
+
+                select.addEventListener("change", startEventSource); // 필터 변경 시 재요청
+            } catch (error) {
+                console.error(`${key} 목록 로딩 실패`, error);
+            }
+        }
+    }
+
+    function setupMeasurementSelect() {
+        measurementSelect.addEventListener("change", () => {
+            renderTables(measurementSelect.value);
+        });
+    }
+
+    function startEventSource() {
+        if (eventSource) {
+            eventSource.close();
+        }
+
+        const params = new URLSearchParams();
+        for (const key of paramKeys) {
+            const val = paramSelects[key]?.value;
+            if (val) params.append(key, val);
+        }
+
+        const originVal = paramSelects["origin"]?.value || "sensor_data";
+        params.set("origin", originVal);
+
+        const url = `http://localhost:10279/api/v1/environment/nhnacademy/sensor-stream?${params.toString()}`;
+        eventSource = new EventSource(url);
+
+        eventSource.addEventListener("measurements", event => {
+            const measurementList = JSON.parse(event.data);
+            measurementSelect.innerHTML = '<option value="">전체 보기</option>';
+            measurementList.forEach(item => {
+                const option = document.createElement("option");
+                option.value = item;
+                option.textContent = item;
+                measurementSelect.appendChild(option);
+            });
+        });
+
+        eventSource.addEventListener("sensor-update", event => {
+            allData = JSON.parse(event.data);
+            renderTables(measurementSelect.value);
+        });
+
+        eventSource.onerror = error => {
+            container.innerHTML = '<p style="color:red;">🚨 SSE 연결 오류</p>';
+            console.error(error);
+            eventSource.close();
+        };
+    }
+
+    function renderTables(selectedMeasurement) {
+        container.innerHTML = "";
+        const filtered = selectedMeasurement
+            ? { [selectedMeasurement]: allData[selectedMeasurement] || [] }
+            : allData;
+
+        Object.entries(filtered).forEach(([measurement, records]) => {
+            container.appendChild(createTable(measurement, records));
+        });
+    }
+
+    function createTable(measurement, records) {
+        const table = document.createElement("table");
+
+        const thead = document.createElement("thead");
+        const headerRow = document.createElement("tr");
+
+        // 기본 컬럼
+        ["Time", "Field", "Value"].forEach(text => {
+            const th = document.createElement("th");
+            th.textContent = text;
+            headerRow.appendChild(th);
+        });
+
+        // 드롭다운 필터 키 컬럼 추가
+        paramKeys.forEach(key => {
+            const th = document.createElement("th");
+            th.textContent = key;
+            headerRow.appendChild(th);
+        });
+
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        const tbody = document.createElement("tbody");
+        records.forEach(entry => {
+            const row = document.createElement("tr");
+
+            // 기본 데이터
+            row.innerHTML = `
+            <td>${new Date(entry.time).toLocaleString()}</td>
+            <td>${entry.field}</td>
+            <td>${entry.value}</td>
+        `;
+
+            // 태그 기반 컬럼 데이터 추가
+            paramKeys.forEach(key => {
+                const tagValue = entry.tags?.[key] || "-";
+                const td = document.createElement("td");
+                td.textContent = tagValue;
+                row.appendChild(td);
+            });
+
+            tbody.appendChild(row);
+        });
+
+        table.appendChild(tbody);
+
+        const caption = document.createElement("caption");
+        caption.textContent = `Measurement: ${measurement}`;
+        table.appendChild(caption);
+
+        return table;
+    }
+
+</script>
+
+</body>
+</html>
