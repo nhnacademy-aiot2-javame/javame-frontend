@@ -1,10 +1,11 @@
+// login.js
 import { login } from './auth.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    const loginbtn = document.querySelector('.btn-login');
+    const loginForm = document.querySelector('#loginForm');
 
-    if (loginbtn) {
-        loginbtn.addEventListener('click', async (e) => {
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const username = document.querySelector('#username').value;
@@ -13,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 await login(username, password);
                 alert('로그인 성공!');
-                location.href = '/';
+                location.href = '/'; // 홈페이지로 이동
             } catch (err) {
                 alert('로그인 실패: ' + err.message);
             }

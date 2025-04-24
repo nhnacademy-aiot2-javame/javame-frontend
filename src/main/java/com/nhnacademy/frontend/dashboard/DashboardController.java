@@ -5,21 +5,21 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/api/v1/environment")
+@RequestMapping("api/v1/environment")
 public class DashboardController {
 
-    @GetMapping({"/dashboard", "/"})
+    @GetMapping({"dashboard", "/"})
     public String adminDashboard() {
-        return "admin/dashboard";
+        return "dashboard/dashboard";
     }
 
-    @GetMapping("/charts")
+    @GetMapping("charts")
     public String charts() {
-        return "admin/charts";
+        return "dashboard/charts";
     }
 
-    @GetMapping("/tables")
+    @GetMapping("tables")
     public String tables() {
-        return "admin/tables";
+        return "dashboard/tables";
     }
 }
