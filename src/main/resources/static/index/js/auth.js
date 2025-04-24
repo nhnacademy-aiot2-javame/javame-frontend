@@ -63,7 +63,7 @@ export function logout() {
     sessionStorage.removeItem(TOKEN_KEY);
     sessionStorage.removeItem(REFRESH_KEY);
     sessionStorage.removeItem('user');
-    location.href = '/'; // 로그아웃 후 홈페이지로 이동
+    location.href = '/auth/login.html';
 }
 
 /**
