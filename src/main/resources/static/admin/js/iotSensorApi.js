@@ -3,7 +3,7 @@
  * 서버 API와 통신하기 위한 함수들을 제공합니다.
  */
 
-const API_BASE_URL = 'http://localhost:10257/api/sensors';
+const API_BASE_URL = 'http://localhost:10257/api/v1/environment';
 
 /**
  * 모든 센서 데이터를 가져옵니다.
