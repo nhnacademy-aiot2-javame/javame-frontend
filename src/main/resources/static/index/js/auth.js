@@ -14,9 +14,9 @@ export async function login(username, password) {
     if (USE_MOCK_LOGIN) {
         // 가짜 사용자 데이터
         const mockUsers = [
-            { username: "testuser", password: "testpass" },
-            { username: "admin", password: "admin123" },
-            { username: "owner", password: "owner123" }
+            { username: "testuser", password: "testpass", role : "USER" },
+            { username: "testadmin", password: "testpass", role: "ADMIN" },
+            { username: "testowner", password: "testpass", role: "OWNER" }
         ];
 
         // 사용자 인증 시뮬레이션
@@ -29,8 +29,12 @@ export async function login(username, password) {
                     const refreshToken = 'mock_refresh_token_' + Math.random().toString(36).substr(2, 9);
                     sessionStorage.setItem(TOKEN_KEY, accessToken);
                     sessionStorage.setItem(REFRESH_KEY, refreshToken);
-                    sessionStorage.setItem('user', JSON.stringify({ username, isLoggedIn: true }));
-                    resolve({ status: 'success', message: 'Login successful' });
+                    sessionStorage.setItem('user', JSON.stringify({
+                        username,
+                        role : user.role,
+                        isLoggedIn: true
+                    }));
+                    resolve({ status: 'success', message: '로그인 성공' });
                 } else {
                     reject(new Error('Invalid username or password'));
                 }

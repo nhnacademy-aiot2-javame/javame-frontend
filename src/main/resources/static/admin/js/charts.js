@@ -1,10 +1,26 @@
+// charts.js
+import {
+    getChartDataForSensorType,
+    getPieChartData,
+    getAllSensorTypes
+} from './iotSensorApi.js';
+
+import {
+    createAreaChart,
+    createBarChart,
+    createPieChart
+} from './chartUtils.js';
+
 /**
  * 차트 페이지 스크립트
  * 관리자 차트 페이지의 동작을 구현합니다.
  */
+const companyDomain = window.companyDomain || 'nhnacademy';
+
 
 // 페이지 로드 시 초기화
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOMContentLoaded!');
     initCharts();
 });
 
@@ -14,7 +30,8 @@ document.addEventListener('DOMContentLoaded', function() {
 async function initCharts() {
     try {
         // 센서 타입 목록 가져오기
-        const sensorTypes = await getAllSensorTypes();
+        const sensorTypes = await getAllSensorTypes(companyDomain);
+
 
         if (sensorTypes && sensorTypes.length > 0) {
             // 센서 타입 선택 드롭다운 초기화
@@ -25,6 +42,9 @@ async function initCharts() {
         } else {
             console.warn('센서 타입 데이터가 없습니다.');
         }
+
+        console.log('companyDomain:', companyDomain);
+        console.log('sensorTypes:', sensorTypes);
 
         // 센서 타입별 통계로 파이 차트 초기화
         await loadPieChart();
@@ -73,7 +93,7 @@ function initSensorTypeDropdown(sensorTypes) {
 async function loadChartsForSensorType(sensorType) {
     try {
         // 선택한 센서 타입에 대한 차트 데이터 가져오기
-        const chartData = await getChartDataForSensorType(sensorType);
+        const chartData = await getChartDataForSensorType(companyDomain, sensorType);
 
         if (chartData && chartData.labels && chartData.values) {
             // 영역 차트 업데이트
@@ -122,7 +142,7 @@ async function loadChartsForSensorType(sensorType) {
 async function loadPieChart() {
     try {
         // 파이 차트 데이터 가져오기
-        const pieChartData = await getPieChartData();
+        const pieChartData = await getPieChartData(companyDomain);
 
         if (pieChartData && pieChartData.labels && pieChartData.values) {
             // 파이 차트 업데이트

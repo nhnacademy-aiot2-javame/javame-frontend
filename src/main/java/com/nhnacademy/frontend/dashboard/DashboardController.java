@@ -22,4 +22,6 @@ public class DashboardController {
     public String tables() {
         return "dashboard/tables";
     }
+
+
 }

@@ -21,4 +21,9 @@ public class AuthController {
         return "auth/register";
 
     }
+
+    @GetMapping("/purchase")
+    public String purchasePage(){
+        return "auth/purchase";
+    }
 }

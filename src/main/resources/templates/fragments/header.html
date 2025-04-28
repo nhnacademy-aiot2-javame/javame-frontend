@@ -20,6 +20,20 @@
                     <li><a class="dropdown-item" href="#!">설정</a></li>
                     <li><a class="dropdown-item" href="#!">활동 로그</a></li>
                     <li><hr class="dropdown-divider" /></li>
+
+                    <li th:if="${#authentication.principal.role == 'ADMIN'}">
+                        <small class="dropdown-header text-muted">관리자 메뉴</small>
+                        <a class="dropdown-item" href="/api/v1/members/member-list">사용자 관리</a>
+                        <a class="dropdown-item" href="/api/v1/companies/company-list">회사 관리</a>
+                        <a class="dropdown-item" href="/api/v1/orders/order-list">주문 관리</a>
+                        <a class="dropdown-item" href="/api/v1/products/product-list">상품 관리</a>
+                    </li>
+
+                    <li th:if="${#authentication.principal.role == 'OWNER'}">
+                        <a class="dropdown-item" href="/api/v1/members/member-list">사용자 관리</a>
+                        <a class="dropdown-item" href="/api/v1/companies/company-list">회사 관리</a>
+                        <a class="dropdown-item" href="/api/v1/orders/order-list">주문 관리</a>
+                    </li>
                     <li><a class="dropdown-item" href="/">메인으로</a></li>
                 </ul>
             </li>

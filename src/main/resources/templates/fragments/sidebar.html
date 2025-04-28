@@ -1,18 +1,31 @@
 <!-- sidebar.html -->
-<div th:fragment="sidebar"
-     id="sidebar"
-     class="bg-black text-white position-fixed top-0 start-0 vh-100 p-4 shadow"
-     style="width: 250px; transform: translateX(-100%); transition: transform 0.3s ease;">
-    <h5 class="mb-4">메뉴</h5>
-    <ul class="nav flex-column">
-        <li class="nav-item mb-2">
-            <a class="nav-link text-white" href="#team">팀 소개</a>
-        </li>
-        <li class="nav-item mb-2">
-            <a class="nav-link text-white" href="#service">서비스 소개</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link text-white" href="/dashboard">대시보드</a>
-        </li>
-    </ul>
+<div th:fragment="sidebar">
+    <div id="layoutSidenav_nav">
+        <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+            <div class="sb-sidenav-menu">
+                <div class="nav">
+
+                    <div class="sb-sidenav-menu-heading">핵심</div>
+                    <a class="nav-link" href="/api/v1/environment/dashboard">
+                        <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                        대시보드
+                    </a>
+
+                    <div class="sb-sidenav-menu-heading">분석</div>
+                    <a class="nav-link" href="/api/v1/environment/charts">
+                        <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
+                        차트
+                    </a>
+                    <a class="nav-link" href="/api/v1/environment/tables">
+                        <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
+                        테이블
+                    </a>
+                </div>
+            </div>
+            <div class="sb-sidenav-footer">
+                <div class="small">로그인 계정:</div>
+                <span th:text="${#authentication.principal.role}">Role</span>
+            </div>
+        </nav>
+    </div>
 </div>
