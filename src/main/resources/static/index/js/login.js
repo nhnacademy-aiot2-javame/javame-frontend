@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 await login(username, password);
                 alert('로그인 성공!');
                 updateNavBar();
-                location.href = '/'; // 홈페이지로 이동
             } catch (err) {
                 alert('로그인 실패: ' + err.message);
             }

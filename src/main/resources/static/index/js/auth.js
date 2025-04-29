@@ -34,6 +34,14 @@ export async function login(username, password) {
                         role : user.role,
                         isLoggedIn: true
                     }));
+                    if (user.role === 'USER'){
+                        window.location.href = '/api/v1/environment/dashboard';
+                    } else if (user.role === 'OWNER'){
+                        window.location.href = '/api/v1/environment/dashboard';
+                    } else {
+                        console.log('로그인이 어드민으로 성공했습니다.')
+                        window.location.href = '/admin/index';
+                    }
                     resolve({ status: 'success', message: '로그인 성공' });
                 } else {
                     reject(new Error('Invalid username or password'));
