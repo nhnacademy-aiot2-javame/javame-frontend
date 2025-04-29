@@ -9,13 +9,14 @@ document.addEventListener('DOMContentLoaded', () => {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const username = document.querySelector('#username').value;
-            const password = document.querySelector('#password').value;
+            const memberEmail = document.querySelector('#memberEmail').value;
+            const memberPassword = document.querySelector('#memberPassword').value;
 
             try {
-                await login(username, password);
+                await login(memberEmail, memberPassword);
                 alert('로그인 성공!');
                 updateNavBar();
+                window.location.href = '/api/v1/environment/dashboard';
             } catch (err) {
                 alert('로그인 실패: ' + err.message);
             }

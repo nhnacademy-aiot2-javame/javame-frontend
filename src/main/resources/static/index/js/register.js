@@ -21,20 +21,16 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
 
         const memberData = {
-            memberId: document.getElementById('memberId').value,
-            memberPassword: document.getElementById('memberPassword').value,
-            memberName: document.getElementById('memberName').value,
-            memberBirth: document.getElementById('memberBirth').value,
             memberEmail: document.getElementById('memberEmail').value,
-            memberMobile: document.getElementById('memberMobile').value,
-            memberSex: document.getElementById('memberSex').value
+            memberPassword: document.getElementById('memberPassword').value,
+            companyDomain: document.getElementById('companyDomain').value,
         };
         console.log(JSON.stringify(memberData));
 
         try {
             await register(memberData);
             alert('회원가입 성공!');
-            window.location.href = '/index.html';
+            window.location.href = '/api/v1/auth/login';
         } catch (error) {
             alert('회원가입 실패: ' + error.message);
         }

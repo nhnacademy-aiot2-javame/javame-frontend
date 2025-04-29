@@ -3,26 +3,26 @@ const TOKEN_KEY = 'accessToken';
 const REFRESH_KEY = 'refreshToken';
 
 // Mock 로그인 모드 활성화 여부 (백엔드 API가 준비되지 않았을 때 true로 설정)
-const USE_MOCK_LOGIN = true;
+const USE_MOCK_LOGIN = false;
 
 /**
  * 로그인 요청 → 토큰 받아서 저장
- * @param {string} username
- * @param {string} password
+ * @param {string} memberEmail
+ * @param {string} memberPassword
  */
-export async function login(username, password) {
+export async function login(memberEmail, memberPassword) {
     if (USE_MOCK_LOGIN) {
         // 가짜 사용자 데이터
         const mockUsers = [
-            { username: "testuser", password: "testpass", role : "USER" },
-            { username: "testadmin", password: "testpass", role: "ADMIN" },
-            { username: "testowner", password: "testpass", role: "OWNER" }
+            { memberEmail: "testuser", memberPassword: "testpass", role : "USER" },
+            { memberEmail: "testadmin", memberPassword: "testpass", role: "ADMIN" },
+            { memberEmail: "testowner", memberPassword: "testpass", role: "OWNER" }
         ];
 
         // 사용자 인증 시뮬레이션
         return new Promise((resolve, reject) => {
             setTimeout(() => {
-                const user = mockUsers.find(u => u.username === username && u.password === password);
+                const user = mockUsers.find(u => u.memberEmail === memberEmail && u.memberPassword === memberPassword);
                 if (user) {
                     // 가짜 토큰 생성 및 저장
                     const accessToken = 'mock_access_token_' + Math.random().toString(36).substr(2, 9);
@@ -30,7 +30,7 @@ export async function login(username, password) {
                     sessionStorage.setItem(TOKEN_KEY, accessToken);
                     sessionStorage.setItem(REFRESH_KEY, refreshToken);
                     sessionStorage.setItem('user', JSON.stringify({
-                        username,
+                        memberEmail,
                         role : user.role,
                         isLoggedIn: true
                     }));
@@ -55,7 +55,10 @@ export async function login(username, password) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({id: username, password}),
+            body: JSON.stringify({
+                memberEmail: memberEmail,
+                memberPassword: memberPassword
+            })
         });
 
         if (!response.ok){
