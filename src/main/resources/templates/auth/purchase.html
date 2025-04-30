@@ -96,46 +96,38 @@
         <h5 class="mb-2">회사 정보를 입력해 주세요</h5>
     </div>
 
-    <form id="purchase-form" action="/auth/purchase" method="post">
+    <form id="purchase-form">
         <div class="mb-3">
             <input type="text" id="companyDomain" name="companyDomain" class="form-control" placeholder="회사 도메인" required>
         </div>
-
         <div class="mb-3">
             <input type="text" id="companyName" name="companyName" class="form-control" placeholder="회사 이름" required>
         </div>
-
         <div class="mb-3">
-            <input type="tel" id="mobile" name="mobile" class="form-control" placeholder="전화번호" required>
+            <input type="text" id="companyEmail" name="companyEmail" class="form-control" placeholder="회사 이메일" required>
         </div>
-
         <div class="mb-3">
-            <input type="text" id="address" name="address" class="form-control" placeholder="회사 주소" required>
+            <input type="tel" id="companyMobile" name="companyMobile" class="form-control" placeholder="전화번호" required>
         </div>
-
+        <div class="mb-3">
+            <input type="text" id="companyAddress" name="companyAddress" class="form-control" placeholder="회사 주소" required>
+        </div>
         <div class="divider">
             <h2 class="mb-2">대표 회원 등록</h2>
         </div>
-
-<!--        <div class="price info mb-4">-->
-<!--            <h5 class="mb-5">대표 회원 정보를 입력해 주세요</h5>-->
-<!--        </div>-->
-
         <div class="mb-3">
-            <input type="email" id="username" name="username" class="form-control" placeholder="아이디" required>
+            <input type="email" id="ownerEmail" name="ownerEmail" class="form-control" placeholder="대표 이메일" required>
         </div>
-
         <div class="mb-3">
-            <input type="password" id="password" name="password" class="form-control" placeholder="비밀번호" required>
+            <input type="password" id="ownerPassword" name="ownerPassword" class="form-control" placeholder="비밀번호" required>
         </div>
-
-        <button type="button" class="btn btn-purchase w-100" onclick="requestEasyPayment()">회사 등록</button>
+        <button type="button" class="btn btn-purchase w-100" id="purchaseBtn">회사 등록</button>
     </form>
 
     <a href="/index.html" class="btn btn-outline-secondary w-100 mt-3" style="border-radius: 12px;">
         &larr; 홈으로 돌아가기
     </a>
 </div>
-
+<script src="/index/js/purchase.js" type="module"></script>
 </body>
 </html>

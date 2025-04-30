@@ -17,6 +17,13 @@ import {
  */
 const companyDomain = window.companyDomain || 'nhnacademy';
 
+/**
+ * 실시간 차트를 위한 필드 변수
+ */
+let areaChart = null;
+let barChart = null;
+let pieChart = null;
+let pollingInterval = null;
 
 // 페이지 로드 시 초기화
 document.addEventListener('DOMContentLoaded', function() {
@@ -91,49 +98,29 @@ function initSensorTypeDropdown(sensorTypes) {
  * @param {string} sensorType 센서 타입
  */
 async function loadChartsForSensorType(sensorType) {
-    try {
-        // 선택한 센서 타입에 대한 차트 데이터 가져오기
-        const chartData = await getChartDataForSensorType(companyDomain, sensorType);
+    // 선택한 센서 타입에 대한 차트 데이터 가져오기
+    const chartData = await getChartDataForSensorType(companyDomain, sensorType);
 
-        if (chartData && chartData.labels && chartData.values) {
-            // 영역 차트 업데이트
-            if (window.areaChart) {
-                window.areaChart.destroy();
-            }
-            window.areaChart = createAreaChart(
-                'myAreaChart',
-                chartData.labels,
-                chartData.values,
-                `${sensorType} 센서 데이터`
-            );
+    if (areaChart) areaChart.destroy();
+    if (barChart) barChart.destroy();
 
-            // 막대 차트 업데이트
-            if (window.barChart) {
-                window.barChart.destroy();
-            }
-            window.barChart = createBarChart(
-                'myBarChart',
-                chartData.labels,
-                chartData.values,
-                `${sensorType} 센서 데이터`
-            );
+    areaChart = createAreaChart('myAreaChart', chartData.labels, chartData.values, `${sensorType} 센서 데이터`);
+    barChart = createBarChart('myBarChart', chartData.labels, chartData.values, `${sensorType} 센서 데이터`);
 
-            // 차트 제목 업데이트
-            const areaChartTitle = document.querySelector('#areaChartCard .card-header');
-            if (areaChartTitle) {
-                areaChartTitle.innerHTML = `<i class="fas fa-chart-area me-1"></i> ${sensorType} 센서 - 영역 차트`;
-            }
+    if (pollingInterval) clearInterval(pollingInterval);
 
-            const barChartTitle = document.querySelector('#barChartCard .card-header');
-            if (barChartTitle) {
-                barChartTitle.innerHTML = `<i class="fas fa-chart-bar me-1"></i> ${sensorType} 센서 - 막대 차트`;
-            }
-        } else {
-            console.warn(`${sensorType} 센서에 대한 차트 데이터가 없습니다.`);
+    pollingInterval = setInterval(async () => {
+        const newData = await getChartDataForSensorType(companyDomain, sensorType);
+        if (newData && newData.labels && newData.values) {
+            areaChart.data.labels = newData.labels;
+            areaChart.data.datasets[0].data = newData.values;
+            areaChart.update();
+
+            barChart.data.labels = newData.labels;
+            barChart.data.datasets[0].data = newData.values;
+            barChart.update();
         }
-    } catch (error) {
-        console.error(`${sensorType} 센서에 대한 차트 로드 중 오류 발생:`, error);
-    }
+    }, 1000);
 }
 
 /**

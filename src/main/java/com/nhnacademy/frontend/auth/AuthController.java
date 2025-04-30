@@ -19,7 +19,6 @@ public class AuthController {
     @GetMapping("/register")
     public String registerPage(){
         return "auth/register";
-
     }
 
     @GetMapping("/purchase")
