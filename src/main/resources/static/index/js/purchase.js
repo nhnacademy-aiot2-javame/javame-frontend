@@ -1,30 +1,50 @@
+const BASE_URL = 'http://localhost:10279/api/v1';
+
 document.getElementById('purchaseBtn').addEventListener('click', async function (e) {
     e.preventDefault();
 
-    const data = {
+    const companyData = {
         companyDomain: document.getElementById('companyDomain').value,
         companyName: document.getElementById('companyName').value,
         companyEmail: document.getElementById('companyEmail').value,
         companyMobile: document.getElementById('companyMobile').value,
         companyAddress: document.getElementById('companyAddress').value,
-        ownerEmail: document.getElementById('ownerEmail').value,
-        ownerPassword: document.getElementById('ownerPassword').value
+    };
+
+    const memberData = {
+        memberEmail: document.getElementById('ownerEmail').value,
+        memberPassword: document.getElementById('ownerPassword').value,
+        companyDomain: companyData.companyDomain
     };
 
     try {
-        const response = await fetch('http://localhost:10279/api/v1/auth/purchase', {
+        // 1. 회사 등록
+        const companyRes = await fetch(`${BASE_URL}/companies/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
+            body: JSON.stringify(companyData)
         });
 
-        if (response.ok) {
-            alert('회사 및 오너 등록 성공!');
-            window.location.href = '/api/v1/auth/login';
-        } else {
-            const error = await response.json();
-            alert('등록 실패: ' + (error.message || response.status));
+        if (!companyRes.ok) {
+            const error = await companyRes.json();
+            throw new Error('회사 등록 실패: ' + (error.message || companyRes.status));
         }
+
+        // 2. 오너 회원 등록
+        const memberRes = await fetch(`${BASE_URL}/auth/register-owner`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(memberData)
+        });
+
+        if (!memberRes.ok) {
+            const error = await memberRes.json();
+            throw new Error('회원 등록 실패: ' + (error.message || memberRes.status));
+        }
+
+        alert('회사 및 오너 회원 등록 성공!');
+        window.location.href = 'http://localhost:10271/api/v1/auth/login'; // 로그인 페이지로 리디렉트
+
     } catch (err) {
         alert('오류 발생: ' + err.message);
     }
