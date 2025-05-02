@@ -14,7 +14,7 @@ export async function login(username, password) {
     if (USE_MOCK_LOGIN) {
         // 가짜 사용자 데이터
         const mockUsers = [
-            { username: "testuser", password: "testpass" },
+            { username: "testuser", password: "testpass", companyDomain: "javame.com" },
             { username: "admin", password: "admin123" },
             { username: "owner", password: "owner123" }
         ];

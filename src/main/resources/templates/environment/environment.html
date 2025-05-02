@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Environment</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         table {
             border-collapse: collapse;
@@ -31,47 +32,199 @@
 <body>
 
 <h2>실시간 센서 데이터</h2>
-
-<label for="measurementSelect">Measurement 선택: </label>
-<select id="measurementSelect">
-    <option value="">전체 보기</option>
-</select>
-
 <div id="table-container"></div>
+
+<h2>1시간 단위 평균 그래프</h2>
+<canvas id="liveChart" width="800" height="400"></canvas>
+
+<div id="averageTable"></div>
 
 <script>
     const container = document.getElementById('table-container');
-    const measurementSelect = document.getElementById('measurementSelect');
-    const paramKeys = ["companyDomain", "building", "place", "deviceId", "location", "origin"];
-    const paramSelects = {}; // 드롭다운 참조 저장
+    const dropdownContainer = document.createElement("div");
+    document.body.insertBefore(dropdownContainer, container);
+
+    const paramKeys = ["building", "place", "deviceId", "location"];
+    const paramSelects = {};
+    let measurementSelect;
     let allData = {};
     let eventSource;
 
     window.onload = async () => {
-        await setupDynamicFilters(); // 드롭다운 동적 구성
-        setupMeasurementSelect();   // 측정값 선택 변경 감지
-        startEventSource();         // SSE 연결 시작
+        await setupCompanyDomainDropdown();
     };
 
-    async function setupDynamicFilters() {
-        const paramContainer = document.createElement("div");
-        document.body.insertBefore(paramContainer, container);
+    async function setupCompanyDomainDropdown() {
+        clearDropdowns();
+        const label = document.createElement("label");
+        label.textContent = "companyDomain: ";
 
-        for (const key of paramKeys) {
+        const select = document.createElement("select");
+        select.id = "companyDomain";
+        select.innerHTML = `<option value="">전체</option>`;
+        paramSelects["companyDomain"] = select;
+
+        label.appendChild(select);
+        dropdownContainer.appendChild(label);
+
+        try {
+            const res = await fetch("http://localhost:10279/api/v1/environment/nhnacademy");
+            const domains = await res.json();
+
+            domains.forEach(domain => {
+                const option = document.createElement("option");
+                option.value = domain;
+                option.textContent = domain;
+                select.appendChild(option);
+            });
+
+            select.addEventListener("change", async () => {
+                clearMeasurementAndFilters();
+                await setupOriginDropdown();
+            });
+        } catch (e) {
+            console.error("companyDomain 목록 로딩 실패", e);
+        }
+    }
+
+    async function setupOriginDropdown() {
+        let select = document.getElementById("origin");
+        if (!select) {
             const label = document.createElement("label");
-            label.textContent = `${key}: `;
+            label.textContent = "origin: ";
 
-            const select = document.createElement("select");
-            select.id = key;
-            select.innerHTML = `<option value="">전체</option>`;
-            paramSelects[key] = select;
+            select = document.createElement("select");
+            select.id = "origin";
+            paramSelects["origin"] = select;
 
             label.appendChild(select);
-            paramContainer.appendChild(label);
+            dropdownContainer.appendChild(label);
+        }
+
+        select.innerHTML = `<option value="">전체</option>`;
+
+        try {
+            const companyDomain = paramSelects["companyDomain"].value;
+
+            // 두 origin API를 병렬로 요청
+            const [sensorRes, serverRes] = await Promise.all([
+                fetch(`http://localhost:10279/api/v1/environment/${companyDomain}/sensor_stream`),
+                fetch(`http://localhost:10279/api/v1/environment/${companyDomain}/server_stream`)
+            ]);
+
+            const sensorOrigins = await sensorRes.json();
+            const serverOrigins = await serverRes.json();
+
+            // 중복 제거한 전체 origin 목록 생성
+            const allOrigins = Array.from(new Set([...sensorOrigins, ...serverOrigins]));
+
+            allOrigins.forEach(origin => {
+                const option = document.createElement("option");
+                option.value = origin;
+                option.textContent = origin;
+                select.appendChild(option);
+            });
+
+            select.onchange = async () => {
+                await updateMeasurementDropdown();
+                await setupOtherDropdowns();
+                startEventSource();
+            };
+        } catch (e) {
+            console.error("origin 목록 로딩 실패", e);
+        }
+    }
+
+    function clearDropdowns() {
+        dropdownContainer.innerHTML = "";
+        Object.keys(paramSelects).forEach(key => delete paramSelects[key]);
+        measurementSelect = null;
+    }
+
+    function clearMeasurementAndFilters() {
+        const keysToRemove = [...paramKeys];
+        keysToRemove.forEach(k => {
+            if (paramSelects[k]?.parentElement) {
+                paramSelects[k].parentElement.remove();
+                delete paramSelects[k];
+            }
+        });
+        if (measurementSelect?.parentElement) {
+            measurementSelect.parentElement.remove();
+            measurementSelect = null;
+        }
+    }
+
+    async function updateMeasurementDropdown() {
+        if (!measurementSelect) {
+            const label = document.createElement("label");
+            label.textContent = "measurement: ";
+
+            measurementSelect = document.createElement("select");
+            measurementSelect.id = "measurementSelect";
+
+            label.appendChild(measurementSelect);
+            dropdownContainer.appendChild(label);
+        }
+
+        measurementSelect.innerHTML = `<option value="">전체 보기</option>`;
+
+        try {
+            const origin = paramSelects["origin"].value || "sensor_data";
+            const companyDomain = paramSelects["companyDomain"].value;
+            const path = origin === "server_data" ? "server-measurements" : "sensor-measurements";
+            const res = await fetch(`http://localhost:10279/api/v1/environment/${companyDomain}/${path}?origin=${origin}`);
+            const measurements = await res.json();
+
+            measurements.forEach(m => {
+                const option = document.createElement("option");
+                option.value = m;
+                option.textContent = m;
+                measurementSelect.appendChild(option);
+            });
+
+            measurementSelect.onchange = () => {
+                renderTables(measurementSelect.value);
+                drawAverageTable();
+            };
+        } catch (e) {
+            console.error("measurement 목록 로딩 실패", e);
+        }
+    }
+
+    async function setupOtherDropdowns() {
+        const origin = paramSelects["origin"].value;
+        const companyDomain = paramSelects["companyDomain"].value;
+
+        for (const key of paramKeys) {
+            let select = document.getElementById(key);
+
+            // 드롭다운 없으면 생성
+            if (!select) {
+                const label = document.createElement("label");
+                label.textContent = `${key}: `;
+
+                select = document.createElement("select");
+                select.id = key;
+                paramSelects[key] = select;
+
+                label.appendChild(select);
+                dropdownContainer.appendChild(label);
+
+                // 값 변경되면 SSE 다시 연결
+                select.addEventListener("change", startEventSource);
+            }
+
+            select.innerHTML = `<option value="">전체</option>`;
 
             try {
-                const response = await fetch(`http://localhost:10279/api/v1/environment/nhnacademy/sensor-${key}s?origin=sensor_data`);
-                const values = await response.json();
+                // origin에 따라 URL 분기 처리
+                const keyPath = origin === "server_data"
+                    ? `server-${key}s`
+                    : `sensor-${key}s`;
+
+                const res = await fetch(`http://localhost:10279/api/v1/environment/${companyDomain}/${keyPath}?origin=${origin}`);
+                const values = await res.json();
 
                 values.forEach(val => {
                     const option = document.createElement("option");
@@ -79,58 +232,187 @@
                     option.textContent = val;
                     select.appendChild(option);
                 });
-
-                select.addEventListener("change", startEventSource); // 필터 변경 시 재요청
-            } catch (error) {
-                console.error(`${key} 목록 로딩 실패`, error);
+            } catch (e) {
+                console.error(`${key} 목록 로딩 실패`, e);
             }
         }
     }
 
-    function setupMeasurementSelect() {
-        measurementSelect.addEventListener("change", () => {
-            renderTables(measurementSelect.value);
-        });
-    }
-
     function startEventSource() {
-        if (eventSource) {
-            eventSource.close();
-        }
+        if (eventSource) eventSource.close();
 
         const params = new URLSearchParams();
-        for (const key of paramKeys) {
+        const originVal = paramSelects["origin"].value || "sensor_data";
+        params.set("origin", encodeURIComponent(originVal));
+
+        for (const key of paramKeys.concat("companyDomain")) {
             const val = paramSelects[key]?.value;
-            if (val) params.append(key, val);
+            if (val) params.append(key, encodeURIComponent(val));
         }
 
-        const originVal = paramSelects["origin"]?.value || "sensor_data";
-        params.set("origin", originVal);
+        const companyDomain = paramSelects["companyDomain"].value;
 
-        const url = `http://localhost:10279/api/v1/environment/nhnacademy/sensor-stream?${params.toString()}`;
+        // origin 값에 따라 다른 SSE URL 사용
+        const streamPath = originVal === "server_data"
+            ? `/server-stream?%{params.toString()}&measurement=${measurementSelect?.value}&field=value`
+            : `/sensor-stream?${params.toString()}`;
+
+        const url = `http://localhost:10279/api/v1/environment/${companyDomain}${streamPath}`;
         eventSource = new EventSource(url);
 
-        eventSource.addEventListener("measurements", event => {
-            const measurementList = JSON.parse(event.data);
-            measurementSelect.innerHTML = '<option value="">전체 보기</option>';
-            measurementList.forEach(item => {
-                const option = document.createElement("option");
-                option.value = item;
-                option.textContent = item;
-                measurementSelect.appendChild(option);
-            });
-        });
+        const eventName = originVal === "server_data" ? "server-update" : "sensor-update";
 
-        eventSource.addEventListener("sensor-update", event => {
+        eventSource.addEventListener(eventName, event => {
             allData = JSON.parse(event.data);
-            renderTables(measurementSelect.value);
+            renderTables(measurementSelect?.value);
+            updateLiveChart(measurementSelect?.value);
         });
 
         eventSource.onerror = error => {
-            container.innerHTML = '<p style="color:red;">🚨 SSE 연결 오류</p>';
+            container.innerHTML = '<p style="color:red;">SSE 연결 오류</p>';
             console.error(error);
             eventSource.close();
         };
+    }
+
+    function updateLiveChart(selectedMeasurement) {
+        const ctx = document.getElementById('liveChart').getContext('2d');
+
+        if (!selectedMeasurement) {
+            console.warn("선택된 측정 항목(measurement)이 없습니다.");
+            if (window.liveChartInstance) {
+                window.liveChartInstance.destroy();
+            }
+            window.liveChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: '데이터 없음',
+                        data: [],
+                        borderWidth: 2,
+                        borderColor: 'gray',
+                        fill: false
+                    }]
+                }
+            });
+            return;
+        }
+
+        const measurementData = allData[selectedMeasurement] || [];
+
+        // ✅ 6시간 이내 데이터만 필터링
+        const sixHoursAgo = new Date(Date.now() - 6 * 60 * 60 * 1000);
+        const recentData = measurementData.filter(entry => new Date(entry.time) > sixHoursAgo);
+
+        const times = recentData.map(entry => {
+            const date = new Date(entry.time);
+            return `${date.getHours()}시`;  // "14시" 형태
+        });
+        const values = recentData.map(entry => entry.value);
+
+        if (window.liveChartInstance) {
+            window.liveChartInstance.destroy();
+        }
+
+        const yMin = Math.min(...values) * 0.95;
+        const yMax = Math.max(...values) * 1.05;
+
+        window.liveChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: times,
+                datasets: [{
+                    label: `${selectedMeasurement} 실시간`,
+                    data: values,
+                    borderWidth: 2,
+                    borderColor: 'blue',
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        min: yMin,
+                        max: yMax,
+                        title: { display: true, text: '값' }
+                    },
+                    x: {
+                        title: { display: true, text: '시간' },
+                        ticks: {
+                            autoSkip: true,  // 라벨 너무 많으면 스킵
+                            maxRotation: 0
+                        }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: { mode: 'index', intersect: false }
+                }
+            }
+        });
+    }
+
+    async function drawAverageTable() {
+        const companyDomain = paramSelects["companyDomain"]?.value;
+        const origin = paramSelects["origin"]?.value;
+        const measurement = measurementSelect?.value;
+
+        if (!companyDomain || !origin || !measurement) return;
+
+        const url = `http://localhost:10279/api/v1/environment/${companyDomain}/1h?origin=${origin}&measurement=${measurement}&field=value`;
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`서버 오류: ${response.status}`);
+
+            const data = await response.json();
+            const oneHourAverage = data.oneHourAverage || [];
+            const overallAverage = data.overallAverage;
+
+            const averageTableContainer = document.getElementById('averageTable');
+
+            // 평균값 비교 (편차)
+            let rowsHtml = `
+            <tr>
+                <td>전체 평균</td>
+                <td>${overallAverage?.toFixed(2) ?? '-'}</td>
+                <td>-</td>
+            </tr>
+        `;
+
+            oneHourAverage.forEach((avg, idx) => {
+                const diff = avg - overallAverage;
+                const diffText = (diff >= 0 ? "+" : "") + diff.toFixed(2);
+
+                rowsHtml += `
+                <tr>
+                    <td>${idx + 1}시</td>
+                    <td>${avg.toFixed(2)}</td>
+                    <td>${diffText}</td>
+                </tr>
+            `;
+            });
+
+            averageTableContainer.innerHTML = `
+            <h2>평균 데이터</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>시간</th>
+                        <th>평균값</th>
+                        <th>편차</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rowsHtml}
+                </tbody>
+            </table>
+        `;
+        } catch (error) {
+            console.error("평균 테이블 데이터 실패", error);
+        }
     }
 
     function renderTables(selectedMeasurement) {
@@ -146,21 +428,12 @@
 
     function createTable(measurement, records) {
         const table = document.createElement("table");
-
         const thead = document.createElement("thead");
         const headerRow = document.createElement("tr");
 
-        // 기본 컬럼
-        ["Time", "Field", "Value"].forEach(text => {
+        ["Time", "Field", "Value", "companyDomain", "origin", ...paramKeys].forEach(text => {
             const th = document.createElement("th");
             th.textContent = text;
-            headerRow.appendChild(th);
-        });
-
-        // 드롭다운 필터 키 컬럼 추가
-        paramKeys.forEach(key => {
-            const th = document.createElement("th");
-            th.textContent = key;
             headerRow.appendChild(th);
         });
 
@@ -170,34 +443,26 @@
         const tbody = document.createElement("tbody");
         records.forEach(entry => {
             const row = document.createElement("tr");
-
-            // 기본 데이터
             row.innerHTML = `
             <td>${new Date(entry.time).toLocaleString()}</td>
             <td>${entry.field}</td>
             <td>${entry.value}</td>
         `;
-
-            // 태그 기반 컬럼 데이터 추가
-            paramKeys.forEach(key => {
-                const tagValue = entry.tags?.[key] || "-";
+            ["companyDomain", "origin", ...paramKeys].forEach(key => {
                 const td = document.createElement("td");
-                td.textContent = tagValue;
+                td.textContent = entry.tags?.[key] || "-";
                 row.appendChild(td);
             });
-
             tbody.appendChild(row);
         });
 
         table.appendChild(tbody);
-
         const caption = document.createElement("caption");
         caption.textContent = `Measurement: ${measurement}`;
         table.appendChild(caption);
 
         return table;
     }
-
 </script>
 
 </body>

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
+
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -9,27 +10,24 @@
   <title>NHN Academy IoT 센서 관리 - 차트</title>
   <link href="/admin/css/styles.css" rel="stylesheet" />
   <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+  <script type="module" src="/admin/js/charts.js"></script>
 </head>
 <body class="sb-nav-fixed">
 <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
-  <!-- Navbar Brand-->
   <a class="navbar-brand ps-3" href="/admin/">NHN Academy 센서 관리</a>
-  <!-- Sidebar Toggle-->
-  <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
-  <!-- Navbar Search-->
+  <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#"><i class="fas fa-bars"></i></button>
   <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
     <div class="input-group">
       <input class="form-control" type="text" placeholder="검색..." aria-label="검색..." aria-describedby="btnNavbarSearch" />
       <button class="btn btn-primary" id="btnNavbarSearch" type="button"><i class="fas fa-search"></i></button>
     </div>
   </form>
-  <!-- Navbar-->
   <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
     <li class="nav-item dropdown">
       <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
       <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-        <li><a class="dropdown-item" href="#!">설정</a></li>
-        <li><a class="dropdown-item" href="#!">활동 로그</a></li>
+        <li><a class="dropdown-item" href="#">설정</a></li>
+        <li><a class="dropdown-item" href="#">활동 로그</a></li>
         <li><hr class="dropdown-divider" /></li>
         <li><a class="dropdown-item" href="/">메인으로</a></li>
       </ul>
@@ -71,20 +69,54 @@
           <li class="breadcrumb-item"><a href="/admin/">대시보드</a></li>
           <li class="breadcrumb-item active">차트</li>
         </ol>
+
+        <!-- 필터 드롭다운 구성 -->
         <div class="card mb-4">
           <div class="card-body">
-            <div class="row mb-3">
-              <div class="col-md-6">
-                <label for="sensorTypeDropdown" class="form-label">센서 타입 선택:</label>
-                <select id="sensorTypeDropdown" class="form-select">
-                  <option value="">센서 타입 로딩 중...</option>
+            <div class="row g-3 align-items-center mb-2">
+              <div class="col-md-3">
+                <label for="originDropdown" class="form-label">데이터 종류 (origin):</label>
+                <select id="originDropdown" class="form-select"></select>
+              </div>
+              <div class="col-md-3">
+                <label for="locationDropdown" class="form-label">Location:</label>
+                <select id="locationDropdown" class="form-select"></select>
+              </div>
+              <div class="col-md-3">
+                <label for="placeDropdown" class="form-label">Place:</label>
+                <select id="placeDropdown" class="form-select"></select>
+              </div>
+              <div class="col-md-3">
+                <label for="measurementDropdown" class="form-label">Measurement:</label>
+                <select id="measurementDropdown" class="form-select"></select>
+              </div>
+            </div>
+            <div class="row g-3 align-items-center mb-2">
+              <div class="col-md-3">
+                <label for="device_idDropdown" class="form-label">Device ID:</label>
+                <select id="device_idDropdown" class="form-select"></select>
+              </div>
+              <div class="col-md-3">
+                <label for="_fieldDropdown" class="form-label">Field:</label>
+                <select id="_fieldDropdown" class="form-select"></select>
+              </div>
+              <div class="col-md-3">
+                <label for="buildingDropdown" class="form-label">Building:</label>
+                <select id="buildingDropdown" class="form-select"></select>
+              </div>
+              <div class="col-md-3">
+                <label for="rangeDropdown" class="form-label">조회 범위 (분):</label>
+                <select id="rangeDropdown" class="form-select">
+                  <option value="30">30분</option>
+                  <option value="60">1시간</option>
+                  <option value="180" selected>3시간</option>
+                  <option value="1440">1일</option>
                 </select>
               </div>
             </div>
-            <p>
-              IoT 센서 데이터를 다양한 차트로 시각화하여 분석할 수 있습니다.
-              센서 타입을 선택하여 해당 센서의 데이터 추이를 확인해보세요.
-            </p>
+            <div class="text-end">
+              <button class="btn btn-primary" id="applyChartFilter">차트 조회</button>
+            </div>
           </div>
         </div>
 
@@ -93,7 +125,7 @@
             <i class="fas fa-chart-area me-1"></i>
             영역 차트
           </div>
-          <div class="card-body"><canvas id="myAreaChart" width="100%" height="30"></canvas></div>
+          <div class="card-body"><canvas id="myAreaChart" width="100%" height="40"></canvas></div>
           <div class="card-footer small text-muted">마지막 업데이트: 오늘 00:00</div>
         </div>
 
@@ -139,9 +171,5 @@
 <script src="/admin/js/scripts.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
 
-<!-- IoT 센서 API 클라이언트 -->
-<script src="/admin/js/iotSensorApi.js"></script>
-<script src="/admin/js/chartUtils.js"></script>
-<script src="/admin/js/charts.js"></script>
 </body>
 </html>

@@ -1,163 +1,81 @@
-/**
- * IoT 센서 API 클라이언트
- * 서버 API와 통신하기 위한 함수들을 제공합니다.
- */
+const API_BASE_URL = 'http://localhost:10279/api/v1/environment';
 
-const API_BASE_URL = 'http://localhost:10257/api/sensors';
+let eventSource = null;
 
-/**
- * 모든 센서 데이터를 가져옵니다.
- * @returns {Promise<Array>} 센서 데이터 목록
- */
-async function getAllSensorData() {
-    try {
-        const response = await fetch(`${API_BASE_URL}`);
-        if (!response.ok) {
-            throw new Error('서버 응답 실패');
-        }
-        return await response.json();
-    } catch (error) {
-        console.error('센서 데이터 가져오기 실패:', error);
-        return [];
+export async function getOrigins(companyDomain) {
+    const res = await fetch(`${API_BASE_URL}/${companyDomain}/origins`);
+    if (!res.ok) return [];
+    return await res.json();
+}
+
+export async function getDropdownValues(companyDomain, origin, tag) {
+    const res = await fetch(`${API_BASE_URL}/${companyDomain}/dropdown/${tag}?origin=${origin}`);
+    if (!res.ok) return [];
+    return await res.json();
+}
+
+export async function getMeasurementList(companyDomain, origin, location = "") {
+    const url = `${API_BASE_URL}/${companyDomain}/measurements?origin=${origin}${location ? `&location=${location}` : ""}`;
+    console.log("로그 : {}" + url);
+    const res = await fetch(url);
+    if (!res.ok) return [];
+    return await res.json();
+}
+
+export function startSensorDataStream(params, onData) {
+    if (eventSource) eventSource.close();
+
+    const { companyDomain, origin, ...rest } = params;
+    const query = new URLSearchParams({ origin, ...rest });
+    const url = `${API_BASE_URL}/${companyDomain}/time-series-stream?${query.toString()}`;
+
+    eventSource = new EventSource(url);
+    eventSource.addEventListener("time-series-update", (event) => {
+        const data = JSON.parse(event.data);
+        onData(data);
+    });
+    eventSource.onerror = (err) => {
+        console.error("SSE 오류", err);
+        eventSource.close();
+    };
+}
+
+export async function getHourlyAverages(companyDomain, origin, measurement, filters) {
+    const params = new URLSearchParams(filters);
+    params.append("origin", origin);
+    params.append("measurement", measurement);
+
+    const url = `${API_BASE_URL}/${companyDomain}/1h?${params.toString()}`;
+    const res = await fetch(url);
+    if (!res.ok) {
+        console.error('getHourlyAverages() 실패', res.status, await res.text());
+        return {};
     }
+    return await res.json();
+}
+
+
+export async function getChartDataForSensor(companyDomain, origin, sensor) {
+    const res = await fetch(`${API_BASE_URL}/${companyDomain}/chart/type/${sensor}?origin=${origin}`);
+    if (!res.ok) return { labels: [], values: [] };
+    return await res.json();
+}
+
+export async function getPieChartData(companyDomain, origin) {
+    const res = await fetch(`${API_BASE_URL}/${companyDomain}/chart/pie?origin=${origin}`);
+    if (!res.ok) return { labels: [], values: [] };
+    return await res.json();
 }
 
 /**
- * ID로 센서 데이터를 가져옵니다.
- * @param {number} id 센서 데이터 ID
- * @returns {Promise<Object>} 센서 데이터
+ * 현재 활성화된 센서 데이터 스트림(EventSource) 연결을 명시적으로 닫습니다.
  */
-async function getSensorDataById(id) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/${id}`);
-        if (!response.ok) {
-            throw new Error('서버 응답 실패');
-        }
-        return await response.json();
-    } catch (error) {
-        console.error(`ID ${id}의 센서 데이터 가져오기 실패:`, error);
-        return null;
-    }
-}
-
-/**
- * 디바이스 ID로 센서 데이터를 가져옵니다.
- * @param {string} deviceId 디바이스 ID
- * @returns {Promise<Array>} 센서 데이터 목록
- */
-async function getSensorDataByDeviceId(deviceId) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/device/${deviceId}`);
-        if (!response.ok) {
-            throw new Error('서버 응답 실패');
-        }
-        return await response.json();
-    } catch (error) {
-        console.error(`디바이스 ID ${deviceId}의 센서 데이터 가져오기 실패:`, error);
-        return [];
-    }
-}
-
-/**
- * 센서 타입으로 데이터를 가져옵니다.
- * @param {string} sensorType 센서 타입
- * @returns {Promise<Array>} 센서 데이터 목록
- */
-async function getSensorDataByType(sensorType) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/type/${sensorType}`);
-        if (!response.ok) {
-            throw new Error('서버 응답 실패');
-        }
-        return await response.json();
-    } catch (error) {
-        console.error(`센서 타입 ${sensorType}의 데이터 가져오기 실패:`, error);
-        return [];
-    }
-}
-
-/**
- * 센서 타입별 통계를 가져옵니다.
- * @returns {Promise<Array>} 센서 타입별 통계 목록
- */
-async function getSensorStatistics() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/statistics`);
-        if (!response.ok) {
-            throw new Error('서버 응답 실패');
-        }
-        return await response.json();
-    } catch (error) {
-        console.error('센서 통계 가져오기 실패:', error);
-        return [];
-    }
-}
-
-/**
- * 특정 센서 타입의 차트 데이터를 가져옵니다.
- * @param {string} sensorType 센서 타입
- * @returns {Promise<Object>} 차트 데이터 (labels, values)
- */
-async function getChartDataForSensorType(sensorType) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/type/${sensorType}/chart`);
-        if (!response.ok) {
-            throw new Error('서버 응답 실패');
-        }
-        return await response.json();
-    } catch (error) {
-        console.error(`센서 타입 ${sensorType}의 차트 데이터 가져오기 실패:`, error);
-        return { labels: [], values: [] };
-    }
-}
-
-/**
- * 파이 차트 데이터를 가져옵니다.
- * @returns {Promise<Object>} 차트 데이터 (labels, values)
- */
-async function getPieChartData() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/chart/pie`);
-        if (!response.ok) {
-            throw new Error('서버 응답 실패');
-        }
-        return await response.json();
-    } catch (error) {
-        console.error('파이 차트 데이터 가져오기 실패:', error);
-        return { labels: [], values: [] };
-    }
-}
-
-/**
- * 모든 센서 타입 목록을 가져옵니다.
- * @returns {Promise<Array>} 센서 타입 목록
- */
-async function getAllSensorTypes() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/types`);
-        if (!response.ok) {
-            throw new Error('서버 응답 실패');
-        }
-        return await response.json();
-    } catch (error) {
-        console.error('센서 타입 목록 가져오기 실패:', error);
-        return [];
-    }
-}
-
-/**
- * 모든 디바이스 ID 목록을 가져옵니다.
- * @returns {Promise<Array>} 디바이스 ID 목록
- */
-async function getAllDeviceIds() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/devices`);
-        if (!response.ok) {
-            throw new Error('서버 응답 실패');
-        }
-        return await response.json();
-    } catch (error) {
-        console.error('디바이스 ID 목록 가져오기 실패:', error);
-        return [];
+export function closeSensorDataStream() {
+    if (eventSource) {
+        console.log("Explicitly closing EventSource connection.");
+        eventSource.close();
+        eventSource = null; // 참조 제거하여 상태 반영
+    } else {
+        // console.log("No active EventSource connection to close.");
     }
 }

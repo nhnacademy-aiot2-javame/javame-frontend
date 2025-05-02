@@ -10,7 +10,7 @@
  * @param {Array<number>} data 데이터 값
  * @param {string} title 차트 제목
  */
-function createAreaChart(canvasId, labels, data, title = 'Area Chart') {
+export function createAreaChart(canvasId, labels, data, title = 'Area Chart') {
     const ctx = document.getElementById(canvasId);
     if (!ctx) {
         console.error(`캔버스 ID ${canvasId}를 찾을 수 없습니다.`);
@@ -68,7 +68,7 @@ function createAreaChart(canvasId, labels, data, title = 'Area Chart') {
  * @param {Array<number>} data 데이터 값
  * @param {string} title 차트 제목
  */
-function createBarChart(canvasId, labels, data, title = 'Bar Chart') {
+export function createBarChart(canvasId, labels, data, title = 'Bar Chart') {
     const ctx = document.getElementById(canvasId);
     if (!ctx) {
         console.error(`캔버스 ID ${canvasId}를 찾을 수 없습니다.`);
@@ -117,7 +117,7 @@ function createBarChart(canvasId, labels, data, title = 'Bar Chart') {
  * @param {Array<string>} labels 라벨
  * @param {Array<number>} data 데이터 값
  */
-function createPieChart(canvasId, labels, data) {
+export function createPieChart(canvasId, labels, data) {
     const ctx = document.getElementById(canvasId);
     if (!ctx) {
         console.error(`캔버스 ID ${canvasId}를 찾을 수 없습니다.`);
