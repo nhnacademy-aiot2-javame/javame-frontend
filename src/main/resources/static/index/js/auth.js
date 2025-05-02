@@ -1,6 +1,4 @@
 // auth.js
-
-// 토큰 필드
 const TOKEN_KEY = 'accessToken';
 const REFRESH_KEY = 'refreshToken';
 const USE_MOCK_LOGIN = false;
@@ -16,10 +14,12 @@ export async function login(memberEmail, memberPassword) {
             { memberEmail: "testowner", memberPassword: "testpass", role: "ROLE_OWNER" }
         ];
 
+        // 사용자 인증 시뮬레이션
         return new Promise((resolve, reject) => {
             setTimeout(() => {
                 const user = mockUsers.find(u => u.memberEmail === memberEmail && u.memberPassword === memberPassword);
                 if (user) {
+                    // 가짜 토큰 생성 및 저장
                     const accessToken = 'mock_access_token_' + Math.random().toString(36).substr(2, 9);
                     const refreshToken = 'mock_refresh_token_' + Math.random().toString(36).substr(2, 9);
                     sessionStorage.setItem(TOKEN_KEY, accessToken);

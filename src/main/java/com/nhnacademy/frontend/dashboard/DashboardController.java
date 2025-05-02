@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("api/v1/environment")
+@RequestMapping("/environment")
 public class DashboardController {
 
     @GetMapping({"/dashboard", "/"})

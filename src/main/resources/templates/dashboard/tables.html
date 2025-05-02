@@ -10,27 +10,26 @@
   <link href="/admin/css/styles.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
   <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+  <script type="module" src="/admin/js/iotSensorApi.js"></script>
+  <script type="module" src="/admin/js/chartUtils.js"></script>
+  <script type="module" src="/admin/js/tables.js"></script>
 </head>
 <body class="sb-nav-fixed">
 <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
-  <!-- Navbar Brand-->
-  <a class="navbar-brand ps-3" href="/api/v1/environment/dashboard">NHN Academy 센서 관리</a>
-  <!-- Sidebar Toggle-->
-  <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
-  <!-- Navbar Search-->
+  <a class="navbar-brand ps-3" href="/admin/">NHN Academy 센서 관리</a>
+  <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#"><i class="fas fa-bars"></i></button>
   <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
     <div class="input-group">
       <input class="form-control" type="text" placeholder="검색..." aria-label="검색..." aria-describedby="btnNavbarSearch" />
       <button class="btn btn-primary" id="btnNavbarSearch" type="button"><i class="fas fa-search"></i></button>
     </div>
   </form>
-  <!-- Navbar-->
   <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
     <li class="nav-item dropdown">
       <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
       <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-        <li><a class="dropdown-item" href="#!">설정</a></li>
-        <li><a class="dropdown-item" href="#!">활동 로그</a></li>
+        <li><a class="dropdown-item" href="#">설정</a></li>
+        <li><a class="dropdown-item" href="#">활동 로그</a></li>
         <li><hr class="dropdown-divider" /></li>
         <li><a class="dropdown-item" href="/">메인으로</a></li>
       </ul>
@@ -43,16 +42,16 @@
       <div class="sb-sidenav-menu">
         <div class="nav">
           <div class="sb-sidenav-menu-heading">핵심</div>
-          <a class="nav-link" href="/api/v1/environment/dashboard">
+          <a class="nav-link" href="/admin/">
             <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
             대시보드
           </a>
           <div class="sb-sidenav-menu-heading">분석</div>
-          <a class="nav-link" href="/api/v1/environment/charts">
+          <a class="nav-link" href="/admin/charts">
             <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
             차트
           </a>
-          <a class="nav-link" href="/api/v1/environment/tables">
+          <a class="nav-link" href="/admin/tables">
             <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
             테이블
           </a>
@@ -69,7 +68,7 @@
       <div class="container-fluid px-4">
         <h1 class="mt-4">센서 데이터 테이블</h1>
         <ol class="breadcrumb mb-4">
-          <li class="breadcrumb-item"><a href="/api/v1/environment/dashboard">대시보드</a></li>
+          <li class="breadcrumb-item"><a href="/admin/">대시보드</a></li>
           <li class="breadcrumb-item active">테이블</li>
         </ol>
         <div class="card mb-4">
@@ -78,27 +77,57 @@
             데이터 필터
           </div>
           <div class="card-body">
-            <div class="row mb-3">
-              <div class="col-md-3">
-                <label for="deviceIdFilter" class="form-label">디바이스 ID:</label>
-                <select id="deviceIdFilter" class="form-select">
-                  <option value="">모든 디바이스</option>
+            <div id="filterArea" class="row mb-3">
+
+              <div id="filter-group-origin" class="col-md-3 mb-2">
+                <label for="originSelect" class="form-label">origin</label>
+                <select id="originSelect" class="form-select">
+                  <option value="">선택</option>
                 </select>
               </div>
-              <div class="col-md-3">
-                <label for="sensorTypeFilter" class="form-label">센서 타입:</label>
-                <select id="sensorTypeFilter" class="form-select">
-                  <option value="">모든 센서 타입</option>
+
+              <div id="filter-group-location" class="col-md-3 mb-2">
+                <label for="locationSelect" class="form-label">location</label>
+                <select id="locationSelect" class="form-select">
+                  <option value="">선택</option>
                 </select>
               </div>
-              <div class="col-md-3">
-                <label for="startDateFilter" class="form-label">시작 날짜:</label>
-                <input type="date" id="startDateFilter" class="form-control" />
+
+              <div id="filter-group-place" class="col-md-3 mb-2">
+                <label for="placeSelect" class="form-label">place</label>
+                <select id="placeSelect" class="form-select">
+                  <option value="">선택</option>
+                </select>
               </div>
-              <div class="col-md-3">
-                <label for="endDateFilter" class="form-label">종료 날짜:</label>
-                <input type="date" id="endDateFilter" class="form-control" />
+
+              <div id="filter-group-device_id" class="col-md-3 mb-2">
+                <label for="device_idSelect" class="form-label">device_id</label>
+                <select id="device_idSelect" class="form-select">
+                  <option value="">선택</option>
+                </select>
               </div>
+
+              <div id="filter-group-building" class="col-md-3 mb-2">
+                <label for="buildingSelect" class="form-label">building</label>
+                <select id="buildingSelect" class="form-select">
+                  <option value="">선택</option>
+                </select>
+              </div>
+
+              <div id="filter-group-_field" class="col-md-3 mb-2">
+                <label for="_fieldSelect" class="form-label">_field</label>
+                <select id="_fieldSelect" class="form-select">
+                  <option value="">선택</option>
+                </select>
+              </div>
+
+              <div id="filter-group-measurement" class="col-md-3 mb-2">
+                <label for="measurementSelect" class="form-label">measurement</label>
+                <select id="measurementSelect" class="form-select">
+                  <option value="">선택</option>
+                </select>
+              </div>
+
             </div>
             <div class="row">
               <div class="col-12 text-end">
@@ -121,30 +150,24 @@
             <table id="datatablesSimple" class="table table-bordered">
               <thead>
               <tr>
-                <th>ID</th>
-                <th>디바이스 ID</th>
-                <th>센서 타입</th>
-                <th>값</th>
-                <th>수신 시각</th>
-                <th>작업</th>
+                <th>Time</th>
+                <th>Field</th>
+                <th>Value</th>
+                <th>companyDomain</th>
+                <th>origin</th>
+                <th>location</th>
+                <th>place</th>
+                <th>_measurement</th>
+                <th>device_id</th>
+                <th>_field</th>
+                <th>building</th>
               </tr>
               </thead>
-              <tfoot>
-              <tr>
-                <th>ID</th>
-                <th>디바이스 ID</th>
-                <th>센서 타입</th>
-                <th>값</th>
-                <th>수신 시각</th>
-                <th>작업</th>
-              </tr>
-              </tfoot>
               <tbody>
-              <tr>
-                <td colspan="6" class="text-center">데이터 로딩 중...</td>
-              </tr>
+              <tr><td colspan="11" class="text-center">데이터 로딩 중...</td></tr>
               </tbody>
             </table>
+            <div id="averageTable" class="mt-4"></div>
           </div>
         </div>
       </div>
@@ -185,9 +208,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 <script src="/admin/js/scripts.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- IoT 센서 API 클라이언트 -->
-<script src="/admin/js/iotSensorApi.js" type="module"></script>
-<script src="/admin/js/tables.js" type="module"></script>
 </body>
 </html>
