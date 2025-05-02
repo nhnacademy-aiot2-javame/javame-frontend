@@ -13,13 +13,16 @@ public class AuthController {
 
     @GetMapping("/login")
     public String loginPage() {
-        log.info("test");
         return "auth/login";
     }
 
     @GetMapping("/register")
     public String registerPage(){
         return "auth/register";
+    }
 
+    @GetMapping("/purchase")
+    public String purchasePage(){
+        return "auth/purchase";
     }
 }

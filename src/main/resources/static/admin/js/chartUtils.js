@@ -1,3 +1,4 @@
+// chartUtils.js
 /**
  * 차트 유틸리티 함수
  * Chart.js를 사용한 차트 생성 함수들을 제공합니다.
@@ -164,7 +165,7 @@ export function createPieChart(canvasId, labels, data) {
  * @param {string} value 카드 값
  * @param {string} bgClass 배경색 클래스 (예: bg-primary, bg-success 등)
  */
-function updateDashboardCard(cardId, title, value, bgClass = 'bg-primary') {
+export function updateDashboardCard(cardId, title, value, bgClass = 'bg-primary') {
     const cardElement = document.getElementById(cardId);
     if (!cardElement) {
         console.error(`카드 ID ${cardId}를 찾을 수 없습니다.`);
