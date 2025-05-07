@@ -47,5 +47,6 @@ document.getElementById('purchaseBtn').addEventListener('click', async function 
 
     } catch (err) {
         alert('오류 발생: ' + err.message);
+
     }
 });
