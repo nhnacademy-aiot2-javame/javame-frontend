@@ -6,7 +6,7 @@ window.addEventListener('DOMContentLoaded', initDashboard);
 
 async function initDashboard() {
     // 초기 드롭다운 로딩 → origin 선택 → filter 선택 → SSE 연결
-    const companyDomain = 'nhnacademy';
+    const companyDomain = 'javame';
     currentChartFilter.companyDomain = companyDomain;
 
     const origins = await getOrigins(companyDomain);
