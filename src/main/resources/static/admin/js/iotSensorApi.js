@@ -1,4 +1,4 @@
-const API_BASE_URL = '/api/v1/environment';
+const API_BASE_URL = 'https://7dd22de24a0c:javame-gateway:10279/api/v1/environment';
 
 let eventSource = null;
 
