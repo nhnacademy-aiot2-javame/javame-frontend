@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://javame.live/proxy/environment';
+const API_BASE_URL = 'https://javame.live/api/v1/environment';
 
 let eventSource = null;
 
