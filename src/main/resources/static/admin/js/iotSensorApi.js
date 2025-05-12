@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://220.67.216.12:10279/api/v1/environment';
+const API_BASE_URL = 'http://s2.java21.net:10279/api/v1/environment';
 
 let eventSource = null;
 
