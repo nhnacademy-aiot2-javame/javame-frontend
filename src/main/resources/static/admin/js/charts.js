@@ -14,7 +14,7 @@ import {
     createPieChart
 } from './chartUtils.js';
 
-let currentChartFilter = { companyDomain: 'nhnacademy' };
+let currentChartFilter = { companyDomain: 'javame' };
 
 window.addEventListener('DOMContentLoaded', initChartPage);
 

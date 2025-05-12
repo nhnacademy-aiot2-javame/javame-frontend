@@ -1,30 +1,36 @@
-<!-- sidebar.html -->
-<div th:fragment="sidebar">
+<!-- src/main/resources/templates/fragments/sidebar.html -->
+<div th:fragment="sidebar"
+     xmlns:th="http://www.thymeleaf.org"
+     xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <div id="layoutSidenav_nav">
         <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
             <div class="sb-sidenav-menu">
                 <div class="nav">
 
                     <div class="sb-sidenav-menu-heading">핵심</div>
-                    <a class="nav-link" href="/api/v1/environment/dashboard">
+                    <a class="nav-link" href="/environment/dashboard">
                         <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                         대시보드
                     </a>
 
                     <div class="sb-sidenav-menu-heading">분석</div>
-                    <a class="nav-link" href="/api/v1/environment/charts">
+                    <a class="nav-link" href="/environment/charts">
                         <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
                         차트
                     </a>
-                    <a class="nav-link" href="/api/v1/environment/tables">
+                    <a class="nav-link" href="/environment/tables">
                         <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
                         테이블
+                    </a>
+                    <a class="nav-link" href="/environment/reports">
+                        <div class="sb-nav-link-icon"><i class="fas fa-file-alt"></i></div>
+                        리포트
                     </a>
                 </div>
             </div>
             <div class="sb-sidenav-footer">
                 <div class="small">로그인 계정:</div>
-                <span th:text="${#authentication.principal.role}">Role</span>
+                <span sec:authentication="principal.username"></span>
             </div>
         </nav>
     </div>

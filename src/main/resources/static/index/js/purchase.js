@@ -43,7 +43,7 @@ document.getElementById('purchaseBtn').addEventListener('click', async function 
         }
 
         alert('회사 및 오너 회원 등록 성공!');
-        window.location.href = 'http://localhost:10271/api/v1/auth/login'; // 로그인 페이지로 리디렉트
+        window.location.href = '/auth/login'; // 로그인 페이지로 리디렉트
 
     } catch (err) {
         alert('오류 발생: ' + err.message);
