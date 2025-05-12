@@ -9,12 +9,10 @@
     <title>NHN Academy IoT 센서 관리 - 대시보드</title>
     <link href="/admin/css/styles.css" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
-    <script type="module" src="/admin/js/iotSensorApi.js"></script>
-    <script type="module" src="/admin/js/chartUtils.js"></script>
-    <script type="module" src="/admin/js/tables.js"></script>
+    <script type="module" src="/admin/js/dashboard.js"></script>
 </head>
 <body class="sb-nav-fixed">
-<div th:replace="~{fragments/sidebar :: sidebarFragment}"></div>
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
 <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
     <a class="navbar-brand ps-3" href="/admin/">NHN Academy 센서 관리</a>
     <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>

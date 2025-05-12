@@ -14,7 +14,7 @@ import {
     createPieChart
 } from './chartUtils.js';
 
-let currentChartFilter = { companyDomain: 'nhnacademy' };
+let currentChartFilter = { companyDomain: 'javame' };
 
 window.addEventListener('DOMContentLoaded', initChartPage);
 
@@ -32,6 +32,7 @@ async function initChartPage() {
 
 async function loadOriginDropdown() {
     const origins = await getOrigins(currentChartFilter.companyDomain);
+    console.log('origins', origins);
     populateDropdown('originDropdown', origins, async (origin) => {
         currentChartFilter.origin = origin;
         await loadDependentDropdowns(origin);
