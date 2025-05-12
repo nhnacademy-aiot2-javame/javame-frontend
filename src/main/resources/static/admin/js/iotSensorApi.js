@@ -2,7 +2,6 @@ const API_BASE_URL = 'http://localhost:10279/api/v1/environment';
 
 let eventSource = null;
 
-
 export async function getOrigins(companyDomain) {
     const res = await fetch(`${API_BASE_URL}/${companyDomain}/origins`);
     if (!res.ok) return [];
