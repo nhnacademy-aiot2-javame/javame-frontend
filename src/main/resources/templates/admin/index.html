@@ -1,10 +1,88 @@
+<!-- admin/index.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Admin - 회사 선택</title>
+    <style>
+        body{
+            background: linear-gradient(to right, #fffbe6, #ffffff); /* 노란빛 부드러운 배경 */
+            height: 100vh;
+            margin : 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Montserrat', Arial, sans-serif;
+        }
+        /* 카드 */
+        .login-card {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 15px 25px rgba(0,0,0,0.08);
+            padding: 40px;
+            width: 400px;
+            transition: all 0.3s ease-in-out;
+            text-align: center;
+        }
+
+        .login-card:hover {
+            transform: scale(1.02);
+        }
+
+        /* 폼 */
+        .form-control {
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 1rem;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        /* 버튼 */
+        .btn-login {
+            background-color: #ffc800;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 10px 20px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+            width: 100%;
+        }
+
+        .btn-login:hover {
+            background-color: #cca000;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+        }
+
+        /* 제목 */
+        h2 {
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 30px;
+        }
+    </style>
 </head>
 <body>
+
+<div class="login-card">
+    <h2>회사를 선택하세요</h2>
+    <form th:action="@{/admin/selectCompany}" method="post">
+        <select id="companySelect" name="companyId" class="form-control" required>
+            <option value="" disabled selected>회사를 선택해주세요</option>
+
+            <!-- 타임리프 반복문 -->
+            <option th:each="company : ${companyList}"
+                    th:value="${company.id}"
+                    th:text="${company.name}">
+            </option>
+        </select>
+
+        <button type="submit" class="btn-login">선택 완료</button>
+    </form>
+</div>
 
 </body>
 </html>

@@ -1,145 +1,121 @@
-/**
- * 차트 페이지 스크립트
- * 관리자 차트 페이지의 동작을 구현합니다.
- */
+//charts.js
+import {
+    getOrigins,
+    getDropdownValues,
+    getMeasurementList,
+    startSensorDataStream,
+    getChartDataForSensor,
+    getPieChartData
+} from './iotSensorApi.js';
 
-// 페이지 로드 시 초기화
-document.addEventListener('DOMContentLoaded', function() {
-    initCharts();
-});
+import {
+    createAreaChart,
+    createBarChart,
+    createPieChart
+} from './chartUtils.js';
 
-/**
- * 차트 페이지를 초기화합니다.
- */
-async function initCharts() {
-    try {
-        // 센서 타입 목록 가져오기
-        const sensorTypes = await getAllSensorTypes();
+let currentChartFilter = { companyDomain: 'javame' };
 
-        if (sensorTypes && sensorTypes.length > 0) {
-            // 센서 타입 선택 드롭다운 초기화
-            initSensorTypeDropdown(sensorTypes);
+window.addEventListener('DOMContentLoaded', initChartPage);
 
-            // 첫 번째 센서 타입으로 차트 초기화
-            await loadChartsForSensorType(sensorTypes[0]);
-        } else {
-            console.warn('센서 타입 데이터가 없습니다.');
-        }
+async function initChartPage() {
+    await loadOriginDropdown();
 
-        // 센서 타입별 통계로 파이 차트 초기화
+    document.getElementById('applyChartFilter')?.addEventListener('click', async () => {
+        updateFilterFromDropdowns();
+        restartSseChart();
+        await loadBarChart();
         await loadPieChart();
 
-    } catch (error) {
-        console.error('차트 초기화 중 오류 발생:', error);
-        alert('차트 데이터를 불러오는 중 오류가 발생했습니다.');
-    }
+    });
 }
 
-/**
- * 센서 타입 선택 드롭다운을 초기화합니다.
- * @param {Array} sensorTypes 센서 타입 목록
- */
-function initSensorTypeDropdown(sensorTypes) {
-    const dropdown = document.getElementById('sensorTypeDropdown');
-    if (!dropdown) {
-        console.error('센서 타입 드롭다운 요소를 찾을 수 없습니다.');
-        return;
+async function loadOriginDropdown() {
+    const origins = await getOrigins(currentChartFilter.companyDomain);
+    populateDropdown('originDropdown', origins, async (origin) => {
+        currentChartFilter.origin = origin;
+        await loadDependentDropdowns(origin);
+    });
+}
+
+async function loadDependentDropdowns(origin) {
+    const tags = ['location', 'place', 'device_id', 'building', '_field'];
+    for (const tag of tags) {
+        const values = await getDropdownValues(currentChartFilter.companyDomain, origin, tag);
+        populateDropdown(`${tag}Dropdown`, values);
     }
 
-    // 드롭다운 옵션 초기화
-    dropdown.innerHTML = '';
+    const measurements = await getMeasurementList(currentChartFilter.companyDomain, origin);
+    populateDropdown('measurementDropdown', measurements);
+}
 
-    // 센서 타입 옵션 추가
-    sensorTypes.forEach(type => {
-        const option = document.createElement('option');
-        option.value = type;
-        option.textContent = type;
-        dropdown.appendChild(option);
+function populateDropdown(id, items, onChange) {
+    const select = document.getElementById(id);
+    if (!select) return;
+
+    select.innerHTML = '<option value="">선택</option>';
+    items.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item;
+        opt.textContent = item;
+        select.appendChild(opt);
     });
 
-    // 드롭다운 변경 이벤트 리스너
-    dropdown.addEventListener('change', function() {
-        const selectedType = this.value;
-        if (selectedType) {
-            loadChartsForSensorType(selectedType);
+    if (items.length > 0) {
+        select.value = items[0];
+        onChange?.(items[0]);
+    }
+
+    select.onchange = (e) => onChange?.(e.target.value);
+}
+
+function updateFilterFromDropdowns() {
+    const tags = ['location', 'place', 'device_id', 'building', '_field', 'measurement','range'];
+    tags.forEach(tag => {
+        const select = document.getElementById(`${tag}Dropdown`);
+        if (select) {
+            const key = tag === 'measurement' ? '_measurement' : tag;
+            currentChartFilter[key] = select.value;
         }
     });
 }
 
-/**
- * 선택한 센서 타입에 대한 차트를 로드합니다.
- * @param {string} sensorType 센서 타입
- */
-async function loadChartsForSensorType(sensorType) {
-    try {
-        // 선택한 센서 타입에 대한 차트 데이터 가져오기
-        const chartData = await getChartDataForSensorType(sensorType);
+function restartSseChart() {
+    const measurement = currentChartFilter._measurement;
+    if (!measurement) return console.warn('측정값 없음');
 
-        if (chartData && chartData.labels && chartData.values) {
-            // 영역 차트 업데이트
-            if (window.areaChart) {
-                window.areaChart.destroy();
-            }
-            window.areaChart = createAreaChart(
-                'myAreaChart',
-                chartData.labels,
-                chartData.values,
-                `${sensorType} 센서 데이터`
-            );
-
-            // 막대 차트 업데이트
-            if (window.barChart) {
-                window.barChart.destroy();
-            }
-            window.barChart = createBarChart(
-                'myBarChart',
-                chartData.labels,
-                chartData.values,
-                `${sensorType} 센서 데이터`
-            );
-
-            // 차트 제목 업데이트
-            const areaChartTitle = document.querySelector('#areaChartCard .card-header');
-            if (areaChartTitle) {
-                areaChartTitle.innerHTML = `<i class="fas fa-chart-area me-1"></i> ${sensorType} 센서 - 영역 차트`;
-            }
-
-            const barChartTitle = document.querySelector('#barChartCard .card-header');
-            if (barChartTitle) {
-                barChartTitle.innerHTML = `<i class="fas fa-chart-bar me-1"></i> ${sensorType} 센서 - 막대 차트`;
-            }
-        } else {
-            console.warn(`${sensorType} 센서에 대한 차트 데이터가 없습니다.`);
-        }
-    } catch (error) {
-        console.error(`${sensorType} 센서에 대한 차트 로드 중 오류 발생:`, error);
-    }
+    startSensorDataStream(currentChartFilter, (data) => {
+        const records = data[measurement] || [];
+        loadAreaChart(records);
+    });
 }
 
-/**
- * 파이 차트를 로드합니다.
- */
+function loadAreaChart(data) {
+    const labels = data.map(d => new Date(d.time).toLocaleTimeString());
+    const values = data.map(d => d.value);
+
+    if (window.areaChart) window.areaChart.destroy();
+    window.areaChart = createAreaChart('myAreaChart', labels, values, '실시간 센서 데이터');
+}
+
+async function loadBarChart() {
+    const { companyDomain, origin, _measurement } = currentChartFilter;
+    if (!origin || !_measurement) return;
+
+    const chartData = await getChartDataForSensor(companyDomain, origin, _measurement);
+    if (!chartData.labels?.length) return;
+
+    if (window.barChart) window.barChart.destroy();
+    window.barChart = createBarChart('myBarChart', chartData.labels, chartData.values, `${_measurement} 변화`);
+}
+
 async function loadPieChart() {
-    try {
-        // 파이 차트 데이터 가져오기
-        const pieChartData = await getPieChartData();
+    const { companyDomain, origin } = currentChartFilter;
+    if (!origin) return;
 
-        if (pieChartData && pieChartData.labels && pieChartData.values) {
-            // 파이 차트 업데이트
-            if (window.pieChart) {
-                window.pieChart.destroy();
-            }
-            window.pieChart = createPieChart('myPieChart', pieChartData.labels, pieChartData.values);
+    const pieData = await getPieChartData(companyDomain, origin);
+    if (!pieData.labels?.length) return;
 
-            // 차트 제목 업데이트
-            const pieChartTitle = document.querySelector('#pieChartCard .card-header');
-            if (pieChartTitle) {
-                pieChartTitle.innerHTML = '<i class="fas fa-chart-pie me-1"></i> 센서 유형별 데이터 분포';
-            }
-        } else {
-            console.warn('파이 차트 데이터가 없습니다.');
-        }
-    } catch (error) {
-        console.error('파이 차트 로드 중 오류 발생:', error);
-    }
+    if (window.pieChart) window.pieChart.destroy();
+    window.pieChart = createPieChart('myPieChart', pieData.labels, pieData.values);
 }
