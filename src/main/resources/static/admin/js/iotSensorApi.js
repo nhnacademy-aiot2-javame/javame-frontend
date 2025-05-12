@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:10279/api/v1/environment';
+const API_BASE_URL = 'http://javame.live:10279/api/v1/environment';
 
 let eventSource = null;
 
