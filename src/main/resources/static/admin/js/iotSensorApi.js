@@ -1,7 +1,6 @@
-const API_BASE_URL = 'http://s2.java21.net:10279/api/v1/environment';
+const API_BASE_URL = 'http://s2.java21.net:10279/proxy/environment';
 
 let eventSource = null;
-
 
 export async function getOrigins(companyDomain) {
     const res = await fetch(`${API_BASE_URL}/${companyDomain}/origins`);
