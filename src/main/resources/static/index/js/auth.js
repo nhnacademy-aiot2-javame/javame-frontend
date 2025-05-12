@@ -9,9 +9,9 @@ const USE_MOCK_LOGIN = true;
 export async function login(memberEmail, memberPassword) {
     if (USE_MOCK_LOGIN) {
         const mockUsers = [
-            { memberEmail: "testuser", memberPassword: "testpass", role: "ROLE_USER" },
+            { memberEmail: "testuser", memberPassword: "testpass", role: "ROLE_USER", companyDomain: "javame" },
             { memberEmail: "testadmin", memberPassword: "testpass", role: "ROLE_ADMIN" },
-            { memberEmail: "testowner", memberPassword: "testpass", role: "ROLE_OWNER" }
+            { memberEmail: "testowner", memberPassword: "testpass", role: "ROLE_OWNER", companyDomain: "javame" }
         ];
 
         // 사용자 인증 시뮬레이션
