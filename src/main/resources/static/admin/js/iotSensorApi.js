@@ -1,6 +1,7 @@
-const API_BASE_URL = 'http://javame-gateway:10279/api/v1/environment';
+const API_BASE_URL = 'https://javame-gateway:10279/api/v1/environment';
 
 let eventSource = null;
+
 
 export async function getOrigins(companyDomain) {
     const res = await fetch(`${API_BASE_URL}/${companyDomain}/origins`);
