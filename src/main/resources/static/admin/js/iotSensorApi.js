@@ -1,5 +1,5 @@
 // environmentApi.js
-import { fetchWithAuth } from 'static/index/js/auth.js';
+import { fetchWithAuth } from '../../index/js/auth.js';
 
 const API_BASE_URL = '/api/v1/environment';
 

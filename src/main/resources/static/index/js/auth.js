@@ -124,7 +124,7 @@ export async function refreshAccessToken() {
     return data.accessToken;
 }
 
-async function fetchWithAuth(url, options) {
+export async function fetchWithAuth(url, options) {
     let token = sessionStorage.getItem(TOKEN_KEY);
     const response = await fetch(url, {
         ...options,
