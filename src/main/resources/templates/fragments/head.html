@@ -5,7 +5,6 @@
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
         <!-- Navbar Brand -->
         <a class="navbar-brand ps-3" href="/environment/dashboard">NHN Academy 센서 관리</a>
-
         <!-- Sidebar Toggle -->
         <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle">
             <i class="fas fa-bars"></i>
@@ -25,22 +24,20 @@
                 <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button"
                    data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                    <li><a class="dropdown-item" href="#!">설정</a></li>
-                    <li><a class="dropdown-item" href="#!">활동 로그</a></li>
+                    <li><a class="dropdown-item" href=/members/settings>설정</a></li>
+                    <li><a class="dropdown-item" href=/members/mypage>마이페이지</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="logout()">로그아웃</a></li>
                     <li><hr class="dropdown-divider" /></li>
 
-<!--                    <li sec:authorize="hasAuthority('ADMIN')">-->
-<!--                        <small class="dropdown-header text-muted">관리자 메뉴</small>-->
-<!--                        <a class="dropdown-item" href="/members/member-list">사용자 관리</a>-->
-<!--                        <a class="dropdown-item" href="/companies/company-list">회사 관리</a>-->
-<!--                        <a class="dropdown-item" href="/orders/order-list">주문 관리</a>-->
-<!--                        <a class="dropdown-item" href="/products/product-list">상품 관리</a>-->
-<!--                    </li>-->
-
-                    <li sec:authorize="hasAuthority('OWNER')">
+                    <li sec:authorize="hasAnyAuthority('ADMIN')">
                         <a class="dropdown-item" href="/members/member-list">사용자 관리</a>
                         <a class="dropdown-item" href="/companies/company-list">회사 관리</a>
-                        <a class="dropdown-item" href="/orders/order-list">주문 관리</a>
+                    </li>
+
+                    <li sec:authorize="hasAnyAuthority('OWNER')">
+                        <a class="dropdown-item" href="/members/member-list">사용자 관리</a>
+                        <a class="dropdown-item" href="/companies/settings">회사 정보 관리</a>
+                        <a class="dropdown-item" href="/members/permission">회원 허가</a>
                     </li>
 
                     <li><a class="dropdown-item" href="/">메인으로</a></li>
@@ -49,3 +46,4 @@
         </ul>
     </nav>
 </div>
+

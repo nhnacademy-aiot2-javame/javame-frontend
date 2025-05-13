@@ -1,7 +1,7 @@
 // auth.js
 const TOKEN_KEY = 'accessToken';
 const REFRESH_KEY = 'refreshToken';
-const USE_MOCK_LOGIN = false;
+const USE_MOCK_LOGIN = true;
 
 /**
  * 로그인 요청 → 토큰 받아서 저장 + 사용자 정보 반환
