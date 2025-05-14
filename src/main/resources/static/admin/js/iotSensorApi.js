@@ -1,6 +1,5 @@
 const API_BASE_URL = 'https://gateway.javame.live/api/v1/environment';
 
-
 let eventSource = null;
 
 export async function getOrigins(companyDomain) {
