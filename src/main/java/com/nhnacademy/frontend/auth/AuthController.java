@@ -25,4 +25,9 @@ public class AuthController {
     public String purchasePage(){
         return "auth/purchase";
     }
+
+    @GetMapping("/findpass")
+    public String findPassPage(){
+        return "auth/find-password";
+    }
 }
