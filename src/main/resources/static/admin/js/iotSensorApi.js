@@ -54,6 +54,7 @@ export async function getHourlyAverages(companyDomain, origin, measurement, filt
     return await res.json();
 }
 
+
 export async function getChartDataForSensor(companyDomain, origin, sensor) {
     const res = await fetch(`${API_BASE_URL}/${companyDomain}/chart/type/${sensor}?origin=${origin}`);
     if (!res.ok) return { labels: [], values: [] };
@@ -73,6 +74,8 @@ export function closeSensorDataStream() {
     if (eventSource) {
         console.log("Explicitly closing EventSource connection.");
         eventSource.close();
-        eventSource = null;
+        eventSource = null; // 참조 제거하여 상태 반영
+    } else {
+        // console.log("No active EventSource connection to close.");
     }
 }
