@@ -191,3 +191,94 @@ export function updateDashboardCard(cardId, title, value, bgClass = 'bg-primary'
         `;
     }
 }
+
+export function createGaugeChart(
+    canvasId,
+    value,
+    label,
+    title = '',
+    colors = ['rgba(42, 85, 85, 1)', 'rgba(220, 220, 220, 0.3)'], // 배경색 투명도 약간 조절
+    valueFont = 'bold 1.5rem sans-serif',
+    titleFont = '0.8rem sans-serif'
+) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) {
+        console.error(`캔버스 ID '${canvasId}'를 찾을 수 없습니다.`);
+        return null; // 오류 발생 시 null 반환 또는 에러 throw
+    }
+
+    // 값 보정 (0에서 100 사이로 제한)
+    const normalizedValue = Math.max(0, Math.min(100, value));
+
+    const data = {
+        datasets: [{
+            data: [normalizedValue, 100 - normalizedValue], // 값과 나머지 부분
+            backgroundColor: colors,
+            borderWidth: 0, // 테두리 없음으로 깔끔한 모양
+        }]
+    };
+
+    // 중앙 텍스트 표시를 위한 커스텀 플러그인
+    const centerTextPlugin = {
+        id: 'gaugeCenterText', // 플러그인 ID는 고유하게
+        afterDraw: function(chart) { // afterDraw는 모든 그리기가 끝난 후 호출
+            if (chart.data.datasets.length === 0) {
+                return;
+            }
+            const chartCtx = chart.ctx; // chart.ctx 사용 (Chart.js 2.x)
+            const chartArea = chart.chartArea;
+
+            // chartArea가 유효한지 확인 (차트가 완전히 그려지기 전에는 없을 수 있음)
+            if (!chartArea || !chartArea.left) {
+                return;
+            }
+
+            const { left, right, top, bottom } = chartArea;
+            const centerX = (left + right) / 2;
+            const centerY = (top + bottom) / 2;
+
+            chartCtx.save();
+
+            // 메인 라벨 (값)
+            chartCtx.font = valueFont;
+            chartCtx.fillStyle = colors[0] || 'black'; // 값 부분 색상 사용, 없으면 검정
+            chartCtx.textAlign = 'center';
+            chartCtx.textBaseline = 'middle';
+            chartCtx.fillText(label, centerX, centerY);
+
+            // 보조 제목 (타이틀) - title이 제공된 경우에만 그림
+            if (title) {
+                chartCtx.font = titleFont;
+                chartCtx.fillStyle = 'grey'; // 일반적인 보조 텍스트 색상
+                chartCtx.fillText(title, centerX, centerY + parseFloat(valueFont) * 12 + 5); // 메인 라벨 아래 간격 조절 (폰트 크기 기반)
+            }
+            chartCtx.restore();
+        }
+    };
+
+    // Chart.js 2.8.0에 맞춘 옵션
+    return new Chart(ctx, {
+        type: 'doughnut',
+        data: data,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false, // 부모 컨테이너 크기에 맞게 조절
+            cutoutPercentage: 80,      // 도넛의 중앙 빈 공간 비율 (80% -> 20% 두께)
+            rotation: -0.5 * Math.PI,  // 시작점을 상단(12시 방향)으로 설정 (기본값은 3시 방향)
+            circumference: 2 * Math.PI, // 전체 원 (360도)
+            legend: {
+                display: false // 범례는 게이지 차트에서 보통 숨김
+            },
+            tooltips: {
+                enabled: false // 툴팁도 게이지 차트에서 보통 숨김
+            },
+            animation: { // 부드러운 초기 애니메이션 효과
+                animateRotate: true,
+                animateScale: false // 크기 변경 애니메이션은 제외 가능
+            },
+            // 클릭과 같은 차트 이벤트를 비활성화하여 순수 표시용으로 만들 수 있음 (선택 사항)
+            // events: []
+        },
+        plugins: [centerTextPlugin] // 위에서 정의한 커스텀 플러그인 등록
+    });
+}

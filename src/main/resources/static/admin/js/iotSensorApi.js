@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://gateway.javame.live/api/v1/environment';
+const API_BASE_URL = 'http://localhost:10286/api/v1/environment';
 
 let eventSource = null;
 
@@ -78,4 +78,13 @@ export function closeSensorDataStream() {
     } else {
         // console.log("No active EventSource connection to close.");
     }
+}
+
+/**
+ * 텔레그래프의 서버의 location 및 measurement 를 활용하여 데이터를 가져옵니다.
+ */
+export async function getCurrentSensorValue(companyDomain, origin, location, measurement) {
+    const res = await fetch(`${API_BASE_URL}/${companyDomain}/current?origin=${origin}&location=${location}&measurement=${measurement}`);
+    if (!res.ok) return null;
+    return await res.json();
 }
