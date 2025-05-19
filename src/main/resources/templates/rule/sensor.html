@@ -4,24 +4,89 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta name="description" content="센서 및 임계치 등록" />
+    <meta name="description" content="센서 데이터 등록" />
     <meta name="author" content="NHN Academy" />
-    <title>NHN Academy 센서 및 임계치 등록</title>
+    <title><<도메인>> 센서 조회</title>
     <link href="/admin/css/styles.css" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
 </head>
 <body class="sb-nav-fixed">
-    <div th:replace="~{fragments/head :: header}"></div>
-        <div id="layoutSidenav">
-        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
-            <div id="layoutSidenav_content">
+<style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
 
-                <main class="container-fluid px-4 mt-4">
-                    <h1 class="mb-4">센서 등록</h1>
+    table, th, td {
+        border: 1px solid #ccc;
+    }
 
-                    <!--                    -->
-                </main>
+    th, td {
+        padding: 8px;
+        text-align: center;
+    }
 
-            </div>
-        </div>
+    tr:hover {
+        background-color: #f1f1f1;
+        cursor: pointer;
+    }
+</style>
+
+<div th:replace="~{fragments/head :: header}"></div>
+<div id="layoutSidenav">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div id="layoutSidenav_content">
+
+        <main class="container-fluid px-4 mt-4">
+            <h1 class="mb-4">센서 조회</h1>
+            <p>도메인명: NHN</p>
+
+            <h2>센서 리스트</h2>
+            <table id="sensorTable" border="1">
+                <thead>
+                    <tr>
+                        <th>센서번호</th>
+                        <th>센서아이디</th>
+                        <th>회사도메인</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <br>
+            <h2>센서 데이터 리스트</h2>
+            <table id="sensorDataTable" border="1">
+                <thead>
+                    <tr>
+                        <th>센서데이터 번호</th>
+                        <th>센서 아이디</th>
+                        <th>센서데이터 이름</th>
+                        <th>최소 임계값</th>
+                        <th>최대 임계값</th>
+                    </tr>
+                </thead>
+            </table>
+
+            <script>
+                fetch('/api/sensors')
+                    .then(res => res.json())
+                    .then(data => {
+                        const tbody = document.querySelector('#sensorTable tbody');
+                        data.forEach(sensor => {
+                            const row = document.createElement('tr');
+                            row.innerHTML =
+                                <td>${sensor.sensorNo}</td>
+                                <td>${sensor.sensorId}</td>
+                                <td>${sensor.companyDomain}</td>
+                            ;
+                            tbody.appenchild(row);
+                        });
+                    })
+                    .catch(err => console.error('Error fetching sensor data:', err));
+            </script>
+            <tbody></tbody>
+        </main>
+
+    </div>
+</div>
 </body>
