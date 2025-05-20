@@ -11,6 +11,29 @@
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
 </head>
 <body class="sb-nav-fixed">
+<style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    table, th, td {
+        border: 1px solid #ccc;
+    }
+
+    th, td {
+        padding: 8px;
+        text-align: center;
+    }
+
+    tr:hover {
+        background-color: #f1f1f1;
+        cursor: pointer;
+    }
+</style>
+
+
 <div th:replace="~{fragments/head :: header}"></div>
 <div id="layoutSidenav">
     <div th:replace="~{fragments/sidebar :: sidebar}"></div>
@@ -18,8 +41,35 @@
 
         <main class="container-fluid px-4 mt-4">
             <h1 class="mb-4">서버 조회</h1>
+            <p>도메인명: NHN</p>
 
-            <!--                    -->
+            <h2>서버 리스트</h2>
+            <table id="serverTable" border="1">
+                <thead>
+                <tr>
+                    <th>서버번호</th>
+                    <th>서버 iphost</th>
+                    <th>회사도메인</th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <br>
+            <h2>서버 데이터 리스트</h2>
+            <table id="serverDataTable" border="1">
+                <thead>
+                <tr>
+                    <th>서버데이터 번호</th>
+                    <th>서버 iphost</th>
+                    <th>카테고리</th>
+                    <th>토픽</th>
+                    <th>최소 임계값</th>
+                    <th>최대 임계값</th>
+                </tr>
+                </thead>
+            </table>
+
+
         </main>
 
     </div>
