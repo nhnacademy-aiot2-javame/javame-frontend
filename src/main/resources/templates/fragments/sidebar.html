@@ -8,7 +8,10 @@
                 <div class="nav">
 
                     <div class="sb-sidenav-menu-heading">핵심</div>
-
+                    <a class="nav-link" href="/environment/dashboard">
+                        <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
+                        대시보드
+                    </a>
                     <a class="nav-link collapsed"
                        href="#"
                        data-bs-toggle="collapse"
@@ -16,14 +19,14 @@
                        aria-expanded="false"
                        aria-controls="dashboardCollapse">
                         <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-                        대시보드
+                        상세 대시보드
                         <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                     </a>
                     <div class="collapse" id="dashboardCollapse" data-bs-parent="#sidenavAccordion">
                         <nav class="sb-sidenav-menu-nested nav">
-                            <a class="nav-link" href="/environment/dashboard?type=server">서버</a>
-                            <a class="nav-link" href="/environment/dashboard?type=server-room">서버룸</a>
-                            <a class="nav-link" href="/environment/dashboard?type=service">서비스</a>
+                            <a class="nav-link" href="/environment/dashboard-detail?type=server">서버</a>
+                            <a class="nav-link" href="/environment/dashboard-detail?type=server-room">서버룸</a>
+                            <a class="nav-link" href="/environment/dashboard-detail?type=service">서비스</a>
                         </nav>
                     </div>
 
