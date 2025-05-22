@@ -32,4 +32,9 @@ public class DashboardController {
     public String dashboardDetail() {
         return "dashboard/dashboard-detail";
     }
+
+    @GetMapping("/dashboard-integration")
+    public String dashboardIntegration() {
+        return "dashboard/dashboard-integration";
+    }
 }

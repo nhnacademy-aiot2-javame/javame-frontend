@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.thymeleaf.org/layout">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>IoT 센서 통합 차트</title>
+    <!-- SB Admin 기본 CSS -->
+    <link href="/admin/css/styles.css" rel="stylesheet" />
+    <!-- Font Awesome 아이콘 -->
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <style>
+        /* 차트 컨테이너의 높이를 고정하여 레이아웃 안정화 */
+        .chart-container {
+            position: relative;
+            height: 350px; /* 차트 높이를 약간 늘림 (제목 등 공간 고려) */
+            width: 100%;
+        }
+        /* 체크박스 영역 스크롤 (항목이 많을 경우 대비) */
+        #measurementCheckboxContainer {
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 1rem; /* 내부 패딩 추가 */
+        }
+        /* 체크박스 인라인 스타일 개선 */
+        #measurementCheckboxContainer .form-check {
+            margin-right: 1rem; /* 체크박스 간 간격 */
+        }
+    </style>
+</head>
+<body class="sb-nav-fixed">
+<div th:replace="~{fragments/head :: header}"></div>
+<div id="layoutSidenav">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid px-4">
+                <h1 class="mt-4">통합 차트 분석</h1>
+                <ol class="breadcrumb mb-4">
+                    <li class="breadcrumb-item"><a th:href="@{/environment/dashboard}">메인 대시보드</a></li>
+                    <li class="breadcrumb-item active">통합 차트</li>
+                </ol>
+
+                <!-- Measurement 선택 체크박스 영역 -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-check-square me-1"></i>
+                        측정 항목 선택 (Measurement)
+                    </div>
+                    <div class="card-body" id="measurementCheckboxContainer">
+                        <!-- JavaScript로 여기에 _measurement 체크박스들이 동적으로 생성됩니다. -->
+                        <!-- 예시 더미 체크박스 (JS에서 실제 생성될 때 이 부분은 덮어씌워짐) -->
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" value="CPU 사용률" id="chkDummyCpu" checked>
+                            <label class="form-check-label" for="chkDummyCpu">CPU 사용률</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" value="메모리 사용량" id="chkDummyMemory" checked>
+                            <label class="form-check-label" for="chkDummyMemory">메모리 사용량</label>
+                        </div>
+                    </div>
+                    <div class="card-footer text-end">
+                        <button class="btn btn-primary" id="applyIntegrationChartFilterButton">
+                            <i class="fas fa-sync-alt me-1"></i> 선택 항목 차트 보기
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 현재 상태 바 + 과거 라인 콤보 차트 -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-chart-bar me-1"></i>
+                        선택 항목 현재 값 (막대) 및 과거 평균 (선) 비교
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <!-- 콤보 차트를 이 캔버스에 그립니다. -->
+                            <canvas id="currentStateBarChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 과거 상태 개별 라인 차트 (일/주/월) - 이 부분은 콤보 차트에 통합되거나, 별도로 유지할 수 있음 -->
+                <!-- 여기서는 일단 콤보 차트에 집중하므로, 이 부분은 주석 처리하거나 나중에 추가할 수 있습니다. -->
+                <!--
+                <h3 class="mt-5 mb-3">과거 상태 추이 (선택된 항목)</h3>
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-chart-line me-1"></i>
+                                일별 추이
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="pastStateDailyLineChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-chart-line me-1"></i>
+                                주별 추이
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="pastStateWeeklyLineChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-chart-line me-1"></i>
+                                월별 추이
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="pastStateMonthlyLineChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                -->
+
+            </div> <!-- /.container-fluid -->
+        </main>
+        <div th:replace="~{fragments/footer :: footer}"></div>
+    </div> <!-- /#layoutSidenav_content -->
+</div> <!-- /#layoutSidenav -->
+
+<!-- Bootstrap Bundle JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- SB Admin 기본 스크립트 -->
+<script src="/admin/js/scripts.js"></script>
+<!-- Chart.js 최신 버전 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<!-- 만약 datalabels 플러그인을 사용하려면 아래 주석 해제 -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script> -->
+
+
+<!-- 이 페이지 전용 JavaScript 파일들 (type="module"로 선언) -->
+<script type="module" src="/admin/js/iotSensorApi.js"></script>
+<script type="module" src="/admin/js/chartUtils.js"></script>
+<script type="module" src="/admin/js/dashboardIntegration.js"></script> <!-- 이 HTML을 위한 JS 파일 -->
+
+</body>
+</html>

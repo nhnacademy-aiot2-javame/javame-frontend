@@ -88,6 +88,7 @@ export function createBarChart(canvasId, labels, data, title = 'Bar Chart') {
             }],
         },
         options: {
+            maintainAspectRatio: false,
             scales: {
                 x: {
                     grid: {
@@ -280,5 +281,150 @@ export function createGaugeChart(
             // events: []
         },
         plugins: [centerTextPlugin] // 위에서 정의한 커스텀 플러그인 등록
+    });
+}
+
+// canvasId: 차트를 그릴 <canvas> 요소의 ID
+// barDataArray: 바 차트로 표시할 데이터 값들의 배열 (예: [10, 20, 30])
+// lineDataArray: 라인 차트로 표시할 데이터 값들의 배열 (예: [15, 25, 35])
+// barDatasetLabel: 바 차트 데이터셋의 이름 (범례용, 예: "현재 값")
+// lineDatasetLabel: 라인 차트 데이터셋의 이름 (범례용, 예: "과거 평균")
+// xAxisLabels: X축에 표시될 공통 라벨 배열 (예: ["항목A", "항목B", "항목C"])
+export function createComboBarLineChart(canvasId, barDataArray, lineDataArray, barDatasetLabel, lineDatasetLabel, xAxisLabels) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) {
+        console.error("캔버스 ID ${canvasId}를 찾을 수 없습니다.");
+    }
+    return new Chart(ctx, {
+        type: 'bar',
+        data : {
+            labels : xAxisLabels,
+            datasets: [
+                {
+                    label: barDatasetLabel,
+                    data: barDataArray,
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1,
+                    order: 1
+                },
+                {
+                    label: lineDatasetLabel,
+                    data: lineDataArray,
+                    type: 'line',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                    fill: false,
+
+                    tension: 0.4, // 선의 곡률 (0은 직선, 0.4는 부드러운 곡선)
+                    borderWidth: 2, // 선 두께
+                    pointRadius: 4, // 데이터 포인트 원 크기
+                    pointBackgroundColor: 'rgba(255, 99, 132, 1)', // 포인트 채우기 색
+                    pointHoverRadius: 6, // 마우스 오버 시 포인트 원 크기
+                    order: 0, // 라인을 앞에
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { // v3+ 상호작용 설정
+                mode: 'index', // 같은 X축 인덱스에 있는 모든 데이터셋의 툴팁을 함께 표시
+                intersect: false, // 마우스가 정확히 데이터 포인트 위에 있지 않아도 가까우면 툴팁 표시
+            },
+            scales: {
+                x: { // v3+ X축 설정은 'x' 객체 사용
+                    grid: {
+                        display: false // X축 그리드 라인 숨김
+                    },
+                    title: { // X축 제목
+                        display: true,
+                        text: '항목', // 예시 X축 제목
+                        font: { size: 14 }
+                    }
+                },
+                y: { // v3+ Y축 설정은 'y' 객체 사용 (첫 번째 Y축 - 바 차트용)
+                    // id: 'yBar', // 이중 축 사용 시
+                    type: 'linear',
+                    position: 'left',
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)' // Y축 그리드 라인 색상
+                    },
+                    title: { // Y축 제목
+                        display: true,
+                        text: barDatasetLabel, // 또는 "값", "수량" 등
+                        font: { size: 14 }
+                    }
+                }
+            },
+            plugins: { // v3+ 범례, 툴팁, 제목 등은 plugins 객체 안으로
+                legend: {
+                    display: true,
+                    position: 'top', // 범례 위치
+                    labels: {
+                        font: { size: 12 },
+                        usePointStyle: true, // 범례 아이콘을 포인트 스타일로
+                        padding: 20 // 범례 항목 간 간격
+                    }
+                },
+                title: { // 차트 전체 제목
+                    display: true,
+                    text: '데이터 조합 차트 (현재 vs 과거)',
+                    font: { size: 18, weight: 'bold' },
+                    padding: { top: 10, bottom: 30 }
+                },
+                tooltip: { // 툴팁 설정
+                    enabled: true,
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleFont: { size: 14, weight: 'bold' },
+                    bodyFont: { size: 12 },
+                    padding: 10,
+                    caretSize: 6, // 툴팁 화살표 크기
+                    cornerRadius: 4, // 툴팁 모서리 둥글기
+                    // 툴팁 내용 커스터마이징 콜백
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += new Intl.NumberFormat('ko-KR').format(context.parsed.y); // 숫자 포맷팅
+                            }
+                            return label;
+                        }
+                    }
+                },
+                datalabels: {
+                    anchor: 'end',
+                    align: 'top',
+                    formatter: (value, context) => {
+                        return value; // 막대 위에 값 표시
+                    },
+                    font: {
+                        weight: 'bold'
+                    }
+                }
+            },
+            animation: { // 고급 애니메이션 설정
+                duration: 1000, // 애니메이션 지속 시간 (ms)
+                easing: 'easeInOutQuart', // 다양한 easing 효과 사용 가능
+                // 다른 애니메이션 옵션들도 많음 (onProgress, onComplete 콜백 등)
+                // 예: 특정 데이터 변경 시 애니메이션 종류 정의
+                x: { type: 'number', easing: 'linear', duration: delayBetweenPoints, from: NaN, delay: delayBetweenPoints * previousData.length },
+                y: { type: 'number', easing: 'linear', duration: delayBetweenPoints, from: previousData.value }
+            },
+            // 차트 클릭 등 이벤트 핸들링
+            onClick: (event, elements, chart) => {
+                if (elements.length > 0) {
+                    const firstPoint = elements[0];
+                    const datasetIndex = firstPoint.datasetIndex;
+                    const index = firstPoint.index;
+                    const value = chart.data.datasets[datasetIndex].data[index];
+                    console.log(`Clicked on: ${chart.data.labels[index]}, Dataset: ${chart.data.datasets[datasetIndex].label}, Value: ${value}`);
+                }
+            }
+        }
     });
 }
