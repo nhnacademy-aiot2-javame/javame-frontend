@@ -14,8 +14,8 @@ export async function getDropdownValues(companyDomain, origin, tag) {
     return await res.json();
 }
 
-export async function getMeasurementList(companyDomain, origin, location = "") {
-    const url = `${API_BASE_URL}/${companyDomain}/measurements?origin=${origin}${location ? `&location=${location}` : ""}`;
+export async function getMeasurementList(companyDomain, origin, gatewayId = "") {
+    const url = `${API_BASE_URL}/${companyDomain}/measurements?origin=${origin}${gatewayId ? `&gatewayId=${gatewayId}` : ""}`;
     console.log("로그 : {}" + url);
     const res = await fetch(url);
     if (!res.ok) return [];

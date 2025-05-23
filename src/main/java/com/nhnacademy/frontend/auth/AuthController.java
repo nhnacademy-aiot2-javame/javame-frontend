@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("api/v1/auth")
+@RequestMapping("/auth")
 public class AuthController {
 
     private static final Logger log = LoggerFactory.getLogger(AuthController.class);
@@ -24,5 +24,10 @@ public class AuthController {
     @GetMapping("/purchase")
     public String purchasePage(){
         return "auth/purchase";
+    }
+
+    @GetMapping("/findpass")
+    public String findPassPage(){
+        return "auth/find-password";
     }
 }

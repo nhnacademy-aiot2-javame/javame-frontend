@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(to right, #fffbe6, #ffffff); /* 노란빛 배경으로 변경 */
+            background: linear-gradient(to right, #fffbe6, #ffffff);
             height: 100vh;
             display: flex;
             justify-content: center;
@@ -16,26 +16,26 @@
             font-family: 'Montserrat', Arial, sans-serif;
         }
 
-        .login-card {
+        .auth-container {
             background: #fff;
             border-radius: 20px;
-            box-shadow: 0 15px 25px rgba(0,0,0,0.08);
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.08);
             padding: 40px;
             width: 400px;
             transition: all 0.3s ease-in-out;
         }
 
-        .login-card:hover {
+        .auth-container:hover {
             transform: scale(1.02);
         }
 
-        .form-control {
+        .auth-input {
             border-radius: 10px;
             padding: 12px;
             font-size: 1rem;
         }
 
-        .btn-login {
+        .auth-button {
             background-color: #ffc800;
             color: #fff;
             border: none;
@@ -46,35 +46,37 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
         }
 
-        .btn-login:hover {
+        .auth-button:hover {
             background-color: #cca000;
             color: #fff;
             transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
         }
 
-        h2 {
+        .auth-title {
             font-weight: 700;
             color: #333;
-            font-family: 'Montserrat', Arial, sans-serif;
         }
+
     </style>
 </head>
 <body>
 
-<div class="login-card text-center">
-    <h2 class="mb-4">Welcome 👋</h2>
+<div class="auth-container text-center">
+    <h2 class="auth-title mb-4">Welcome</h2>
     <form id="loginForm">
         <div class="mb-3">
-            <input type="text" class="form-control" id="memberEmail" placeholder="Username" required>
+            <input type="text" class="form-control auth-input" id="memberEmail" placeholder="Username" required>
         </div>
         <div class="mb-4">
-            <input type="password" class="form-control" id="memberPassword" placeholder="Password" required>
+            <input type="password" class="form-control auth-input" id="memberPassword" placeholder="Password" required>
         </div>
-        <button type="submit" class="btn btn-login w-100">로그인</button>
+        <button type="submit" class="btn auth-button w-100 mt-3">로그인</button>
     </form>
-    <a href="/index.html" class="btn btn-outline-secondary w-100 mt-2" style="border-radius: 12px;">
-        &larr; Back to Home
+    <!--    <a href="/auth/register" class="btn auth-button w-100 mt-2">회원가입</a>-->
+    <a href="/auth/findpass" class="btn auth-button w-100 mt-2">비밀번호 찾기</a>
+    <a href="/index.html" class="btn btn-outline-secondary w-100 mt-3" style="border-radius: 12px;">
+        &larr; 홈으로 돌아가기
     </a>
 </div>
 

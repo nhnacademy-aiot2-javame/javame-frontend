@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             await register(memberData);
             alert('회원가입 성공!');
-            window.location.href = '/api/v1/auth/login';
+            window.location.href = '/auth/login';
         } catch (error) {
             alert('회원가입 실패: ' + error.message);
         }

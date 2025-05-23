@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="주간/월간 리포트" />
+    <meta name="author" content="NHN Academy" />
+    <title>NHN Academy IoT 센서 관리 - 리포트</title>
+    <link href="/admin/css/styles.css" rel="stylesheet" />
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+</head>
+<body class="sb-nav-fixed">
+    <div th:replace="~{fragments/head :: header}"></div>
+        <div id="layoutSidenav">
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+            <div id="layoutSidenav_content">
+
+            <main class="container-fluid px-4 mt-4">
+                <h1 class="mb-4">리포트</h1>
+
+                <!-- 주간/월간 버튼 -->
+                <div class="btn-group mb-4" role="group" aria-label="리포트 타입 선택">
+                    <button type="button" class="btn btn-outline-primary active" id="weekly-btn">주간 리포트</button>
+                    <button type="button" class="btn btn-outline-secondary" id="monthly-btn">월간 리포트</button>
+                </div>
+
+                <!-- 리포트 내용 -->
+                <div id="report-content">
+                    <div id="weekly-report" class="report-section">
+                        <h3>주간 리포트</h3>
+                        <p>여기에 주간 리포트 데이터가 들어갑니다.</p>
+                    </div>
+
+                    <div id="monthly-report" class="report-section d-none">
+                        <h3>월간 리포트</h3>
+                        <p>여기에 월간 리포트 데이터가 들어갑니다.</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- 공통 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<script src="/admin/js/scripts.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
+
+<!-- 리포트 JS -->
+<script type="module" src="/admin/js/reports.js"></script>
+</body>
+</html>

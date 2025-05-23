@@ -14,7 +14,7 @@ import {
     createPieChart
 } from './chartUtils.js';
 
-let currentChartFilter = { companyDomain: 'nhnacademy' };
+let currentChartFilter = { companyDomain: 'javame' };
 
 window.addEventListener('DOMContentLoaded', initChartPage);
 
@@ -32,21 +32,35 @@ async function initChartPage() {
 
 async function loadOriginDropdown() {
     const origins = await getOrigins(currentChartFilter.companyDomain);
+    console.log('origins', origins);
     populateDropdown('originDropdown', origins, async (origin) => {
         currentChartFilter.origin = origin;
         await loadDependentDropdowns(origin);
     });
 }
 
+async function loadMeasurementDropdown() {
+    const measurements = await getMeasurementList(
+        currentChartFilter.companyDomain,
+        currentChartFilter.origin,
+        currentChartFilter.gatewayId
+    );
+    populateDropdown('measurementDropdown', measurements);
+}
+
 async function loadDependentDropdowns(origin) {
-    const tags = ['location', 'place', 'device_id', 'building', '_field'];
+    const tags = ['location', 'place', 'deviceId', 'building', '_field', 'gatewayId'];
     for (const tag of tags) {
         const values = await getDropdownValues(currentChartFilter.companyDomain, origin, tag);
-        populateDropdown(`${tag}Dropdown`, values);
-    }
+        populateDropdown(`${tag}Dropdown`, values, (value) => {
+            currentChartFilter[tag] = value;
 
-    const measurements = await getMeasurementList(currentChartFilter.companyDomain, origin);
-    populateDropdown('measurementDropdown', measurements);
+            // gatewayId 가 선택된 이후 측정값 로딩
+            if (tag === 'gatewayId') {
+                loadMeasurementDropdown();
+            }
+        });
+    }
 }
 
 function populateDropdown(id, items, onChange) {
@@ -70,7 +84,7 @@ function populateDropdown(id, items, onChange) {
 }
 
 function updateFilterFromDropdowns() {
-    const tags = ['location', 'place', 'device_id', 'building', '_field', 'measurement','range'];
+    const tags = ['location', 'place', 'deviceId', 'building', '_field', 'measurement','range', 'gatewayId'];
     tags.forEach(tag => {
         const select = document.getElementById(`${tag}Dropdown`);
         if (select) {

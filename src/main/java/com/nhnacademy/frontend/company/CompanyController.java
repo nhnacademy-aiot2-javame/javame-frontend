@@ -5,16 +5,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("api/v1/companies")
+@RequestMapping("/companies")
 public class CompanyController {
 
-    @GetMapping("company-list")
+    @GetMapping("/company-list")
     public String companyList() {
-        return "company/company-list";
+        return "admin/company-list";
     }
 
-    @GetMapping("company-detail")
+    @GetMapping("/settings")
     public String companyDetail() {
-        return "company/company-detail";
+        return "owner/company-settings";
     }
 }

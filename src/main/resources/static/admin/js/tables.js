@@ -18,7 +18,7 @@ window.addEventListener('DOMContentLoaded', initTable);
  */
 async function initTable() {
     console.log("Initializing table page...");
-    const companyDomain = 'nhnacademy'; // 실제 환경에 맞게 수정 필요
+    const companyDomain = 'javame'; // 실제 환경에 맞게 수정 필요
     currentTableFilter.companyDomain = companyDomain;
 
     try {
