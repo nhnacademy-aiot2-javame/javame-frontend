@@ -1,11 +1,9 @@
-//charts.js
+// charts.js (트리 기반 필터링 구조로 전면 리팩토링)
 import {
-    getOrigins,
-    getDropdownValues,
-    getMeasurementList,
     startSensorDataStream,
     getChartDataForSensor,
-    getPieChartData
+    getPieChartData,
+    getTree
 } from './iotSensorApi.js';
 
 import {
@@ -16,83 +14,56 @@ import {
 
 let currentChartFilter = { companyDomain: 'javame' };
 
-window.addEventListener('DOMContentLoaded', initChartPage);
-
-async function initChartPage() {
-    await loadOriginDropdown();
+window.addEventListener('DOMContentLoaded', async () => {
+    const tree = await getTree(currentChartFilter.companyDomain);
+    renderSlTree(document.getElementById('filterTree'), tree);
 
     document.getElementById('applyChartFilter')?.addEventListener('click', async () => {
-        updateFilterFromDropdowns();
         restartSseChart();
         await loadBarChart();
         await loadPieChart();
+    });
+});
 
+// 재귀 렌더링 함수
+function renderSlTree(container, node) {
+    if (!node?.children?.length) return;
+
+    // 각 하위 노드 렌더링
+    node.children.forEach(child => {
+        const item = createSlTreeItem(child);
+        container.appendChild(item);  // 반드시 <sl-tree> 또는 <sl-tree-item> 하위에 추가
     });
 }
 
-async function loadOriginDropdown() {
-    const origins = await getOrigins(currentChartFilter.companyDomain);
-    console.log('origins', origins);
-    populateDropdown('originDropdown', origins, async (origin) => {
-        currentChartFilter.origin = origin;
-        await loadDependentDropdowns(origin);
-    });
-}
+function createSlTreeItem(node) {
+    const item = document.createElement('sl-tree-item');
+    item.textContent = node.label;
+    item.dataset.tag = node.tag;
+    item.dataset.label = node.label;
 
-async function loadMeasurementDropdown() {
-    const measurements = await getMeasurementList(
-        currentChartFilter.companyDomain,
-        currentChartFilter.origin,
-        currentChartFilter.gatewayId
-    );
-    populateDropdown('measurementDropdown', measurements);
-}
+    item.addEventListener('click', async (e) => {
+        currentChartFilter[node.tag] = node.label;
+        console.log('현재 필터:', currentChartFilter);
 
-async function loadDependentDropdowns(origin) {
-    const tags = ['location', 'place', 'deviceId', 'building', '_field', 'gatewayId'];
-    for (const tag of tags) {
-        const values = await getDropdownValues(currentChartFilter.companyDomain, origin, tag);
-        populateDropdown(`${tag}Dropdown`, values, (value) => {
-            currentChartFilter[tag] = value;
-
-            // gatewayId 가 선택된 이후 측정값 로딩
-            if (tag === 'gatewayId') {
-                loadMeasurementDropdown();
-            }
-        });
-    }
-}
-
-function populateDropdown(id, items, onChange) {
-    const select = document.getElementById(id);
-    if (!select) return;
-
-    select.innerHTML = '<option value="">선택</option>';
-    items.forEach(item => {
-        const opt = document.createElement('option');
-        opt.value = item;
-        opt.textContent = item;
-        select.appendChild(opt);
-    });
-
-    if (items.length > 0) {
-        select.value = items[0];
-        onChange?.(items[0]);
-    }
-
-    select.onchange = (e) => onChange?.(e.target.value);
-}
-
-function updateFilterFromDropdowns() {
-    const tags = ['location', 'place', 'deviceId', 'building', '_field', 'measurement','range', 'gatewayId'];
-    tags.forEach(tag => {
-        const select = document.getElementById(`${tag}Dropdown`);
-        if (select) {
-            const key = tag === 'measurement' ? '_measurement' : tag;
-            currentChartFilter[key] = select.value;
+        if (node.tag === 'measurement') {
+            currentChartFilter._measurement = node.label;
+            restartSseChart();
+            await loadBarChart();
+            await loadPieChart();
         }
     });
+
+    // 자식 노드 렌더링
+    node.children?.forEach(child => {
+        const childItem = createSlTreeItem(child);
+        childItem.setAttribute('slot', 'children'); // 필수!
+        item.appendChild(childItem);
+    });
+
+    return item;
 }
+
 
 function restartSseChart() {
     const measurement = currentChartFilter._measurement;

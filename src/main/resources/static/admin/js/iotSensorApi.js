@@ -2,6 +2,15 @@ const API_BASE_URL = 'http://localhost:10279/api/v1/environment';
 
 let eventSource = null;
 
+export async function getTree(companyDomain) {
+    const res = await fetch(`${API_BASE_URL}/${companyDomain}/tree`);
+    if (!res.ok) {
+        console.log("트리구조 데이터 로딩 실패: {}" + res.status);
+        return null;
+    }
+    return await res.json();
+}
+
 export async function getOrigins(companyDomain) {
     const res = await fetch(`${API_BASE_URL}/${companyDomain}/origins`);
     if (!res.ok) return [];
@@ -9,7 +18,7 @@ export async function getOrigins(companyDomain) {
 }
 
 export async function getDropdownValues(companyDomain, origin, tag) {
-    const res = await fetch(`${API_BASE_URL}/${companyDomain}/dropdown/${tag}?origin=${origin}`);
+        const res = await fetch(`${API_BASE_URL}/${companyDomain}/dropdown/${tag}`);
     if (!res.ok) return [];
     return await res.json();
 }
