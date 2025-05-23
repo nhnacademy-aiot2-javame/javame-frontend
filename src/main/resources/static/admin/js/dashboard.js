@@ -1,271 +1,260 @@
-// dashboardMain.js (paste.txt HTML 구조에 맞춘 버전)
+// /admin/js/dashboardIntegration.js
 
-// API 함수 import (iotSensorApi.js 경로 확인)
-import {
-    getCurrentSensorValue,
-    startSensorDataStream, // 또는 getChartDataForSensor 등 시계열용 함수
-    getOrigins, // 만약 필터링을 나중에 추가한다면 필요
-    getDropdownValues,
-    getMeasurementList
-} from './iotSensorApi.js';
+import { createMultiLineChart } from './chartUtils.js';
+// 실제 API 함수들은 하드코딩 시 사용하지 않으므로 주석 처리 또는 제거 가능
+// import { getOrigins, getMeasurementList /*, getAggregatedTimeSeriesData, getCurrentSensorValue */ } from './iotSensorApi.js';
 
-// Chart Utils 함수 import (chartUtils.js 경로 확인)
-import {
-    createGaugeChart,
-    createBarChart // 또는 createAreaChart
-} from './chartUtils.js';
+const COMPANY_DOMAIN = 'javame'; // 또는 실제 값
+const chartInstances = {}; // 차트 인스턴스 관리
 
-// 차트 인스턴스 관리
-const chartInstances = {};
-const COMPANY_DOMAIN = 'javame'; // 고정값 또는 동적 설정
+// --- 페이지 로드 시 초기화 ---
+window.addEventListener('DOMContentLoaded', async () => {
+    console.log("Dashboard Integration page loaded. Initializing...");
 
-// HTML ID와 매칭되는 지표 설정
-// 각 게이지와 바 차트에 어떤 데이터를 표시할지 여기서 정의합니다.
-// origin, location, measurement 등은 실제 MQTT 토픽/백엔드 스키마에 정확히 맞춰야 합니다.
-const DASHBOARD_METRICS_CONFIG = {
-    // 게이지 차트 설정 (HTML의 gauge1, gauge2, gauge3, gauge4 에 해당)
-    gauge1: { // 예시: CPU 사용률
-        type: 'gauge',
-        canvasId: 'gauge1',
-        valueTextId: 'gauge1-value',
-        title: 'CPU 사용률',
-        apiParams: { origin: 'server_data', location: 'cpu', measurement: 'usage_user' }, // getCurrentSensorValue용 파라미터
-        unit: '%'
-    },
-    gauge2: { // 예시: 메모리 사용률
-        type: 'gauge',
-        canvasId: 'gauge2',
-        valueTextId: 'gauge2-value',
-        title: '메모리 사용률',
-        apiParams: { origin: 'server_data', location: 'memory', measurement: 'used_percent' },
-        unit: '%'
-    },
-    gauge3: { // 예시: 디스크 사용률
-        type: 'gauge',
-        canvasId: 'gauge3',
-        valueTextId: 'gauge3-value',
-        title: '디스크 사용률',
-        apiParams: { origin: 'server_data', location: 'disk', measurement: 'used_percent' },
-        unit: '%'
-    },
-    gauge4: { // 예시: 특정 센서 온도 (예: 서버룸 입구 온도)
-        type: 'gauge',
-        canvasId: 'gauge4',
-        valueTextId: 'gauge4-value',
-        title: '서버룸 입구 온도',
-        apiParams: { origin: 'server_room', location: '입구', measurement: 'temperature' }, // 예시 토픽 구조 참고
-        unit: '°C'
-    },
-    // 바 차트 설정 (HTML의 barChart1, barChart2, barChart3, barChart4 에 해당)
-    // 바 차트는 보통 시계열 데이터나 카테고리별 집계 데이터를 표시합니다.
-    // 여기서는 각 게이지와 관련된 시계열 데이터를 보여준다고 가정합니다.
-    barChart1: { // 예시: CPU 사용률 시계열
-        type: 'bar', // 또는 'line'/'area'
-        canvasId: 'barChart1',
-        title: 'CPU 사용률 추이',
-        streamParams: { origin: 'server_data', location: 'cpu', _measurement: 'usage_user', /* _field: 'value' */ }, // startSensorDataStream용
-        yAxisLabel: '사용률 (%)'
-    },
-    barChart2: { // 예시: 메모리 사용률 시계열
-        type: 'bar',
-        canvasId: 'barChart2',
-        title: '메모리 사용률 추이',
-        streamParams: { origin: 'server_data', location: 'memory', _measurement: 'used_percent' },
-        yAxisLabel: '사용률 (%)'
-    },
-    barChart3: { // 예시: 디스크 사용률 시계열
-        type: 'bar',
-        canvasId: 'barChart3',
-        title: '디스크 사용률 추이',
-        streamParams: { origin: 'server_data', location: 'disk', _measurement: 'used_percent' },
-        yAxisLabel: '사용률 (%)'
-    },
-    barChart4: { // 예시: 서버룸 입구 온도 시계열
-        type: 'bar',
-        canvasId: 'barChart4',
-        title: '서버룸 입구 온도 추이',
-        streamParams: { origin: 'server_room', location: '입구', _measurement: 'temperature' },
-        yAxisLabel: '온도 (°C)'
-    },
-    // 상단 요약 카드 설정 (HTML의 card-1, card-2, card-3 에 해당)
-    summaryCard1: {
-        cardId: 'card-1', // 이 ID 내부의 .card-body 내용을 업데이트
-        title: '총 활성 서버',
-        apiParams: { /* 활성 서버 수를 가져오는 API 파라미터 */ },
-        // getValue: async (params) => { /* API 호출하여 값 반환 */ return 10; } // 값을 가져오는 함수
-    },
-    summaryCard2: {
-        cardId: 'card-2',
-        title: '오늘 발생 경고',
-        apiParams: { /* 오늘 발생 경고 수를 가져오는 API 파라미터 */ },
-        // getValue: async (params) => { return 5; }
-    },
-    summaryCard3: {
-        cardId: 'card-3',
-        title: '평균 응답 시간',
-        apiParams: { /* 평균 응답 시간을 가져오는 API 파라미터 */ },
-        // getValue: async (params) => { return '120ms'; }
+    // 1. Datepicker 초기화 (HTML 하단 인라인 스크립트에서 처리)
+
+    // 2. Origin 드롭다운 채우기 (하드코딩된 값 사용)
+    populateHardcodedOriginDropdown(); // ★★★ 함수 이름 변경 및 내용 수정 ★★★
+
+    // 3. Y축 단위 선택 시 이벤트 리스너
+    const yAxisUnitSelector = document.getElementById('yAxisUnitSelector');
+    if (yAxisUnitSelector) {
+        yAxisUnitSelector.addEventListener('change', () => {
+            const selectedUnit = yAxisUnitSelector.value;
+            document.getElementById('selectedUnitDisplay').textContent = selectedUnit ? `${selectedUnit === 'percentage' ? '%' : (selectedUnit === 'celsius' ? '°C' : selectedUnit)}` : '미선택';
+            // 단위 변경 시 테이블 자동 업데이트를 원하면 loadMeasurementTable 호출
+        });
     }
-};
 
-window.addEventListener('DOMContentLoaded', () => {
-    console.log("Dashboard (paste.txt based) page loaded. Initializing metrics...");
-    initializeDashboard();
+    // 4. "조회" 버튼 이벤트 리스너
+    const applyFiltersButton = document.getElementById('applyFiltersButton');
+    if (applyFiltersButton) {
+        applyFiltersButton.addEventListener('click', async () => {
+            console.log("Apply filters button clicked.");
+            await loadMeasurementTableAndDrawChart();
+        });
+    }
 
-    // 주기적 업데이트 (선택 사항)
-    // setInterval(fetchAllMetricData, 30000); // 30초마다 모든 데이터 업데이트
+    // 5. 측정 항목 테이블 내 체크박스 변경 시 차트 업데이트
+    const measurementTableBody = document.getElementById('measurementTableBody');
+    if (measurementTableBody) {
+        measurementTableBody.addEventListener('change', async (event) => {
+            if (event.target.type === 'checkbox' && event.target.classList.contains('measurement-checkbox')) {
+                console.log(`Checkbox for ${event.target.value} changed.`);
+                await drawIntegrationChartFromTableSelection();
+            }
+        });
+    }
+
+    // 6. 전체 선택 체크박스 이벤트 리스너
+    const selectAllCheckbox = document.getElementById('selectAllMeasurements');
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('click', async (event) => {
+            document.querySelectorAll('#measurementTableBody .measurement-checkbox').forEach(cb => {
+                cb.checked = event.target.checked;
+            });
+            await drawIntegrationChartFromTableSelection();
+        });
+    }
+
+    // 초기 차트 로드
+    initializeEmptyChart();
 });
 
 /**
- * 대시보드 초기화: 빈 차트 생성 및 초기 데이터 로드
+ * 하드코딩된 Origin 목록으로 드롭다운을 채웁니다.
  */
-function initializeDashboard() {
-    // 빈 차트 프레임 생성
-    Object.values(DASHBOARD_METRICS_CONFIG).forEach(config => {
-        if (config.type === 'gauge' && config.canvasId) {
-            if (chartInstances[config.canvasId]) chartInstances[config.canvasId].destroy();
-            chartInstances[config.canvasId] = createGaugeChart(config.canvasId, 0, '--', config.title);
-            updateTextContent(config.valueTextId, `--${config.unit || ''}`);
-        } else if (config.type === 'bar' && config.canvasId) { // 또는 line/area
-            if (chartInstances[config.canvasId]) chartInstances[config.canvasId].destroy();
-            // createBarChart는 (canvasId, labels, data, title, yAxisLabel) 등을 받는다고 가정
-            chartInstances[config.canvasId] = createBarChart(config.canvasId, [], [], config.title, config.yAxisLabel);
-        }
+function populateHardcodedOriginDropdown() { // ★★★ 함수 이름 변경 및 내용 수정 ★★★
+    const originSelector = document.getElementById('originSelector');
+    if (!originSelector) return;
+
+    // 기존 옵션 제거 (기본 "전체 Origin" 옵션 제외)
+    // originSelector.innerHTML = '<option value="" selected>전체 Origin</option>'; // 이렇게 하면 기본 선택이 유지됨
+    // 또는 모든 옵션을 지우고 새로 채우려면:
+    while (originSelector.options.length > 1) { // 첫 번째 "전체 Origin" 옵션은 남김
+        originSelector.remove(1);
+    }
+    // 아니면, HTML에서 "전체 Origin" 옵션만 남기고, JS에서는 추가만 하도록 할 수 있음.
+    // 여기서는 HTML에 <option value="" selected>전체 Origin</option>이 이미 있다고 가정하고,
+    // 그 뒤에 하드코딩된 origin들을 추가합니다.
+
+    const hardcodedOrigins = [
+        'server_data',    // 서버 관련 데이터
+        'server_room',    // 서버룸 환경 센서 데이터
+        'service_A_jvm',  // 서비스 A의 JVM 메트릭
+        'service_B_db'    // 서비스 B의 DB 메트릭 (예시)
+        // 필요에 따라 더 많은 Origin 추가
+    ];
+
+    if (hardcodedOrigins.length > 0) {
+        hardcodedOrigins.forEach(origin => {
+            const option = document.createElement('option');
+            option.value = origin;
+            option.textContent = origin;
+            originSelector.appendChild(option);
+        });
+        console.log("Populated origin dropdown with hardcoded values:", hardcodedOrigins);
+    } else {
+        console.log("No hardcoded origins to populate.");
+    }
+}
+
+
+// --- 나머지 함수들은 이전 답변과 거의 동일하게 유지 ---
+// initializeEmptyChart, loadMeasurementTableAndDrawChart, loadMeasurementTable,
+// drawIntegrationChartFromTableSelection, generateDummyMeasurements, generateDateLabels
+
+/**
+ * 빈 차트 프레임을 초기화합니다.
+ */
+// dashboard.js 또는 dashboardIntegration.js
+function initializeEmptyChart() {
+    const canvasId = 'multiLineChartCanvas';
+    if (chartInstances[canvasId]) {
+        chartInstances[canvasId].destroy();
+    }
+    // createMultiLineChart는 (canvasId, xAxisLabels, datasets, chartTitle)을 받음
+    // datasets 파라미터로 빈 배열 [] 전달
+    chartInstances[canvasId] = createMultiLineChart(canvasId, [], [], "항목을 선택하고 조회해주세요.");
+    const chartDateRangeEl = document.getElementById('chartDateRange');
+    if(chartDateRangeEl) chartDateRangeEl.textContent = "";
+}
+
+/**
+ * "조회" 버튼 클릭 시 측정 항목 테이블을 로드하고, 초기 선택된 항목으로 차트를 그립니다.
+ */
+async function loadMeasurementTableAndDrawChart() {
+    await loadMeasurementTable();
+    await drawIntegrationChartFromTableSelection();
+}
+
+/**
+ * 선택된 필터 조건에 따라 측정 항목 테이블을 (더미)데이터로 채웁니다.
+ */
+async function loadMeasurementTable() {
+    const tableBody = document.getElementById('measurementTableBody');
+    const selectedUnit = document.getElementById('yAxisUnitSelector').value;
+    const selectedOrigin = document.getElementById('originSelector').value;
+
+    if (!tableBody) return;
+    if (!selectedUnit) {
+        tableBody.innerHTML = '<tr><td colspan="7" class="text-center text-muted p-3">Y축 단위를 먼저 선택해주세요.</td></tr>';
+        return;
+    }
+
+    tableBody.innerHTML = '<tr><td colspan="7" class="text-center text-muted p-3"><i class="fas fa-spinner fa-spin me-2"></i>측정 항목 목록을 불러오는 중...</td></tr>';
+
+    // 더미 데이터 생성 (API 호출 대신)
+    // 실제로는 여기서 getMeasurementList(COMPANY_DOMAIN, selectedOrigin, selectedUnit); 등을 호출
+    const dummyMeasurements = generateDummyMeasurements(selectedUnit, selectedOrigin);
+
+    if (dummyMeasurements.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="7" class="text-center text-muted p-3">선택된 조건에 해당하는 측정 항목이 없습니다.</td></tr>';
+        return;
+    }
+
+    tableBody.innerHTML = ''; // 기존 내용 지우기
+    dummyMeasurements.forEach(m => {
+        const row = tableBody.insertRow();
+        row.insertCell().innerHTML = `<input type="checkbox" class="form-check-input measurement-checkbox" value="${m.name}" data-unit="${m.unit}" data-origin="${m.origin}" data-location="${m.location}" ${m.checked ? 'checked' : ''}>`;
+        row.insertCell().textContent = m.name;
+        row.insertCell().textContent = m.currentValue.toFixed(1) + (m.unit === 'percentage' ? '%' : (m.unit === 'celsius' ? '°C' : ''));
+        row.insertCell().textContent = m.minValue.toFixed(1) + (m.unit === 'percentage' ? '%' : (m.unit === 'celsius' ? '°C' : ''));
+        row.insertCell().textContent = m.maxValue.toFixed(1) + (m.unit === 'percentage' ? '%' : (m.unit === 'celsius' ? '°C' : ''));
+        row.insertCell().textContent = m.origin;
+        row.insertCell().textContent = m.location;
     });
-    // 초기 데이터 로드
-    fetchAllMetricData();
 }
 
 /**
- * 모든 지표 데이터를 가져와서 차트 및 텍스트를 업데이트합니다.
+ * 현재 테이블에서 선택된 측정 항목들을 기반으로 통합 차트를 그립니다.
  */
-async function fetchAllMetricData() {
-    console.log("Fetching and updating all metric data...");
-    for (const key in DASHBOARD_METRICS_CONFIG) {
-        const config = DASHBOARD_METRICS_CONFIG[key];
-        if (config.type === 'gauge') {
-            await loadAndRenderSingleGauge(config);
-        } else if (config.type === 'bar') { // 또는 line/area
-            // 바 차트는 SSE 또는 주기적 API 호출로 업데이트
-            // 여기서는 SSE 스트림 시작/재시작 로직을 예시로 사용
-            // 실제로는 각 차트별 데이터 소스 및 업데이트 주기에 맞춰 조정
-            const streamParams = { companyDomain: COMPANY_DOMAIN, ...config.streamParams };
-            startSensorDataStream(streamParams, (streamData) => {
-                let records = [];
-                if (Array.isArray(streamData)) {
-                    records = streamData;
-                } else if (streamData && streamData[config.streamParams._measurement]) {
-                    records = streamData[config.streamParams._measurement];
-                }
-                updateSingleBarChart(config, records);
-            });
-        } else if (config.cardId) { // 요약 카드 데이터 업데이트
-            await updateSummaryCard(config);
-        }
+async function drawIntegrationChartFromTableSelection() {
+    const canvasId = 'multiLineChartCanvas';
+    const startDateStr = document.getElementById('startDate').value;
+    const endDateStr = document.getElementById('endDate').value;
+
+    if (!startDateStr || !endDateStr) {
+        alert("조회 기간을 선택해주세요.");
+        initializeEmptyChart();
+        return;
     }
-}
+    document.getElementById('chartDateRange').textContent = `(${startDateStr} ~ ${endDateStr})`;
 
-/**
- * 단일 게이지 차트 데이터 로드 및 렌더링
- * @param {object} gaugeConfig
- */
-async function loadAndRenderSingleGauge(gaugeConfig) {
-    const { canvasId, valueTextId, title, apiParams, unit } = gaugeConfig;
-    const data = await getCurrentSensorValue(COMPANY_DOMAIN, apiParams.origin, apiParams.location, apiParams.measurement);
-
-    let gaugeDisplayValue = 0;
-    let textDisplay = `--${unit || ''}`;
-
-    if (data && typeof data.value === 'number') {
-        const currentValue = data.value;
-        // 값 변환 로직 (이전 답변의 loadAndRenderGauge 함수 로직 참고)
-        if (unit === '%') {
-            gaugeDisplayValue = Math.max(0, Math.min(100, currentValue));
-            textDisplay = `${currentValue.toFixed(1)}%`;
-        } else if (unit === '°C') {
-            // 온도 범위에 따른 % 변환 예시 (0~100도 범위 가정)
-            gaugeDisplayValue = Math.max(0, Math.min(100, (currentValue / 100) * 100));
-            textDisplay = `${currentValue.toFixed(1)}°C`;
-        } else { // 기타 단위
-            gaugeDisplayValue = currentValue; // 또는 적절한 스케일링
-            textDisplay = `${currentValue.toFixed(1)}${unit || ''}`;
-        }
-        console.log(`${title}: ${textDisplay}`);
-    } else {
-        console.warn(`${title} 데이터 로드 실패 또는 형식 오류.`, data);
+    const selectedCheckboxes = document.querySelectorAll('#measurementTableBody .measurement-checkbox:checked');
+    if (selectedCheckboxes.length === 0) {
+        initializeEmptyChart();
+        return;
     }
 
-    updateTextContent(valueTextId, textDisplay);
-    if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
-    chartInstances[canvasId] = createGaugeChart(canvasId, gaugeDisplayValue, textDisplay, title);
-}
+    const xAxisLabels = generateDateLabels(startDateStr, endDateStr);
+    const datasetsForChart = [];
 
-/**
- * 단일 바 차트(또는 라인/영역 차트) 업데이트
- * @param {object} chartConfig
- * @param {Array} records
- */
-function updateSingleBarChart(chartConfig, records) {
-    const { canvasId, title, yAxisLabel } = chartConfig;
-    const chart = chartInstances[canvasId];
-    if (!chart) return;
+    for (const checkbox of selectedCheckboxes) {
+        const measurementName = checkbox.value;
+        const unit = checkbox.dataset.unit;
+        const origin = checkbox.dataset.origin;
+        const location = checkbox.dataset.location;
 
-    if (records && records.length > 0) {
-        const labels = records.map(d => new Date(d.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
-        const values = records.map(d => d.value);
-        chart.data.labels = labels;
-        chart.data.datasets[0].data = values;
-        chart.data.datasets[0].label = title;
-        if (chart.options.scales && chart.options.scales.y) { // Chart.js 3+
-            chart.options.scales.y.title = chart.options.scales.y.title || {};
-            chart.options.scales.y.title.text = yAxisLabel;
-            chart.options.scales.y.title.display = !!yAxisLabel;
-        } else if (chart.options.scales && chart.options.scales.yAxes && chart.options.scales.yAxes[0]) { // Chart.js 2.x
-            chart.options.scales.yAxes[0].scaleLabel.labelString = yAxisLabel;
-            chart.options.scales.yAxes[0].scaleLabel.display = !!yAxisLabel;
-        }
-    } else {
-        chart.data.labels = [];
-        chart.data.datasets[0].data = [];
+        // 더미 시계열 데이터 생성 (API 호출 대신)
+        // 실제로는 여기서 await getAggregatedTimeSeriesData(...) 호출
+        const dummyTimeSeriesData = Array.from({ length: xAxisLabels.length }, () =>
+            Math.floor(Math.random() * (unit === 'celsius' ? 15 : 60)) + (unit === 'celsius' ? 20 : 30)
+        );
+
+        datasetsForChart.push({
+            label: `${measurementName} (${origin}/${location})`,
+            data: dummyTimeSeriesData,
+            unit: unit,
+        });
     }
-    chart.update('none');
-}
 
-/**
- * 요약 카드 내용 업데이트 (예시)
- * @param {object} cardConfig
- */
-async function updateSummaryCard(cardConfig) {
-    const cardElement = document.getElementById(cardConfig.cardId);
-    if (!cardElement) return;
-
-    const cardBody = cardElement.querySelector('.card-body');
-    if (!cardBody) return;
-
-    // 실제로는 cardConfig.getValue 함수를 호출하거나,
-    // cardConfig.apiParams를 사용하여 API 호출 후 값을 가져와야 함.
-    // 여기서는 임시 텍스트로 채웁니다.
-    let valueToDisplay = "데이터 로딩 중...";
-    if (cardConfig.cardId === 'card-1') valueToDisplay = "15대"; // 예시
-    else if (cardConfig.cardId === 'card-2') valueToDisplay = "3건";
-    else if (cardConfig.cardId === 'card-3') valueToDisplay = "150ms";
-
-    cardBody.innerHTML = `<strong>${cardConfig.title}:</strong> ${valueToDisplay}`;
-    console.log(`Summary card ${cardConfig.cardId} updated.`);
-}
-
-/**
- * Helper function to update text content of an element
- * @param {string} elementId
- * @param {string} text
- */
-function updateTextContent(elementId, text) {
-    const element = document.getElementById(elementId);
-    if (element) {
-        element.textContent = text;
+    if (chartInstances[canvasId]) {
+        chartInstances[canvasId].destroy();
     }
+    chartInstances[canvasId] = createMultiLineChart(
+        canvasId,
+        xAxisLabels,
+        datasetsForChart,
+        `선택 항목 통합 시계열`
+    );
 }
 
-// HTML에 있는 필터링 버튼 및 센서 트리 로직은 현재 이 JS 파일에서는 직접 사용하지 않습니다.
-// 해당 로직은 별도의 파일로 분리하거나, 필요에 따라 이 파일에 통합할 수 있습니다.
-// 지금은 고정된 메인 대시보드 항목 표시에만 집중합니다.
+// --- 더미 데이터 생성 함수들 (이전과 동일) ---
+function generateDummyMeasurements(unit, originFilter) {
+    const measurements = [];
+    // ... (이전 답변의 generateDummyMeasurements 내용) ...
+    if (unit === 'percentage') {
+        measurements.push({ name: 'CPU_Usage_User', unit: 'percentage', origin: 'server_data', location: 'cpu', currentValue: Math.random()*100, minValue: 10, maxValue: 90, checked: true });
+        measurements.push({ name: 'Memory_Used_Percent', unit: 'percentage', origin: 'server_data', location: 'memory', currentValue: Math.random()*100, minValue: 20, maxValue: 80, checked: true });
+        measurements.push({ name: 'Disk_sda1_Used_Percent', unit: 'percentage', origin: 'server_data', location: 'disk_sda1', currentValue: Math.random()*100, minValue: 5, maxValue: 70, checked: false });
+        measurements.push({ name: 'ServiceA_Heap_Used_Percent', unit: 'percentage', origin: 'service_A_jvm', location: 'heap', currentValue: Math.random()*100, minValue: 30, maxValue: 95, checked: false });
+    } else if (unit === 'celsius') {
+        measurements.push({ name: 'CPU_Temp_Package', unit: 'celsius', origin: 'server_data', location: 'cpu', currentValue: 20 + Math.random()*60, minValue: 40, maxValue: 85, checked: true });
+        measurements.push({ name: 'ServerRoom_Rack1_Temp', unit: 'celsius', origin: 'server_room', location: 'rack1_front', currentValue: 18 + Math.random()*10, minValue: 18, maxValue: 28, checked: false });
+        measurements.push({ name: 'ServerRoom_Entrance_Temp', unit: 'celsius', origin: 'server_room', location: 'main_entrance', currentValue: 20 + Math.random()*10, minValue: 20, maxValue: 30, checked: false });
+    }
+    if (originFilter && originFilter !== "") { // originFilter가 빈 문자열이 아닐 때만 필터링
+        return measurements.filter(m => m.origin === originFilter);
+    }
+    return measurements;
+}
+
+function generateDateLabels(startDateStr, endDateStr) {
+    const labels = [];
+    let currentDate = new Date(startDateStr);
+    const finalEndDate = new Date(endDateStr);
+
+    if (isNaN(currentDate.getTime()) || isNaN(finalEndDate.getTime()) || currentDate > finalEndDate) {
+        console.warn("Invalid date range for generating labels.");
+        // 기본 라벨 반환 또는 오류 처리
+        return ['날짜1', '날짜2', '날짜3', '날짜4', '날짜5', '날짜6', '날짜7'];
+    }
+
+    while (currentDate <= finalEndDate) {
+        labels.push(`${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`);
+        currentDate.setDate(currentDate.getDate() + 1);
+        if (labels.length >= 31) break; // 최대 31개 라벨 (한 달치)
+    }
+    return labels.length > 0 ? labels : ['데이터 없음']; // 날짜 범위가 하루면 라벨이 하나일 수 있음
+}

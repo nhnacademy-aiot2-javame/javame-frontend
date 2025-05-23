@@ -1,5 +1,3 @@
-// admin/js/dashboardIntegration.js
-
 // /admin/js/dashboardIntegration.js
 
 // chartUtils.js에서 콤보 차트 생성 함수 import
