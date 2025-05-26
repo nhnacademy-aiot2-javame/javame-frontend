@@ -1,8 +1,12 @@
 package com.nhnacademy.frontend.dashboard;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.Objects;
 
 @Controller
 @RequestMapping("/environment")
@@ -28,5 +32,13 @@ public class DashboardController {
         return "dashboard/reports";
     }
 
+    @GetMapping("/warnify")
+    public String warnify(@RequestParam(value = "page", required = false)Long pageNum, Model model){
+        if(Objects.isNull(pageNum)){
+            return "redirect:/environment/warnify?page=1";
+        }
+        model.addAttribute("pageNum", pageNum);
+        return "dashboard/warnify";
+    }
 
 }
