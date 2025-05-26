@@ -1,7 +1,7 @@
 // auth.js
 const TOKEN_KEY = 'accessToken';
 const REFRESH_KEY = 'refreshToken';
-const USE_MOCK_LOGIN = true;
+const USE_MOCK_LOGIN = false;
 
 /**
  * 로그인 요청 → 토큰 받아서 저장 + 사용자 정보 반환
@@ -41,28 +41,38 @@ export async function login(memberEmail, memberPassword) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ memberEmail, memberPassword })
+            body: JSON.stringify({ memberEmail, memberPassword }),
         });
 
         if (!response.ok) {
             throw new Error('로그인 실패');
         }
 
-        const data = await response.json();
-        console.log('로그인 응답 데이터:', data);
+        // 헤더에서 토큰 받아오기
 
-        const decodedToken = jwt_decode(data.accessToken);
+        console.log("Authorization: " + response.headers.get('Authorization'));
+        const authHeader = response.headers.get('Authorization');
+        const refreshToken = response.headers.get('Refresh-Token');
+
+        if (!authHeader) {
+            throw new Error('Authorization 헤더가 없습니다.');
+        }
+
+        // "Bearer " 부분 제거하고 토큰만 추출
+        const accessToken = authHeader.split(' ')[1];
+
+        const decodedToken = jwt_decode(accessToken);
         const role = decodedToken.role;
 
-        sessionStorage.setItem(TOKEN_KEY, data.accessToken);
-        sessionStorage.setItem(REFRESH_KEY, data.refreshToken);
+        sessionStorage.setItem(TOKEN_KEY, accessToken);
+        sessionStorage.setItem(REFRESH_KEY, refreshToken);
         sessionStorage.setItem('user', JSON.stringify({
-            memberEmail: data.memberEmail,
+            memberEmail: decodedToken.sub || '',
             role: role,
             isLoggedIn: true
         }));
 
-        return { memberEmail: data.memberEmail, role: role };
+        return { memberEmail: decodedToken.sub || '', role: role };
     }
 }
 
