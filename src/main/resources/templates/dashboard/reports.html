@@ -1,53 +1,179 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"> <!-- Thymeleaf 사용 시 -->
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta name="description" content="주간/월간 리포트" />
+    <meta name="description" content="AI 기반 리포트" />
     <meta name="author" content="NHN Academy" />
-    <title>NHN Academy IoT 센서 관리 - 리포트</title>
+    <title>NHN Academy IoT 센서 관리 - AI 리포트</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <!-- 공통 관리자 페이지 CSS (실제 경로로 수정) -->
     <link href="/admin/css/styles.css" rel="stylesheet" />
+    <!-- Font Awesome -->
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+
+    <style>
+        /* 간단한 스타일 추가 (필요시 styles.css로 이동) */
+        .chart-wrapper { /* JavaScript에서 차트를 감싸는 div에 적용 */
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        #reportSummary pre { /* JavaScript에서 <pre> 태그로 요약 표시 시 */
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            padding: 15px;
+            margin-bottom: 20px;
+            white-space: pre-wrap; /* AI 요약 줄바꿈 유지 */
+            border-radius: 5px;
+            font-family: inherit; /* 부모 폰트 상속 */
+            font-size: 0.95rem; /* 가독성 위해 폰트 크기 조절 */
+        }
+        #loadingSpinner {
+            text-align: center;
+            padding: 20px;
+        }
+        #errorMessage {
+            border-radius: 5px;
+        }
+        #reportTableContainer table { /* 테이블 스타일 */
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+            font-size: 0.9rem; /* 테이블 내용이 많을 경우 가독성 */
+        }
+        #reportTableContainer th, #reportTableContainer td {
+            border: 1px solid #ddd;
+            padding: 0.5rem 0.75rem; /* 패딩 조절 */
+            text-align: left;
+            vertical-align: top; /* 내용이 길 경우 상단 정렬 */
+        }
+        #reportTableContainer th {
+            background-color: #f8f9fa; /* Bootstrap aThead 색상과 유사하게 */
+            font-weight: 600; /* 헤더 굵게 */
+        }
+        #reportOutputArea { /* 결과 영역이 초기에 보이지 않도록 */
+            display: none;
+        }
+    </style>
 </head>
 <body class="sb-nav-fixed">
-    <div th:replace="~{fragments/head :: header}"></div>
-        <div id="layoutSidenav">
-        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
-            <div id="layoutSidenav_content">
 
-            <main class="container-fluid px-4 mt-4">
-                <h1 class="mb-4">리포트</h1>
+<!-- 헤더 프래그먼트 (Thymeleaf) -->
+<div th:replace="~{fragments/head :: header}"></div>
 
-                <!-- 주간/월간 버튼 -->
-                <div class="btn-group mb-4" role="group" aria-label="리포트 타입 선택">
-                    <button type="button" class="btn btn-outline-primary active" id="weekly-btn">주간 리포트</button>
-                    <button type="button" class="btn btn-outline-secondary" id="monthly-btn">월간 리포트</button>
+<div id="layoutSidenav">
+    <!-- 사이드바 프래그먼트 (Thymeleaf) -->
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid px-4">
+                <h1 class="mt-4">AI 기반 리포트 생성</h1>
+                <ol class="breadcrumb mb-4">
+                    <li class="breadcrumb-item"><a th:href="@{/admin/dashboard}">대시보드</a></li>
+                    <li class="breadcrumb-item active">AI 리포트</li>
+                </ol>
+
+                <!-- 리포트 생성 조건 입력 폼 (단순화) -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-pen-alt me-1"></i>
+                        분석 요청
+                    </div>
+                    <div class="card-body">
+                        <form id="reportGenerationForm"> <!-- JavaScript에서 이 ID로 폼 이벤트 리스너 연결 -->
+                            <div class="mb-3">
+                                <label for="userPromptInput" class="form-label fs-5 fw-semibold">어떤 분석을 원하시나요?</label>
+                                <textarea class="form-control form-control-lg" id="userPromptInput" rows="5" placeholder="예: 지난 주 우리 공장의 평균 온도와 가장 높았던 시간은 언제인가요? 그리고 주요 특이사항을 요약해주세요." required></textarea>
+                                <div class="form-text mt-1">
+                                    AI가 입력된 내용을 바탕으로 관련된 데이터를 찾아 분석하고 요약 리포트를 생성합니다.
+                                    (기본적으로 최근 7일간의 주요 환경 데이터를 참고합니다.)
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="reportTypeSelect" class="form-label fw-semibold">리포트 분석 유형 (선택):</label>
+                                <select class="form-select" id="reportTypeSelect">
+                                    <option value="종합" selected>종합 분석 (기본)</option>
+                                    <option value="환경">환경 데이터 중심 분석</option>
+                                    <option value="보안">보안 이벤트 중심 분석 (향후 지원)</option>
+                                    <option value="주간 동향">주간 동향 상세 분석</option>
+                                    <option value="월간 비교">월간 비교 분석 (향후 지원)</option>
+                                </select>
+                            </div>
+
+                            <div class="text-center mt-4 pt-2">
+                                <button type="submit" class="btn btn-primary btn-lg px-5 py-2">
+                                    <i class="fas fa-magic me-2"></i> AI 분석 요청
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
 
-                <!-- 리포트 내용 -->
-                <div id="report-content">
-                    <div id="weekly-report" class="report-section">
-                        <h3>주간 리포트</h3>
-                        <p>여기에 주간 리포트 데이터가 들어갑니다.</p>
+                <!-- 로딩 및 오류 메시지 표시 영역 -->
+                <div id="loadingSpinner" class="alert alert-info" style="display: none; margin-top: 20px;" role="alert">
+                    <div class="spinner-border spinner-border-sm me-2" role="status">
+                        <span class="visually-hidden">Loading...</span>
                     </div>
+                    AI가 리포트를 생성 중입니다. 잠시만 기다려주세요...
+                </div>
+                <div id="errorMessage" class="alert alert-danger" style="display: none; margin-top: 20px;" role="alert">
+                    <!-- JavaScript의 showError 함수가 여기에 오류 메시지를 채움 -->
+                </div>
 
-                    <div id="monthly-report" class="report-section d-none">
-                        <h3>월간 리포트</h3>
-                        <p>여기에 월간 리포트 데이터가 들어갑니다.</p>
+                <!-- 리포트 결과 표시 영역 -->
+                <div id="reportOutputArea" class="mt-4"> <!-- JavaScript에서 display:block으로 변경 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-file-alt me-1"></i>
+                            <span id="reportGeneratedTitle">AI 분석 리포트</span> <!-- JavaScript의 clearResults에서 비워짐, 필요시 JS에서 다시 채움 -->
+                        </div>
+                        <div class="card-body">
+                            <h4 class="mb-3"><i class="fas fa-brain me-2"></i> AI 요약</h4>
+                            <div id="reportSummary">
+                                <!-- JavaScript의 showSummary 함수가 여기에 <pre> 태그로 내용을 채움 -->
+                            </div>
+<!--                            <hr class="my-4">-->
+<!--                            <h4 class="mb-3"><i class="fas fa-table me-2"></i> 관련 데이터 테이블</h4>-->
+<!--                            <div id="reportTableContainer" class="table-responsive">-->
+<!--                                &lt;!&ndash; JavaScript의 showTable 함수가 여기에 테이블을 생성 &ndash;&gt;-->
+<!--                            </div>-->
+                            <hr class="my-4">
+                            <h4 class="mb-3"><i class="fas fa-chart-line me-2"></i> 관련 데이터 차트</h4>
+                            <div id="reportChartsContainer" class="mt-3">
+                                <!-- JavaScript의 showCharts 함수가 여기에 차트를 생성 -->
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </main>
-        </div>
+
+            </div> <!-- .container-fluid px-4 -->
+        </main>
+
+        <!-- 푸터 프래그먼트 (Thymeleaf) -->
+        <div th:replace="~{fragments/footer :: footer}"></div>
     </div>
-<div th:replace="~{fragments/footer :: footer}"></div>
+</div>
 
-<!-- 공통 JS -->
+<!-- 공통 JS (Bootstrap 등) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-<script src="/admin/js/scripts.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
+<script src="/admin/js/scripts.js"></script> <!-- 관리자 페이지 공통 스크립트 (예: 사이드바 토글) -->
 
-<!-- 리포트 JS -->
+<!-- 차트 라이브러리 (Chart.js) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
+<!-- Chart.js v3.x 또는 v4.x 사용 권장:
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+(chartUtils.js도 해당 버전에 맞게 수정 필요) -->
+
+<!-- 리포트 전용 JavaScript (ES6 모듈로 로드) -->
 <script type="module" src="/admin/js/reports.js"></script>
+<!-- chartUtils.js는 reports.js에서 import 하므로, HTML에 별도로 로드할 필요 없음 (모듈 방식 사용 시) -->
+
 </body>
 </html>
