@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org"> <!-- Thymeleaf 사용 시 -->
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -9,171 +9,406 @@
     <title>NHN Academy IoT 센서 관리 - AI 리포트</title>
 
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-    <!-- 공통 관리자 페이지 CSS (실제 경로로 수정) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <!-- 공통 관리자 페이지 CSS -->
     <link href="/admin/css/styles.css" rel="stylesheet" />
     <!-- Font Awesome -->
-    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <script src="https://use.fontawesome.com/releases/v6.4.0/js/all.js" crossorigin="anonymous"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 
     <style>
-        /* 간단한 스타일 추가 (필요시 styles.css로 이동) */
-        .chart-wrapper { /* JavaScript에서 차트를 감싸는 div에 적용 */
-            margin-bottom: 30px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+        /* 전체 폰트 설정 */
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f8f9fa;
         }
-        #reportSummary pre { /* JavaScript에서 <pre> 태그로 요약 표시 시 */
-            background-color: #f9f9f9;
-            border: 1px solid #eee;
-            padding: 15px;
-            margin-bottom: 20px;
-            white-space: pre-wrap; /* AI 요약 줄바꿈 유지 */
-            border-radius: 5px;
-            font-family: inherit; /* 부모 폰트 상속 */
-            font-size: 0.95rem; /* 가독성 위해 폰트 크기 조절 */
+
+        /* 헤더 스타일 개선 */
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            border-radius: 0 0 20px 20px;
         }
-        #loadingSpinner {
+
+        .page-header h1 {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* 입력 폼 카드 스타일 */
+        .input-card {
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .input-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .input-card .card-header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 1.5rem;
+        }
+
+        .input-card .card-body {
+            padding: 2rem;
+        }
+
+        /* 프롬프트 입력창 스타일 */
+        .prompt-textarea {
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 1rem;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .prompt-textarea:focus {
+            border-color: #ffffff;
+            box-shadow: 0 0 0 0.2rem rgba(79, 172, 254, 0.25);
+        }
+
+        /* 제출 버튼 스타일 */
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 50px;
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        /* 로딩 스피너 개선 */
+        .loading-container {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border: none;
+            border-radius: 15px;
+            padding: 2rem;
             text-align: center;
-            padding: 20px;
         }
-        #errorMessage {
-            border-radius: 5px;
-        }
-        #reportTableContainer table { /* 테이블 스타일 */
-            width: 100%;
-            border-collapse: collapse;
+
+        .loading-spinner {
+            width: 3rem;
+            height: 3rem;
             margin-bottom: 1rem;
-            font-size: 0.9rem; /* 테이블 내용이 많을 경우 가독성 */
         }
-        #reportTableContainer th, #reportTableContainer td {
-            border: 1px solid #ddd;
-            padding: 0.5rem 0.75rem; /* 패딩 조절 */
-            text-align: left;
-            vertical-align: top; /* 내용이 길 경우 상단 정렬 */
+
+        /* 리포트 결과 영역 스타일 */
+        .report-output {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-top: 2rem;
         }
-        #reportTableContainer th {
-            background-color: #f8f9fa; /* Bootstrap aThead 색상과 유사하게 */
-            font-weight: 600; /* 헤더 굵게 */
+
+        .report-header {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 2rem;
+            border: none;
         }
-        #reportOutputArea { /* 결과 영역이 초기에 보이지 않도록 */
+
+        .report-header h3 {
+            margin: 0;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .report-body {
+            padding: 2rem;
+        }
+
+        /* AI 요약 섹션 */
+        .summary-section {
+            background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            /*border-left: 5px solid #6b89ff;*/
+        }
+
+        .summary-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #2c3e50;
+            white-space: pre-wrap;
+            margin: 0;
+        }
+
+        /* 차트 섹션 */
+        .charts-section {
+            margin-top: 2rem;
+        }
+
+        .chart-wrapper {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            border: 1px solid #e9ecef;
+            transition: transform 0.3s ease;
+        }
+
+        .chart-wrapper:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.12);
+        }
+
+        .chart-title {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* 섹션 헤더 */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .section-header h4 {
+            margin: 0;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .section-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        /* 에러 메시지 스타일 */
+        .error-alert {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            border: none;
+            border-radius: 15px;
+            border-left: 5px solid #e74c3c;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 1.5rem 0;
+            }
+
+            .input-card .card-body,
+            .report-body {
+                padding: 1.5rem;
+            }
+
+            .submit-btn {
+                padding: 0.8rem 2rem;
+                font-size: 1rem;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 애니메이션 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* 숨김 처리 */
+        #reportOutputArea {
             display: none;
         }
     </style>
 </head>
 <body class="sb-nav-fixed">
 
-<!-- 헤더 프래그먼트 (Thymeleaf) -->
+<!-- 헤더 프래그먼트 -->
 <div th:replace="~{fragments/head :: header}"></div>
 
 <div id="layoutSidenav">
-    <!-- 사이드바 프래그먼트 (Thymeleaf) -->
+    <!-- 사이드바 프래그먼트 -->
     <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
     <div id="layoutSidenav_content">
         <main>
-            <div class="container-fluid px-4">
-                <h1 class="mt-4">AI 기반 리포트 생성</h1>
-                <ol class="breadcrumb mb-4">
-                    <li class="breadcrumb-item"><a th:href="@{/admin/dashboard}">대시보드</a></li>
-                    <li class="breadcrumb-item active">AI 리포트</li>
-                </ol>
+            <!-- 페이지 헤더 -->
+            <div class="page-header">
+                <div class="container-fluid px-4">
+                    <h1><i class="fas fa-robot me-3"></i>AI 기반 리포트 생성</h1>
+                    <p class="subtitle mb-0">자연어로 질문하면 AI가 데이터를 분석하여 인사이트를 제공합니다</p>
+                </div>
+            </div>
 
-                <!-- 리포트 생성 조건 입력 폼 (단순화) -->
-                <div class="card mb-4">
+            <div class="container-fluid px-4">
+                <!-- 브레드크럼 -->
+                <nav aria-label="breadcrumb" class="mb-4">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a th:href="@{/environment/dashboard}">대시보드</a></li>
+                        <li class="breadcrumb-item active">AI 리포트</li>
+                    </ol>
+                </nav>
+
+                <!-- 리포트 생성 입력 폼 -->
+                <div class="card input-card mb-4 fade-in-up">
                     <div class="card-header">
-                        <i class="fas fa-pen-alt me-1"></i>
-                        분석 요청
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-comments me-3 fs-4"></i>
+                            <div>
+                                <h4 class="mb-1">무엇을 분석해드릴까요?</h4>
+                                <p class="mb-0 opacity-90">궁금한 내용을 자연스럽게 말씀해주세요</p>
+                            </div>
+                        </div>
                     </div>
                     <div class="card-body">
-                        <form id="reportGenerationForm"> <!-- JavaScript에서 이 ID로 폼 이벤트 리스너 연결 -->
-                            <div class="mb-3">
-                                <label for="userPromptInput" class="form-label fs-5 fw-semibold">어떤 분석을 원하시나요?</label>
-                                <textarea class="form-control form-control-lg" id="userPromptInput" rows="5" placeholder="예: 지난 주 우리 공장의 평균 온도와 가장 높았던 시간은 언제인가요? 그리고 주요 특이사항을 요약해주세요." required></textarea>
-                                <div class="form-text mt-1">
-                                    AI가 입력된 내용을 바탕으로 관련된 데이터를 찾아 분석하고 요약 리포트를 생성합니다.
-                                    (기본적으로 최근 7일간의 주요 환경 데이터를 참고합니다.)
+                        <form id="reportGenerationForm">
+                            <div class="mb-4">
+                                <label for="userPromptInput" class="form-label fw-semibold fs-5 mb-3">
+                                    <i class="fas fa-lightbulb me-2 text-warning"></i>분석 요청
+                                </label>
+                                <textarea
+                                        class="form-control prompt-textarea"
+                                        id="userPromptInput"
+                                        rows="4"
+                                        placeholder="예시: CPU 사용률 알려줘&#10;인증 서비스 힙 메모리 상태 보여줘&#10;환경 API 가비지 컬렉션 횟수 확인해줘&#10;프론트엔드 스레드 수 알려줘"
+                                        required></textarea>
+                                <div class="form-text mt-2">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    시스템 메트릭(CPU, 메모리, 온도, 전력) 또는 JVM 서비스 메트릭(인증, 환경API, 프론트엔드, 게이트웨이, 회원)을 자연어로 요청하세요.
                                 </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="reportTypeSelect" class="form-label fw-semibold">리포트 분석 유형 (선택):</label>
-                                <select class="form-select" id="reportTypeSelect">
-                                    <option value="종합" selected>종합 분석 (기본)</option>
-                                    <option value="환경">환경 데이터 중심 분석</option>
-                                    <option value="보안">보안 이벤트 중심 분석 (향후 지원)</option>
-                                    <option value="주간 동향">주간 동향 상세 분석</option>
-                                    <option value="월간 비교">월간 비교 분석 (향후 지원)</option>
-                                </select>
-                            </div>
-
-                            <div class="text-center mt-4 pt-2">
-                                <button type="submit" class="btn btn-primary btn-lg px-5 py-2">
-                                    <i class="fas fa-magic me-2"></i> AI 분석 요청
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary submit-btn">
+                                    <i class="fas fa-magic me-2"></i>AI 분석 시작
                                 </button>
                             </div>
                         </form>
                     </div>
                 </div>
 
-                <!-- 로딩 및 오류 메시지 표시 영역 -->
-                <div id="loadingSpinner" class="alert alert-info" style="display: none; margin-top: 20px;" role="alert">
-                    <div class="spinner-border spinner-border-sm me-2" role="status">
+                <!-- 로딩 및 오류 메시지 -->
+                <div id="loadingSpinner" class="alert loading-container fade-in-up" style="display: none;">
+                    <div class="spinner-border loading-spinner text-primary" role="status">
                         <span class="visually-hidden">Loading...</span>
                     </div>
-                    AI가 리포트를 생성 중입니다. 잠시만 기다려주세요...
+                    <h5 class="mb-2">🤖 AI가 데이터를 분석하고 있습니다</h5>
+                    <p class="mb-0">잠시만 기다려주세요...</p>
                 </div>
-                <div id="errorMessage" class="alert alert-danger" style="display: none; margin-top: 20px;" role="alert">
-                    <!-- JavaScript의 showError 함수가 여기에 오류 메시지를 채움 -->
+
+                <div id="errorMessage" class="alert alert-danger error-alert fade-in-up" style="display: none;">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle me-3 fs-4"></i>
+                        <div>
+                            <h6 class="mb-1">오류가 발생했습니다</h6>
+                            <span class="error-text"></span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- 리포트 결과 표시 영역 -->
-                <div id="reportOutputArea" class="mt-4"> <!-- JavaScript에서 display:block으로 변경 -->
-                    <div class="card">
-                        <div class="card-header">
-                            <i class="fas fa-file-alt me-1"></i>
-                            <span id="reportGeneratedTitle">AI 분석 리포트</span> <!-- JavaScript의 clearResults에서 비워짐, 필요시 JS에서 다시 채움 -->
-                        </div>
-                        <div class="card-body">
-                            <h4 class="mb-3"><i class="fas fa-brain me-2"></i> AI 요약</h4>
-                            <div id="reportSummary">
-                                <!-- JavaScript의 showSummary 함수가 여기에 <pre> 태그로 내용을 채움 -->
+                <div id="reportOutputArea" class="fade-in-up">
+                    <div class="card report-output">
+                        <div class="card-header report-header">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-chart-line me-3 fs-3"></i>
+                                <h3 id="reportGeneratedTitle">AI 분석 리포트</h3>
                             </div>
-<!--                            <hr class="my-4">-->
-<!--                            <h4 class="mb-3"><i class="fas fa-table me-2"></i> 관련 데이터 테이블</h4>-->
-<!--                            <div id="reportTableContainer" class="table-responsive">-->
-<!--                                &lt;!&ndash; JavaScript의 showTable 함수가 여기에 테이블을 생성 &ndash;&gt;-->
-<!--                            </div>-->
-                            <hr class="my-4">
-                            <h4 class="mb-3"><i class="fas fa-chart-line me-2"></i> 관련 데이터 차트</h4>
-                            <div id="reportChartsContainer" class="mt-3">
-                                <!-- JavaScript의 showCharts 함수가 여기에 차트를 생성 -->
+                        </div>
+                        <div class="card-body report-body">
+                            <!-- AI 요약 섹션 -->
+                            <div class="section-header">
+                                <div class="section-icon">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <h4>AI 분석 요약</h4>
+                            </div>
+                            <div class="summary-section">
+                                <div id="reportSummary" class="summary-content">
+                                    <!-- JavaScript가 여기에 AI 요약을 채움 -->
+                                </div>
+                            </div>
+
+                            <!-- 리포트 정보 섹션 -->
+                            <div id="reportInfo">
+                                <!-- JavaScript가 여기에 리포트 정보를 채움 -->
+                            </div>
+
+                            <!-- 차트 섹션 -->
+                            <div class="charts-section">
+                                <div class="section-header">
+                                    <div class="section-icon">
+                                        <i class="fas fa-chart-area"></i>
+                                    </div>
+                                    <h4>데이터 시각화</h4>
+                                </div>
+                                <div id="reportChartsContainer">
+                                    <!-- JavaScript가 여기에 차트를 생성 -->
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-            </div> <!-- .container-fluid px-4 -->
+            </div>
         </main>
 
-        <!-- 푸터 프래그먼트 (Thymeleaf) -->
+        <!-- 푸터 프래그먼트 -->
         <div th:replace="~{fragments/footer :: footer}"></div>
     </div>
 </div>
 
-<!-- 공통 JS (Bootstrap 등) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-<script src="/admin/js/scripts.js"></script> <!-- 관리자 페이지 공통 스크립트 (예: 사이드바 토글) -->
-
-<!-- 차트 라이브러리 (Chart.js) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
-<!-- Chart.js v3.x 또는 v4.x 사용 권장:
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
-(chartUtils.js도 해당 버전에 맞게 수정 필요) -->
-
-<!-- 리포트 전용 JavaScript (ES6 모듈로 로드) -->
+<!-- JavaScript 라이브러리 -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<script src="/admin/js/scripts.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
 <script type="module" src="/admin/js/reports.js"></script>
-<!-- chartUtils.js는 reports.js에서 import 하므로, HTML에 별도로 로드할 필요 없음 (모듈 방식 사용 시) -->
 
 </body>
 </html>

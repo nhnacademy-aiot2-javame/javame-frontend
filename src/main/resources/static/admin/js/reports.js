@@ -1,6 +1,6 @@
 // reports.js
 
-import { createAreaChart, createMultiLineChart, createBarChart, createPieChart } from './chartUtils.js';
+import { createAreaChart, createMultiLineChart, createBarChart} from './chartUtils.js';
 
 const API_BASE_URL = 'http://localhost:10279/api/v1/environment/reports';
 
@@ -20,11 +20,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const body = {
                 userPrompt,
                 reportType
-                // startDate, endDate 등 다른 필드들은 백엔드에서 기본값 처리한다고 가정
             };
 
             toggleLoading(true);
-            clearResults(); // 여기서 reportOutputArea도 숨겨짐 (clearResults 수정 시)
+            clearResults();
 
             try {
                 const res = await fetch(`${API_BASE_URL}/generate`, {
@@ -39,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 const data = await res.json();
-                console.log("Received data from backend:", data); // ★★★ 백엔드 응답 데이터 구조 확인용 로그 ★★★
+                console.log("Received data from backend:", data);
 
                 // ★★★ 결과 영역 보이도록 처리 ★★★
                 const reportOutputArea = document.getElementById('reportOutputArea');
@@ -47,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     reportOutputArea.style.display = 'block';
                 }
 
-                // ★★★ 리포트 제목 표시 (백엔드 DTO의 reportOverallTitle 필드 사용 가정) ★★★
+                // ★★★ 기존 DTO 필드명 사용 ★★★
                 const reportTitleElement = document.getElementById('reportGeneratedTitle');
                 if (reportTitleElement && data.reportOverallTitle) {
                     reportTitleElement.textContent = data.reportOverallTitle;
@@ -55,10 +54,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     reportTitleElement.textContent = "AI 분석 리포트 (제목 없음)";
                 }
 
-
-                showSummary(data.summaryText); // DTO 필드명 확인!
-                // showTable(data.detailedMetricsTable); // DTO 필드명 확인!
-                showCharts(data.chartVisualizations); // DTO 필드명 확인!
+                // ★★★ 기존 DTO 필드명에 맞춰 수정 ★★★
+                showSummary(data.summaryText);           // summaryText 필드 사용
+                showCharts(data.chartVisualizations);    // chartVisualizations 필드 사용
+                showReportInfo(data);                    // 추가 정보 표시
 
             } catch (err) {
                 showError(err.message);
@@ -75,16 +74,14 @@ function toggleLoading(show) {
 }
 
 function clearResults() {
-    // reportOutputArea도 숨기도록 추가
     const reportOutputArea = document.getElementById('reportOutputArea');
     if (reportOutputArea) {
         reportOutputArea.style.display = 'none';
     }
-    ['reportSummary', 'reportTableContainer', 'reportChartsContainer', 'reportGeneratedTitle', 'errorMessage'].forEach(id => {
+    ['reportSummary', 'reportChartsContainer', 'reportGeneratedTitle', 'reportInfo', 'errorMessage'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.innerHTML = ''; // errorMessage는 textContent = '' 가 더 적절할 수 있음
+        if (el) el.innerHTML = '';
     });
-    // errorMessage는 숨기기
     const errorEl = document.getElementById('errorMessage');
     if(errorEl) errorEl.style.display = 'none';
 }
@@ -100,79 +97,149 @@ function showError(msg) {
 function showSummary(text) {
     const el = document.getElementById('reportSummary');
     if (el) {
-        // text가 null 또는 undefined일 경우를 대비하여 기본값 설정
         const summaryContent = text || '제공된 요약 정보가 없습니다.';
-        // pre 태그를 사용하여 마크다운의 줄바꿈 등을 어느정도 유지
-        el.innerHTML = `<pre>${summaryContent}</pre>`;
+
+        // ★★★ 마크다운을 HTML로 변환하는 함수 ★★★
+        const htmlContent = convertMarkdownToHtml(summaryContent);
+
+        el.innerHTML = `<div class="summary-content">${htmlContent}</div>`;
     }
 }
 
-// function showTable(data) {
-//     const el = document.getElementById('reportTableContainer');
-//     if (!el) return; // 테이블 컨테이너 없으면 종료
-//     if (!data || data.length === 0) {
-//         el.innerHTML = '<p>표시할 테이블 데이터가 없습니다.</p>';
-//         return;
-//     }
-//     // data가 배열이고, 첫 번째 요소가 객체인지 확인
-//     if (!Array.isArray(data) || typeof data[0] !== 'object' || data[0] === null) {
-//         el.innerHTML = '<p>테이블 데이터 형식이 올바르지 않습니다.</p>';
-//         console.error("Invalid table data format:", data);
-//         return;
-//     }
-//     const keys = Object.keys(data[0]);
-//     const table = `
-//         <table class="table table-striped table-bordered table-hover table-sm"> <!-- Bootstrap 클래스 추가 -->
-//             <thead class="table-light"> <!-- aThead 스타일 -->
-//                 <tr>${keys.map(k => `<th>${k}</th>`).join('')}</tr>
-//             </thead>
-//             <tbody>
-//                 ${data.map(row => `<tr>${keys.map(k => `<td>${row[k] ?? ''}</td>`).join('')}</tr>`).join('')}
-//             </tbody>
-//         </table>`;
-//     el.innerHTML = table;
-// }
+function convertMarkdownToHtml(markdown) {
+    let html = markdown;
+
+    // 1. 헤더 변환 (아이콘 추가)
+    html = html.replace(/^### (.*$)/gm, '<h3 class="mt-4 mb-3"><i class="fas fa-chevron-right text-primary me-2"></i>$1</h3>');
+    html = html.replace(/^## (.*$)/gm, '<h2 class="mt-4 mb-3 pb-2 border-bottom border-primary"><i class="fas fa-chart-line text-primary me-2"></i>$1</h2>');
+
+    // 2. 볼드 텍스트 변환 (배지 스타일)
+    html = html.replace(/\*\*(.*?)\*\*/g, '<span class="badge bg-primary-subtle text-primary-emphasis me-1">$1</span>');
+
+    // 3. 리스트 변환 (아이콘 추가)
+    html = html.replace(/^\*\s+(.*)$/gm, '<div class="d-flex align-items-start mb-2"><i class="fas fa-check-circle text-success me-2 mt-1"></i><span>$1</span></div>');
+
+    // 4. 섹션별 카드 스타일 적용 (테두리 제거)
+    html = html.replace(/(<span class="badge[^>]*>([^<]*상태|분석|샘플|의견|권장|결론)[^<]*<\/span>)/g,
+        '<div class="card mb-3"><div class="card-body">$1'); // border-start border-primary border-4 제거
+
+    // 카드 닫기 태그 추가 (다음 섹션 시작 전에)
+    html = html.replace(/(<\/div><div class="d-flex align-items-start mb-2">)/g, '</div></div>$1');
+
+    // 5. 줄바꿈 처리
+    html = html.split('\n\n').map(paragraph => {
+        if (paragraph.trim()) {
+            if (paragraph.includes('<h') || paragraph.includes('<div class="d-flex') || paragraph.includes('<div class="card')) {
+                return paragraph.replace(/\n/g, ' ');
+            } else {
+                return `<p class="mb-3 lh-lg">${paragraph.replace(/\n/g, '<br>')}</p>`;
+            }
+        }
+        return '';
+    }).join('');
+
+    // 마지막 카드 닫기
+    if (html.includes('<div class="card-body">') && !html.endsWith('</div></div>')) {
+        html += '</div></div>';
+    }
+
+    return html;
+}
+
+
+
+// ★★★ 기존 DTO 필드명에 맞춰 수정 ★★★
+function showReportInfo(data) {
+    const el = document.getElementById('reportInfo');
+    if (!el) return;
+
+    let infoHtml = '<div class="report-info mt-3 p-3 bg-light rounded">';
+    infoHtml += '<h6 class="mb-2">📊 리포트 정보</h6>';
+
+    // ★★★ 기존 필드명 사용 ★★★
+    if (data.reportPeriodStart && data.reportPeriodEnd) {
+        infoHtml += `<p class="mb-1"><strong>분석 기간:</strong> ${data.reportPeriodStart} ~ ${data.reportPeriodEnd}</p>`;
+    }
+
+    if (data.filterCriteriaSummary) {
+        infoHtml += `<p class="mb-1"><strong>조건:</strong> ${data.filterCriteriaSummary}</p>`;
+    }
+
+    if (data.generatedAt) {
+        const generatedTime = new Date(data.generatedAt).toLocaleString('ko-KR');
+        infoHtml += `<p class="mb-0"><strong>생성 시간:</strong> ${generatedTime}</p>`;
+    }
+
+    infoHtml += '</div>';
+    el.innerHTML = infoHtml;
+}
 
 function showCharts(charts) {
     const container = document.getElementById('reportChartsContainer');
-    if (!container) return; // 차트 컨테이너 없으면 종료
+    if (!container) return;
+
     if (!charts || charts.length === 0) {
-        container.innerHTML = '<p>표시할 차트 데이터가 없습니다.</p>';
+        container.innerHTML = '<div class="alert alert-info">📈 표시할 차트 데이터가 없습니다.</div>';
         return;
     }
-    container.innerHTML = ''; // 이전 차트 지우기
+
+    container.innerHTML = '';
+
     charts.forEach((chart, i) => {
-        const canvasId = `reportChartCanvas-${i}`; // ID 명확하게 변경
+        const canvasId = `reportChartCanvas-${i}`;
         const wrapper = document.createElement('div');
-        wrapper.className = 'chart-wrapper mb-4 p-3'; // 클래스 및 패딩, 마진 추가
+        wrapper.className = 'chart-wrapper mb-4 p-3 border rounded';
 
         const titleElement = document.createElement('h5');
-        titleElement.className = 'text-center mb-3'; // 제목 스타일
+        titleElement.className = 'text-center mb-3 text-primary';
         titleElement.textContent = chart.title || `차트 ${i + 1}`;
         wrapper.appendChild(titleElement);
 
         const canvasElement = document.createElement('canvas');
         canvasElement.id = canvasId;
-        // canvasElement.height = 180; // 스타일은 CSS에서 관리하는 것이 좋음
-        // canvasElement.style.maxHeight = '300px'; // 예시 최대 높이
+        canvasElement.style.maxHeight = '400px';
         wrapper.appendChild(canvasElement);
         container.appendChild(wrapper);
 
-        // chartUtils.js 함수 호출
-        if (chart.datasets && typeof createMultiLineChart === 'function') {
-            createMultiLineChart(canvasId, chart.labels, chart.datasets, chart.title);
-        } else if (chart.values && typeof createAreaChart === 'function') {
-            createAreaChart(canvasId, chart.labels, chart.values, chart.title);
-        } else if (chart.values && typeof createBarChart === 'function') {
-            // createBarChart(canvasId, chart.labels, chart.values, chart.title);
-            console.warn(`Bar 차트 생성 함수는 현재 주석 처리됨. Area 차트로 대체: ${chart.title}`);
-            createAreaChart(canvasId, chart.labels, chart.values, chart.title);
-        } else {
-            console.error(`차트 데이터를 그리는 데 필요한 함수를 찾을 수 없거나, 데이터 구조(${chart.title ? chart.title : '제목 없음'})가 적합하지 않습니다.`, chart);
-            const fallbackText = document.createElement('p');
-            fallbackText.className = 'text-muted text-center';
-            fallbackText.textContent = `${chart.title || `차트 ${i + 1}`} - 차트 생성 실패 (데이터 또는 유틸 함수 확인 필요)`;
-            wrapper.appendChild(fallbackText);
+        console.log(`차트 ${i + 1} 데이터:`, chart);
+
+        try {
+            // ★★★ 기존 차트 데이터 구조 처리 ★★★
+            if (chart.labels && chart.values && chart.labels.length > 0 && chart.values.length > 0) {
+                if (typeof createAreaChart === 'function') {
+                    createAreaChart(canvasId, chart.labels, chart.values, chart.title);
+                    console.log(`Area 차트 생성 완료: ${chart.title}`);
+                } else {
+                    throw new Error('createAreaChart 함수를 찾을 수 없습니다.');
+                }
+            }
+            else if (chart.datasets && typeof createMultiLineChart === 'function') {
+                createMultiLineChart(canvasId, chart.labels, chart.datasets, chart.title);
+                console.log(`Multi-line 차트 생성 완료: ${chart.title}`);
+            }
+            else {
+                throw new Error('차트 데이터가 없거나 형식이 올바르지 않습니다.');
+            }
+        } catch (error) {
+            console.error(`차트 ${i + 1} 생성 실패:`, error, chart);
+            const fallbackElement = document.createElement('div');
+            fallbackElement.className = 'alert alert-warning text-center';
+            fallbackElement.innerHTML = `
+                <strong>${chart.title || `차트 ${i + 1}`}</strong><br>
+                <small>차트 생성 실패: ${error.message}</small><br>
+                <small class="text-muted">데이터 구조를 확인해주세요.</small>
+            `;
+            wrapper.appendChild(fallbackElement);
         }
     });
 }
+
+// 키보드 단축키 지원
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.ctrlKey) {
+        const form = document.getElementById('reportGenerationForm');
+        if (form) {
+            form.dispatchEvent(new Event('submit'));
+        }
+    }
+});
