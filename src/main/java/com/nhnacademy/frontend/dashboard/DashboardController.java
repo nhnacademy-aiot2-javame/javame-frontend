@@ -33,12 +33,30 @@ public class DashboardController {
     }
 
     @GetMapping("/warnify")
-    public String warnify(@RequestParam(value = "page", required = false)Long pageNum, Model model){
+    public String warnify(@RequestParam(value = "page", required = false)Long pageNum, Model model) {
         if(Objects.isNull(pageNum)){
             return "redirect:/environment/warnify?page=1";
         }
         model.addAttribute("pageNum", pageNum);
         return "dashboard/warnify";
+    }
+
+    @GetMapping("/members")
+    public String memberMange(@RequestParam(value = "page", required = false)Long pageNum, Model model) {
+        if(Objects.isNull(pageNum)){
+            return "redirect:/environment/members?page=1";
+        }
+        model.addAttribute("pageNum", pageNum);
+        return "dashboard/members";
+    }
+
+    @GetMapping("/pending")
+    public String pendingMember(@RequestParam(value = "page", required = false)Long pageNum, Model model) {
+        if(Objects.isNull(pageNum)){
+            return "redirect:/environment/pending?page=1";
+        }
+        model.addAttribute("pageNum", pageNum);
+        return "dashboard/pendingmembers";
     }
 
 }
