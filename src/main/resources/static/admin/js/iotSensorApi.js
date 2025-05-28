@@ -1,9 +1,13 @@
-const API_BASE_URL = 'http://localhost:10279/api/v1/environment/company-domain/';
+import {
+    fetchWithAuth
+} from '/index/js/auth.js';
+
+const API_BASE_URL = 'http://localhost:10279/api/v1/environment/company-domain';
 
 let eventSource = null;
 
 export async function getTree() {
-    const res = await fetch(`${API_BASE_URL}/tree`);
+    const res = await fetchWithAuth(`${API_BASE_URL}/tree`);
     if (!res.ok) {
         console.log("트리구조 데이터 로딩 실패: {}" + res.status);
         return null;
@@ -12,13 +16,13 @@ export async function getTree() {
 }
 
 export async function getOrigins() {
-    const res = await fetch(`${API_BASE_URL}/origins`);
+    const res = await fetchWithAuth(`${API_BASE_URL}/origins`);
     if (!res.ok) return [];
     return await res.json();
 }
 
 export async function getDropdownValues(origin, tag) {
-        const res = await fetch(`${API_BASE_URL}/dropdown/${tag}`);
+        const res = await fetchWithAuth(`${API_BASE_URL}/dropdown/${tag}`);
     if (!res.ok) return [];
     return await res.json();
 }
@@ -26,7 +30,7 @@ export async function getDropdownValues(origin, tag) {
 export async function getMeasurementList(origin, gatewayId = "") {
     const url = `${API_BASE_URL}/measurements?origin=${origin}${gatewayId ? `&gatewayId=${gatewayId}` : ""}`;
     console.log("로그 : {}" + url);
-    const res = await fetch(url);
+    const res = await fetchWithAuth(url);
     if (!res.ok) return [];
     return await res.json();
 }
@@ -55,7 +59,7 @@ export async function getHourlyAverages(origin, measurement, filters) {
     params.append("measurement", measurement);
 
     const url = `${API_BASE_URL}/1h?${params.toString()}`;
-    const res = await fetch(url);
+    const res = await fetchWithAuth(url);
     if (!res.ok) {
         console.error('getHourlyAverages() 실패', res.status, await res.text());
         return {};
@@ -65,13 +69,13 @@ export async function getHourlyAverages(origin, measurement, filters) {
 
 
 export async function getChartDataForSensor(origin, sensor) {
-    const res = await fetch(`${API_BASE_URL}/chart/type/${sensor}?origin=${origin}`);
+    const res = await fetchWithAuth(`${API_BASE_URL}/chart/type/${sensor}?origin=${origin}`);
     if (!res.ok) return { labels: [], values: [] };
     return await res.json();
 }
 
 export async function getPieChartData(origin) {
-    const res = await fetch(`${API_BASE_URL}/chart/pie?origin=${origin}`);
+    const res = await fetchWithAuth(`${API_BASE_URL}/chart/pie?origin=${origin}`);
     if (!res.ok) return { labels: [], values: [] };
     return await res.json();
 }

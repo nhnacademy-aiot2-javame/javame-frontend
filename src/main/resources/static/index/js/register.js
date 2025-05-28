@@ -1,6 +1,6 @@
-const BASE_URL = 'http://localhost:10279/api/v1/auth';
+const BASE_URL = 'http://localhost:10279/api/v1';
 async function register(memberData) {
-    const response = await fetch(`${BASE_URL}/register`, {
+    const response = await fetch(`${BASE_URL}/members/register`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
