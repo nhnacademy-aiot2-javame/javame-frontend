@@ -37,4 +37,9 @@ public class DashboardController {
     public String dashboardIntegration() {
         return "dashboard/dashboard-integration";
     }
+
+    @GetMapping("/dashboard-prediction")
+    public String dashboardPrediction() {
+        return "dashboard/dashboard-prediction";
+    }
 }
