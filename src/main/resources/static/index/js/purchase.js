@@ -31,7 +31,7 @@ document.getElementById('purchaseBtn').addEventListener('click', async function 
         }
 
         // 2. 오너 회원 등록
-        const memberRes = await fetch(`${BASE_URL}/auth/register-owner`, {
+        const memberRes = await fetch(`${BASE_URL}/members/register/owners`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(memberData)
