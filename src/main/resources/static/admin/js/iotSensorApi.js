@@ -2,6 +2,15 @@ const API_BASE_URL = 'http://localhost:10279/api/v1/environment';
 
 let eventSource = null;
 
+export async function getTree(companyDomain) {
+    const res = await fetch(`${API_BASE_URL}/${companyDomain}/tree`);
+    if (!res.ok) {
+        console.log("트리구조 데이터 로딩 실패: {}" + res.status);
+        return null;
+    }
+    return await res.json();
+}
+
 export async function getOrigins(companyDomain) {
     const res = await fetch(`${API_BASE_URL}/${companyDomain}/origins`);
     if (!res.ok) return [];
@@ -9,13 +18,13 @@ export async function getOrigins(companyDomain) {
 }
 
 export async function getDropdownValues(companyDomain, origin, tag) {
-    const res = await fetch(`${API_BASE_URL}/${companyDomain}/dropdown/${tag}?origin=${origin}`);
+        const res = await fetch(`${API_BASE_URL}/${companyDomain}/dropdown/${tag}`);
     if (!res.ok) return [];
     return await res.json();
 }
 
-export async function getMeasurementList(companyDomain, origin, location = "") {
-    const url = `${API_BASE_URL}/${companyDomain}/measurements?origin=${origin}${location ? `&location=${location}` : ""}`;
+export async function getMeasurementList(companyDomain, origin, gatewayId = "") {
+    const url = `${API_BASE_URL}/${companyDomain}/measurements?origin=${origin}${gatewayId ? `&gatewayId=${gatewayId}` : ""}`;
     console.log("로그 : {}" + url);
     const res = await fetch(url);
     if (!res.ok) return [];

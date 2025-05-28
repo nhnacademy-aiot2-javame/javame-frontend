@@ -27,7 +27,7 @@
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     <li><a class="dropdown-item" href=/members/settings>설정</a></li>
                     <li><a class="dropdown-item" href=/members/mypage>마이페이지</a></li>
-                    <li><a class="dropdown-item" href="#" onclick="logout()">로그아웃</a></li>
+                    <li><a class="dropdown-item" href="/auth/login" onclick="logout()">로그아웃</a></li>
                     <li><hr class="dropdown-divider" /></li>
 
                     <li sec:authorize="hasAnyAuthority('ADMIN')">
