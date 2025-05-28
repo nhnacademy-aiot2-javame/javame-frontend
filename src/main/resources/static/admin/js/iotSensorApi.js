@@ -2,7 +2,7 @@ import {
     fetchWithAuth
 } from '/index/js/auth.js';
 
-const API_BASE_URL = 'http://localhost:10279/api/v1/environment/company-domain';
+const API_BASE_URL = 'http://localhost:10279/api/v1/environment/companyDomain';
 
 let eventSource = null;
 
