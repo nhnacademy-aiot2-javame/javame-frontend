@@ -75,7 +75,6 @@ window.addEventListener('DOMContentLoaded', async event => {
 
             });
 
-
             tb.appendChild(tr);
         })
 
