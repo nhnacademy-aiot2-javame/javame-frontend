@@ -28,5 +28,13 @@ public class DashboardController {
         return "dashboard/reports";
     }
 
+    @GetMapping("/dashboard-detail")
+    public String dashboardDetail() {
+        return "dashboard/dashboard-detail";
+    }
 
+    @GetMapping("/dashboard-integration")
+    public String dashboardIntegration() {
+        return "dashboard/dashboard-integration";
+    }
 }
