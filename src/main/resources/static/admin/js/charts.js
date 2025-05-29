@@ -43,11 +43,11 @@ function createSlTreeItem(node) {
     item.dataset.label = node.label;
 
     item.addEventListener('click', async (e) => {
-        currentChartFilter[node.tag] = node.label;
+        currentChartFilter[node.tag] = node.value;
         console.log('현재 필터:', currentChartFilter);
 
         if (node.tag === 'measurement') {
-            currentChartFilter._measurement = node.label;
+            currentChartFilter._measurement = node.value;
             restartSseChart();
             await loadBarChart();
             await loadPieChart();
@@ -57,7 +57,7 @@ function createSlTreeItem(node) {
     // 자식 노드 렌더링
     node.children?.forEach(child => {
         const childItem = createSlTreeItem(child);
-        childItem.setAttribute('slot', 'children'); // 필수!
+        childItem.setAttribute('slot', 'children');
         item.appendChild(childItem);
     });
 
