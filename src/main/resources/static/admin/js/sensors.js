@@ -1,7 +1,11 @@
+import {
+    fetchWithAuth
+} from '../../index/js/auth.js'
+
 window.addEventListener('DOMContentLoaded', async event => {
 
     const url = 'http://localhost:10279/api/v1/rule/sensors?companyDomain=javame';
-    const sensorResponse = await fetch(url);
+    const sensorResponse = await fetchWithAuth(url);
     const sensors = await sensorResponse.json();
     console.log(sensors);
 
@@ -29,7 +33,7 @@ window.addEventListener('DOMContentLoaded', async event => {
             tr.addEventListener('click', async  function(){
 
                 const url = `http://localhost:10279/api/v1/rule/sensor-datas/by-sensor-no/${sensor.sensorNo}`;
-                const sensorDataResponse = await fetch(url);
+                const sensorDataResponse = await fetchWithAuth(url);
                 const sensorDatas = await sensorDataResponse.json();
                 console.log(sensorDatas);
 
