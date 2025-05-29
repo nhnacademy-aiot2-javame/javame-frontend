@@ -98,7 +98,7 @@ async function loadPieChart() {
     const { companyDomain, origin } = currentChartFilter;
     if (!origin) return;
 
-    const pieData = await getPieChartData(companyDomain, origin);
+    const pieData = await getPieChartData(origin);
     if (!pieData.labels?.length) return;
 
     if (window.pieChart) window.pieChart.destroy();
