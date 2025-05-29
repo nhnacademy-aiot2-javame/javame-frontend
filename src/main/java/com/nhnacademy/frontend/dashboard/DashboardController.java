@@ -53,7 +53,7 @@ public class DashboardController {
 
     @GetMapping("/pending")
     public String pendingMember(@RequestParam(value = "page", required = false)Long pageNum, Model model) {
-        if (Objects.isNull(pageNum)) {
+        if(Objects.isNull(pageNum)){
             return "redirect:/environment/pending?page=1";
         }
         model.addAttribute("pageNum", pageNum);
