@@ -5,7 +5,7 @@ import {
 window.addEventListener('DOMContentLoaded', function (){
 
     const member = new memberTable();
-    member.loadWarnify("testLocal.com");
+    member.loadWarnify();
 
 });
 
@@ -15,7 +15,7 @@ const memberTable = function (){
     //todo1 api 주소 나중에 배포할때 바꾸기
     const SERVER_URL = "http://localhost:10279";
 
-    this.loadWarnify = async function(companyDomain){
+    this.loadWarnify = async function(){
 
         const num = document.querySelector('#page_num').value;
         const url = SERVER_URL+`/api/v1/members/companies/companyDomain?isPending=false&page=${num}`;
