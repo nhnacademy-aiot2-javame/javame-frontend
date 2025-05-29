@@ -9,15 +9,29 @@
 
                     <div class="sb-sidenav-menu-heading">핵심</div>
                     <a class="nav-link" href="/environment/dashboard">
-                        <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-                        대시보드
+                        <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
+                        메인 대시보드
                     </a>
+                    <a class="nav-link collapsed"
+                       href="#"
+                       data-bs-toggle="collapse"
+                       data-bs-target="#dashboardCollapse"
+                       aria-expanded="false"
+                       aria-controls="dashboardCollapse">
+                        <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                        상세 대시보드
+                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                    </a>
+                    <div class="collapse" id="dashboardCollapse" data-bs-parent="#sidenavAccordion">
+                        <nav class="sb-sidenav-menu-nested nav">
+                            <a class="nav-link" href="/environment/charts">트리</a>
+                            <a class="nav-link" href="/environment/dashboard-integration">통합</a>
+                            <a class="nav-link" href="/environment/dashboard-detail">시계열</a>
+                        </nav>
+                    </div>
 
                     <div class="sb-sidenav-menu-heading">분석</div>
-                    <a class="nav-link" href="/environment/charts">
-                        <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
-                        차트
-                    </a>
+
                     <a class="nav-link" href="/environment/tables">
                         <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
                         테이블
@@ -38,6 +52,15 @@
                     <a class="nav-link" href="/environment/pending">
                         <div class="sb-nav-link-icon"><i class="fa-solid fa-bell"></i></div>
                         승인 대기
+
+                    <div class="sb-sidenav-menu-heading">조회</div>
+                    <a class="nav-link" href="/rules/sensorList">
+                        <div class="sb-nav-link-icon"><i class="fas fa-file-alt"></i></div>
+                        센서리스트 조회
+                    </a>
+                    <a class="nav-link" href="/rules/serverList">
+                        <div class="sb-nav-link-icon"><i class="fas fa-file-alt"></i></div>
+                        서버리스트 조회
                     </a>
                 </div>
             </div>

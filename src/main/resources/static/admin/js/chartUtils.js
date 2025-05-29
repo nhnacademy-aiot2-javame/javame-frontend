@@ -88,6 +88,7 @@ export function createBarChart(canvasId, labels, data, title = 'Bar Chart') {
             }],
         },
         options: {
+            maintainAspectRatio: false,
             scales: {
                 x: {
                     grid: {
@@ -190,4 +191,405 @@ export function updateDashboardCard(cardId, title, value, bgClass = 'bg-primary'
             </div>
         `;
     }
+}
+
+export function createGaugeChart(
+    canvasId,
+    value,
+    label,
+    title = '',
+    colors = ['rgba(42, 85, 85, 1)', 'rgba(220, 220, 220, 0.3)'], // 배경색 투명도 약간 조절
+    valueFont = 'bold 1.5rem sans-serif',
+    titleFont = '0.8rem sans-serif'
+) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) {
+        console.error(`캔버스 ID '${canvasId}'를 찾을 수 없습니다.`);
+        return null; // 오류 발생 시 null 반환 또는 에러 throw
+    }
+
+    // 값 보정 (0에서 100 사이로 제한)
+    const normalizedValue = Math.max(0, Math.min(100, value));
+
+    const data = {
+        datasets: [{
+            data: [normalizedValue, 100 - normalizedValue], // 값과 나머지 부분
+            backgroundColor: colors,
+            borderWidth: 0, // 테두리 없음으로 깔끔한 모양
+        }]
+    };
+
+    // 중앙 텍스트 표시를 위한 커스텀 플러그인
+    const centerTextPlugin = {
+        id: 'gaugeCenterText', // 플러그인 ID는 고유하게
+        afterDraw: function(chart) { // afterDraw는 모든 그리기가 끝난 후 호출
+            if (chart.data.datasets.length === 0) {
+                return;
+            }
+            const chartCtx = chart.ctx; // chart.ctx 사용 (Chart.js 2.x)
+            const chartArea = chart.chartArea;
+
+            // chartArea가 유효한지 확인 (차트가 완전히 그려지기 전에는 없을 수 있음)
+            if (!chartArea || !chartArea.left) {
+                return;
+            }
+
+            const { left, right, top, bottom } = chartArea;
+            const centerX = (left + right) / 2;
+            const centerY = (top + bottom) / 2;
+
+            chartCtx.save();
+
+            // 메인 라벨 (값)
+            chartCtx.font = valueFont;
+            chartCtx.fillStyle = colors[0] || 'black'; // 값 부분 색상 사용, 없으면 검정
+            chartCtx.textAlign = 'center';
+            chartCtx.textBaseline = 'middle';
+            chartCtx.fillText(label, centerX, centerY);
+
+            // 보조 제목 (타이틀) - title이 제공된 경우에만 그림
+            if (title) {
+                chartCtx.font = titleFont;
+                chartCtx.fillStyle = 'grey'; // 일반적인 보조 텍스트 색상
+                chartCtx.fillText(title, centerX, centerY + parseFloat(valueFont) * 12 + 5); // 메인 라벨 아래 간격 조절 (폰트 크기 기반)
+            }
+            chartCtx.restore();
+        }
+    };
+
+    // Chart.js 2.8.0에 맞춘 옵션
+    return new Chart(ctx, {
+        type: 'doughnut',
+        data: data,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false, // 부모 컨테이너 크기에 맞게 조절
+            cutoutPercentage: 80,      // 도넛의 중앙 빈 공간 비율 (80% -> 20% 두께)
+            rotation: -0.5 * Math.PI,  // 시작점을 상단(12시 방향)으로 설정 (기본값은 3시 방향)
+            circumference: 2 * Math.PI, // 전체 원 (360도)
+            legend: {
+                display: false // 범례는 게이지 차트에서 보통 숨김
+            },
+            tooltips: {
+                enabled: false // 툴팁도 게이지 차트에서 보통 숨김
+            },
+            animation: { // 부드러운 초기 애니메이션 효과
+                animateRotate: true,
+                animateScale: false // 크기 변경 애니메이션은 제외 가능
+            },
+            // 클릭과 같은 차트 이벤트를 비활성화하여 순수 표시용으로 만들 수 있음 (선택 사항)
+            // events: []
+        },
+        plugins: [centerTextPlugin] // 위에서 정의한 커스텀 플러그인 등록
+    });
+}
+
+// canvasId: 차트를 그릴 <canvas> 요소의 ID
+// barDataArray: 바 차트로 표시할 데이터 값들의 배열 (예: [10, 20, 30])
+// lineDataArray: 라인 차트로 표시할 데이터 값들의 배열 (예: [15, 25, 35])
+// barDatasetLabel: 바 차트 데이터셋의 이름 (범례용, 예: "현재 값")
+// lineDatasetLabel: 라인 차트 데이터셋의 이름 (범례용, 예: "과거 평균")
+// xAxisLabels: X축에 표시될 공통 라벨 배열 (예: ["항목A", "항목B", "항목C"])
+export function createComboBarLineChart(canvasId, barDataArray, lineDataArray, barDatasetLabel, lineDatasetLabel, xAxisLabels) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) {
+        console.error(`캔버스 ID ${canvasId}를 찾을 수 없습니다.`);
+    }
+    return new Chart(ctx, {
+        type: 'bar',
+        data : {
+            labels : xAxisLabels,
+            datasets: [
+                {
+                    label: barDatasetLabel,
+                    data: barDataArray,
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1,
+                    order: 1
+                },
+                {
+                    label: lineDatasetLabel,
+                    data: lineDataArray,
+                    type: 'line',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                    fill: false,
+
+                    tension: 0.4, // 선의 곡률 (0은 직선, 0.4는 부드러운 곡선)
+                    borderWidth: 2, // 선 두께
+                    pointRadius: 4, // 데이터 포인트 원 크기
+                    pointBackgroundColor: 'rgba(255, 99, 132, 1)', // 포인트 채우기 색
+                    pointHoverRadius: 6, // 마우스 오버 시 포인트 원 크기
+                    order: 0, // 라인을 앞에
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { // v3+ 상호작용 설정
+                mode: 'index', // 같은 X축 인덱스에 있는 모든 데이터셋의 툴팁을 함께 표시
+                intersect: false, // 마우스가 정확히 데이터 포인트 위에 있지 않아도 가까우면 툴팁 표시
+            },
+            scales: {
+                x: { // v3+ X축 설정은 'x' 객체 사용
+                    grid: {
+                        display: false // X축 그리드 라인 숨김
+                    },
+                    title: { // X축 제목
+                        display: true,
+                        text: '항목', // 예시 X축 제목
+                        font: { size: 14 }
+                    }
+                },
+                y: { // v3+ Y축 설정은 'y' 객체 사용 (첫 번째 Y축 - 바 차트용)
+                    // id: 'yBar', // 이중 축 사용 시
+                    type: 'linear',
+                    position: 'left',
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)' // Y축 그리드 라인 색상
+                    },
+                    title: { // Y축 제목
+                        display: true,
+                        text: barDatasetLabel, // 또는 "값", "수량" 등
+                        font: { size: 14 }
+                    }
+                }
+            },
+            plugins: { // v3+ 범례, 툴팁, 제목 등은 plugins 객체 안으로
+                legend: {
+                    display: true,
+                    position: 'top', // 범례 위치
+                    labels: {
+                        font: { size: 12 },
+                        usePointStyle: true, // 범례 아이콘을 포인트 스타일로
+                        padding: 20 // 범례 항목 간 간격
+                    }
+                },
+                title: { // 차트 전체 제목
+                    display: true,
+                    text: '데이터 조합 차트 (현재 vs 과거)',
+                    font: { size: 18, weight: 'bold' },
+                    padding: { top: 10, bottom: 30 }
+                },
+                tooltip: { // 툴팁 설정
+                    enabled: true,
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleFont: { size: 14, weight: 'bold' },
+                    bodyFont: { size: 12 },
+                    padding: 10,
+                    caretSize: 6, // 툴팁 화살표 크기
+                    cornerRadius: 4, // 툴팁 모서리 둥글기
+                    // 툴팁 내용 커스터마이징 콜백
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += new Intl.NumberFormat('ko-KR').format(context.parsed.y); // 숫자 포맷팅
+                            }
+                            return label;
+                        }
+                    }
+                },
+                datalabels: {
+                    anchor: 'end',
+                    align: 'top',
+                    formatter: (value, context) => {
+                        return value; // 막대 위에 값 표시
+                    },
+                    font: {
+                        weight: 'bold'
+                    }
+                }
+            },
+            animation: { // 고급 애니메이션 설정
+                duration: 1000, // 애니메이션 지속 시간 (ms)
+                easing: 'easeInOutQuart', // 다양한 easing 효과 사용 가능
+                // 다른 애니메이션 옵션들도 많음 (onProgress, onComplete 콜백 등)
+                // 예: 특정 데이터 변경 시 애니메이션 종류 정의
+                // x: { type: 'number', easing: 'linear', duration: delayBetweenPoints, from: NaN, delay: delayBetweenPoints * previousData.length },
+                // y: { type: 'number', easing: 'linear', duration: delayBetweenPoints, from: previousData.value }
+            },
+            // 차트 클릭 등 이벤트 핸들링
+            onClick: (event, elements, chart) => {
+                if (elements.length > 0) {
+                    const firstPoint = elements[0];
+                    const datasetIndex = firstPoint.datasetIndex;
+                    const index = firstPoint.index;
+                    const value = chart.data.datasets[datasetIndex].data[index];
+                    console.log(`Clicked on: ${chart.data.labels[index]}, Dataset: ${chart.data.datasets[datasetIndex].label}, Value: ${value}`);
+                }
+            }
+        }
+    });
+}
+// chartUtils.js
+
+/**
+ * 여러 데이터셋을 가진 꺾은선 그래프(라인 차트)를 생성합니다.
+ * 다른 단위를 가진 데이터셋들을 위해 다중 Y축을 지원합니다.
+ * Chart.js v4.x 버전에 맞춰 작성되었습니다.
+ *
+ * @param {string} canvasId - 차트를 그릴 <canvas> 요소의 ID
+ * @param {Array<string>} xAxisLabels - X축에 표시될 공통 라벨 배열 (예: 날짜, 시간)
+ * @param {Array<Object>} datasetsInput - 각 라인을 정의하는 데이터셋 객체들의 배열.
+ *   각 객체는 { label: string, data: Array<number>, unit: string, borderColor?: string } 형태.
+ *   unit은 'percentage' 또는 'celsius' 등을 가질 수 있습니다.
+ * @param {string} [chartTitle=''] - (옵션) 차트 전체 제목
+ * @returns {Chart|null} 생성된 Chart.js 인스턴스 또는 오류 시 null
+ */
+export function createMultiLineChart(canvasId, xAxisLabels, datasetsInput = [], chartTitle = '') { // ★ datasetsInput 기본값 추가
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) {
+        console.error(`캔버스 ID ${canvasId}를 찾을 수 없습니다.`);
+        return null;
+    }
+
+    if (Chart.getChart(canvasId)) {
+        Chart.getChart(canvasId).destroy();
+    }
+
+    const defaultLineColors = [
+        'rgba(255, 99, 132, 1)',  // Red
+        'rgba(54, 162, 235, 1)',  // Blue
+        'rgba(255, 206, 86, 1)', // Yellow
+        'rgba(75, 192, 192, 1)',  // Green
+        'rgba(153, 102, 255, 1)',// Purple
+        'rgba(255, 159, 64, 1)',  // Orange
+        'rgba(42, 85, 85, 1)',
+        'rgba(220, 53, 69, 1)',
+        'rgba(255, 193, 7, 1)',
+        'rgba(25, 135, 84, 1)',
+        'rgba(13, 202, 240, 1)',
+        'rgba(108, 117, 125, 1)',
+        'rgba(0, 123, 255, 1)',
+        'rgba(111, 66, 193, 1)',
+        'rgba(253, 126, 20, 1)',
+        'rgba(32, 201, 151, 1)'
+    ];
+
+    // ★★★ yAxesConfig 객체 선언 및 초기화 위치를 여기로 이동 ★★★
+    const yAxesConfig = {};
+    const processedDatasets = [];
+    let yAxisPositionCounter = { left: 0, right: 0 }; // Y축 위치 분배용
+
+    // datasetsInput이 비어있거나 undefined일 경우를 대비하여 기본값 처리
+    const validDatasetsInput = Array.isArray(datasetsInput) ? datasetsInput : [];
+
+    validDatasetsInput.forEach((ds, index) => {
+        const color = ds.borderColor || defaultLineColors[index % defaultLineColors.length];
+        // 각 데이터셋에 고유 Y축 ID 부여 (단위별 그룹화 또는 고유 ID)
+        let yAxisID;
+        let yAxisTitle;
+        let yAxisPosition = 'left';
+
+        if (ds.unit === 'percentage') {
+            yAxisID = 'yPercentage';
+            yAxisTitle = '퍼센트 (%)';
+            yAxisPosition = 'left';
+        } else if (ds.unit === 'celsius') {
+            yAxisID = 'yCelsius';
+            yAxisTitle = '온도 (°C)';
+            yAxisPosition = 'right';
+        } else {
+            const otherUnitIndex = Object.keys(yAxesConfig).filter(k => k.startsWith('yOther')).length;
+            yAxisID = `yOther${otherUnitIndex}`;
+            yAxisTitle = `${ds.label || '데이터'} (${ds.unit || ''})`;
+            yAxisPosition = (Object.values(yAxesConfig).filter(axis => axis.position === 'left').length <= Object.values(yAxesConfig).filter(axis => axis.position === 'right').length) ? 'left' : 'right';
+        }
+
+        if (!yAxesConfig[yAxisID]) {
+            if (yAxisPosition === 'left') yAxisPositionCounter.left++;
+            else yAxisPositionCounter.right++;
+
+            yAxesConfig[yAxisID] = {
+                type: 'linear',
+                display: true,
+                position: yAxisPosition,
+                beginAtZero: (ds.unit === 'percentage'),
+                grid: {
+                    drawOnChartArea: (yAxisPosition === 'left' && yAxisPositionCounter.left === 1) ||
+                        (yAxisPosition === 'right' && yAxisPositionCounter.right === 1),
+                },
+                title: {
+                    display: true,
+                    text: yAxisTitle,
+                    font: { size: 12 },
+                    color: color
+                },
+                ticks: {
+                    color: color
+                }
+            };
+        }
+
+        processedDatasets.push({
+            label: ds.label || `Dataset ${index + 1}`, // label이 없을 경우 기본값
+            data: ds.data || [], // data가 없을 경우 빈 배열
+            borderColor: color,
+            backgroundColor: color.replace(/, 1\)$/g, ', 0.1)'),
+            fill: ds.fill !== undefined ? ds.fill : true,
+            tension: ds.tension !== undefined ? ds.tension : 0.3,
+            borderWidth: ds.borderWidth !== undefined ? ds.borderWidth : 2,
+            pointRadius: ds.pointRadius !== undefined ? ds.pointRadius : 3,
+            pointBackgroundColor: ds.pointBackgroundColor || color,
+            yAxisID: yAxisID
+        });
+    });
+
+    return new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: xAxisLabels,
+            datasets: processedDatasets
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    title: { display: true, text: '시간' },
+                    ticks: { font: { size: 10 } }
+                },
+                // ★★★ 이제 yAxesConfig가 정상적으로 채워진 상태로 사용됨 ★★★
+                ...(Object.keys(yAxesConfig).length > 0 ? yAxesConfig : { y: { display: true, beginAtZero: true } }) // yAxesConfig가 비어있으면 기본 Y축이라도 표시
+            },
+            plugins: {
+                legend: { position: 'bottom', labels: { usePointStyle: true, font: {size: 11}, padding: 15 } },
+                title: { display: !!chartTitle, text: chartTitle, font: { size: 16, weight: 'bold' }, padding: {top: 10, bottom: 20} },
+                tooltip: {
+                    enabled: true,
+                    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+                    titleFont: { size: 13, weight: 'bold' },
+                    bodyFont: { size: 11 },
+                    padding: 10,
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                const originalDataset = validDatasetsInput.find(ds => ds.label === context.dataset.label);
+                                const unit = originalDataset?.unit || '';
+                                label += new Intl.NumberFormat('ko-KR').format(context.parsed.y) + (unit ? ` ${unit}` : '');
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            animation: {
+                duration: 700,
+                easing: 'easeOutCubic',
+            }
+        }
+    });
 }

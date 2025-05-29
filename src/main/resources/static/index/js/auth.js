@@ -1,3 +1,6 @@
+/**
+ * 로그인 요청 → 토큰 받아서 저장 + 사용자 정보 반환
+ */
 // auth.js
 const TOKEN_KEY = 'accessToken';
 const REFRESH_KEY = 'refreshToken';
@@ -49,6 +52,9 @@ export async function login(memberEmail, memberPassword) {
         }
 
         // 헤더에서 토큰 받아오기
+
+
+        console.log("Authorization: " + response.headers.get('Authorization'));
         const authHeader = response.headers.get('Authorization');
         const refreshToken = response.headers.get('Refresh-Token');
 
@@ -137,7 +143,6 @@ export async function fetchWithAuth(url, options) {
     const response = await fetch(url, {
         ...options,
         headers: {
-            ...options.headers,
             Authorization: `Bearer ${token}`,
         },
     });
@@ -150,7 +155,6 @@ export async function fetchWithAuth(url, options) {
             return fetch(url, {
                 ...options,
                 headers: {
-                    ...options.headers,
                     Authorization: `Bearer ${token}`,
                 },
             });

@@ -32,6 +32,7 @@ public class DashboardController {
         return "dashboard/reports";
     }
 
+
     @GetMapping("/warnify")
     public String warnify(@RequestParam(value = "page", required = false)Long pageNum, Model model) {
         if(Objects.isNull(pageNum)){
@@ -57,6 +58,15 @@ public class DashboardController {
         }
         model.addAttribute("pageNum", pageNum);
         return "dashboard/pendingmembers";
+
+    @GetMapping("/dashboard-detail")
+    public String dashboardDetail() {
+        return "dashboard/dashboard-detail";
+
     }
 
+    @GetMapping("/dashboard-integration")
+    public String dashboardIntegration() {
+        return "dashboard/dashboard-integration";
+    }
 }
