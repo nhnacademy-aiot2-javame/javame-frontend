@@ -10,6 +10,31 @@
  * Copyright 2011-2022 Twitter, Inc.
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  */
+.page-btn {
+  all: unset; /* 기본 버튼 스타일 완전 제거 */
+  cursor: pointer;
+  padding: 0.5rem 0.8rem;
+  margin: 0.2rem;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+  text-align: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page-btn:hover {
+  background-color: rgba(0, 123, 255, 0.1); /* 마우스 오버 시 약한 파랑 배경 */
+}
+
+.active-page {
+  background-color: #007bff; /* 클릭한 버튼: 파란색 원형 */
+  color: white;
+  font-weight: bold;
+}
+
 :root {
   --bs-blue: #0d6efd;
   --bs-indigo: #6610f2;
@@ -2947,11 +2972,11 @@ textarea.form-control-lg {
 
 .btn-danger {
   --bs-btn-color: #fff;
-  --bs-btn-bg: #dc3545;
-  --bs-btn-border-color: #dc3545;
-  --bs-btn-hover-color: #fff;
-  --bs-btn-hover-bg: #bb2d3b;
-  --bs-btn-hover-border-color: #b02a37;
+  --bs-btn-bg: #212529;
+  --bs-btn-border-color: #212529;
+  --bs-btn-hover-color: #dc3545;
+  --bs-btn-hover-bg: #212529;
+  --bs-btn-hover-border-color: #212529;
   --bs-btn-focus-shadow-rgb: 225, 83, 97;
   --bs-btn-active-color: #fff;
   --bs-btn-active-bg: #b02a37;

@@ -53,6 +53,7 @@ export async function login(memberEmail, memberPassword) {
 
         // 헤더에서 토큰 받아오기
 
+
         console.log("Authorization: " + response.headers.get('Authorization'));
         const authHeader = response.headers.get('Authorization');
         const refreshToken = response.headers.get('Refresh-Token');
