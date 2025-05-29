@@ -1,5 +1,6 @@
 import {
-    fetchWithAuth
+    fetchWithAuth,
+    fetchWithAuthPut
 } from '../../index/js/auth.js'
 
 window.addEventListener('DOMContentLoaded', function (){
@@ -44,14 +45,8 @@ const pendigTable = function (){
                         if(!confirm(`${email}님의 권한을 주시겠습니까?????`)) return;
                         const memberNo = json.memberNo;
                         const url = SERVER_URL + `/api/v1/members/role/${memberNo}?role=ROLE_USER`
-                        const option = {
-                            method : 'PUT',
-                            headers : {
-                                'Content-Type' : 'application/json',
-                            }
-                        }
 
-                        fetch(url, option)
+                        fetchWithAuthPut(url)
                             .then(response => {
                                 if(!response.ok) {
                                     alert("서버 오류 발생");
@@ -69,16 +64,8 @@ const pendigTable = function (){
                         if(!confirm(`${email}님을 삭제하시겠습니까?????`)) return;
                         const memberNo = json.memberNo;
                         const url = SERVER_URL + `/api/v1/members/${memberNo}`
-                        const option = {
-                            method : 'DELETE',
-                            headers : {
-                                'Content-Type' : 'application/json',
-                                'X-USER-ROLE' : 'ROLE_ADMIN',
-                                'X-USER-EMAIL' : 'osh@naver.com'
-                            }
-                        }
 
-                        fetch(url, option)
+                        fetchWithAuthPut(url)
                             .then(response => {
                                 if(!response.ok) {
                                     alert("서버 오류 발생");
