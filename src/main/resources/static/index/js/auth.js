@@ -125,8 +125,8 @@ export async function refreshAccessToken() {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ refreshToken })
+            'Refresh-Token': refreshToken
+        }
     });
 
     if (!response.ok) {
@@ -141,7 +141,7 @@ export async function refreshAccessToken() {
 export async function fetchWithAuth(url, options) {
     let token = sessionStorage.getItem(TOKEN_KEY);
     const response = await fetch(url, {
-        ...options,
+        options,
         headers: {
             Authorization: `Bearer ${token}`,
         },
