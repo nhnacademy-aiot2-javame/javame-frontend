@@ -173,6 +173,8 @@ export async function fetchWithAuthPut(url, data) {
     const option = {
         method: 'PUT',
         headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
             Authorization: `Bearer ${token}`
         }
     };
