@@ -1,3 +1,7 @@
+import {
+    fetchWithAuth
+} from '../../index/js/auth.js'
+
 window.addEventListener('DOMContentLoaded', function (){
 
     const warnify = new warnifyTable();
@@ -11,21 +15,12 @@ const warnifyTable = function (){
     //todo1 api 주소 나중에 배포할때 바꾸기
     const SERVER_URL = "http://localhost:10279";
 
-    const api = new Object();
-
     this.loadWarnify = async function(companyDomain){
 
         const num = document.querySelector('#page_num').value;
-        const url = SERVER_URL+`/api/v1/members/companies/${companyDomain}?isPending=false&page=${num}`;
-        const option = {
-            method : 'GET',
-            headers : {
-                'Content-Type' : 'application/json',
-            }
-        }
+        const url = SERVER_URL+`/api/v1/members/companies/company-domain?isPending=false&page=${num}`;
 
-        const result = await fetch(url, option);
-        const json = await result.json();
+        const json = await fetchWithAuth(url);
         const tbody = document.querySelector('#membersTable tbody')
         console.log(json);
 

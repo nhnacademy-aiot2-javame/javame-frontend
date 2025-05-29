@@ -1,31 +1,22 @@
 window.addEventListener('DOMContentLoaded', function (){
 
-    const warnify = new warnifyTable();
-    warnify.loadWarnify("testLocal.com");
+    const pending = new pendigTable();
+    pending.loadPending("testLocal.com");
 
 });
 
-const warnifyTable = function (){
+const pendigTable = function (){
     'use strict';
 
     //todo1 api 주소 나중에 배포할때 바꾸기
     const SERVER_URL = "http://localhost:10279";
 
-    const api = new Object();
-
-    this.loadWarnify = async function(companyDomain){
+    this.loadPending = async function(companyDomain){
 
         const num = document.querySelector('#page_num').value;
         const url = SERVER_URL+`/api/v1/members/companies/${companyDomain}?isPending=true&page=${num}`;
-        const option = {
-            method : 'GET',
-            headers : {
-                'Content-Type' : 'application/json',
-            }
-        }
 
-        const result = await fetch(url, option);
-        const json = await result.json();
+        const json = await httpClient().getFetch(url);
         const tbody = document.querySelector('#membersTable tbody')
         console.log(json);
 
@@ -151,7 +142,7 @@ const warnifyTable = function (){
                 next.textContent = "다음";
                 next.disabled = false;
                 next.classList.add('page-btn');
-                next.addEventListener('click', () => window.location.href = `/environment/warnify?page=${nextNum}`);
+                next.addEventListener('click', () => window.location.href = `/environment/members?page=${nextNum}`);
                 element.appendChild(next);
             }
         }

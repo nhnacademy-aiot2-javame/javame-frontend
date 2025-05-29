@@ -1,4 +1,11 @@
+
+
 window.addEventListener('DOMContentLoaded', function (){
+
+    const api = httpClient();
+    api.zlog();
+    const accessToken = sessionStorage.getItem('accessToken');
+    console.log('accessToken11 : ',accessToken);
 
     const warnify = new warnifyTable();
     warnify.loadWarnify("javame.com");
