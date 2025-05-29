@@ -53,20 +53,27 @@ public class DashboardController {
 
     @GetMapping("/pending")
     public String pendingMember(@RequestParam(value = "page", required = false)Long pageNum, Model model) {
+
         if(Objects.isNull(pageNum)){
             return "redirect:/environment/pending?page=1";
         }
         model.addAttribute("pageNum", pageNum);
         return "dashboard/pendingmembers";
+    }
 
     @GetMapping("/dashboard-detail")
-    public String dashboardDetail() {
+    public String dashboardDetail(){
         return "dashboard/dashboard-detail";
 
     }
 
     @GetMapping("/dashboard-integration")
-    public String dashboardIntegration() {
+    public String dashboardIntegration(){
         return "dashboard/dashboard-integration";
+    }
+
+    @GetMapping("/dashboard-prediction")
+    public String dashboardPrediction() {
+        return "dashboard/dashboard-prediction";
     }
 }
