@@ -5,7 +5,7 @@
 const TOKEN_KEY = 'accessToken';
 const REFRESH_KEY = 'refreshToken';
 const USE_MOCK_LOGIN = false;
-const CICD_URL = 'https://gateway.javame.live';
+const CICD_URL = 'http://localhost:10279';
 
 /**
  * 로그인 요청 → 토큰 받아서 저장 + 사용자 정보 반환
@@ -142,11 +142,12 @@ export async function refreshAccessToken() {
 export async function fetchWithAuth(url, options) {
     let token = sessionStorage.getItem(TOKEN_KEY);
     const final_url = CICD_URL + url;
+    console.log(final_url);
     const response = await fetch(final_url, {
         options,
         headers: {
-            Authorization: `Bearer ${token}`,
-        },
+            Authorization: `Bearer ${token}`
+        }
     });
 
     if (response.status === 401) { // 액세스 토큰 만료

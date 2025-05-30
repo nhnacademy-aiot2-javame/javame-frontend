@@ -12,9 +12,6 @@ window.addEventListener('DOMContentLoaded', function (){
 const memberTable = function (){
     'use strict';
 
-    //todo1 api 주소 나중에 배포할때 바꾸기
-    const SERVER_URL = "http://localhost:10279";
-
     this.loadWarnify = async function(){
 
         const num = document.querySelector('#page_num').value;
@@ -43,7 +40,7 @@ const memberTable = function (){
 
                         if(!confirm(`${email}님의 권한을 없에시겠습니까???`)) return;
                         const memberNo = json.memberNo;
-                        const url = SERVER_URL + `/api/v1/members/role/${memberNo}?role=ROLE_PENDING`
+                        const url = `/api/v1/members/role/${memberNo}?role=ROLE_PENDING`;
 
                         fetchWithAuthPut(url)
                             .then(response => {
