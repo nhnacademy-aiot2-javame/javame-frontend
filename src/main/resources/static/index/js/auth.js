@@ -40,7 +40,7 @@ export async function login(memberEmail, memberPassword) {
             }, 500);
         });
     } else {
-        const response = await fetch('http://gateway.javame.live/api/v1/auth/login', {
+        const response = await fetch('http://javame-gateway:10279/api/v1/auth/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -122,7 +122,7 @@ export async function refreshAccessToken() {
         throw new Error('Refresh token is missing');
     }
 
-    const response = await fetch('http://localhost:10279/api/v1/auth/refresh', {
+    const response = await fetch('http://javame-gateway:10279/api/v1/auth/refresh', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
