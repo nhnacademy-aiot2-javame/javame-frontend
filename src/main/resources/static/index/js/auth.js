@@ -5,7 +5,7 @@
 const TOKEN_KEY = 'accessToken';
 const REFRESH_KEY = 'refreshToken';
 const USE_MOCK_LOGIN = false;
-const CICD_URL = 'https://gateway.javame.live';
+const CICD_URL = 'http://gateway.javame.live:10279';
 
 window.logout = logout;
 /**
@@ -123,7 +123,7 @@ export async function refreshAccessToken() {
         throw new Error('Refresh token is missing');
     }
 
-    const response = await fetch('http://localhost:10279/api/v1/auth/refresh', {
+    const response = await fetch('http://gateway.javame.live/api/v1/auth/refresh', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -143,11 +143,12 @@ export async function refreshAccessToken() {
 export async function fetchWithAuth(url, options) {
     let token = sessionStorage.getItem(TOKEN_KEY);
     const final_url = CICD_URL + url;
+    console.log(final_url);
     const response = await fetch(final_url, {
         options,
         headers: {
-            Authorization: `Bearer ${token}`,
-        },
+            Authorization: `Bearer ${token}`
+        }
     });
 
     if (response.status === 401) { // 액세스 토큰 만료
