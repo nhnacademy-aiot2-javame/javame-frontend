@@ -1,14 +1,11 @@
-
+import {
+    fetchWithAuth
+} from '../../index/js/auth.js'
 
 window.addEventListener('DOMContentLoaded', function (){
 
-    const api = httpClient();
-    api.zlog();
-    const accessToken = sessionStorage.getItem('accessToken');
-    console.log('accessToken11 : ',accessToken);
-
     const warnify = new warnifyTable();
-    warnify.loadWarnify("javame.com");
+    warnify.loadWarnify();
 
 });
 
@@ -18,20 +15,12 @@ const warnifyTable = function (){
     //todo1 api 주소 나중에 배포할때 바꾸기
     const SERVER_URL = "http://localhost:10279";
 
-    const api = new Object();
-
-    this.loadWarnify = async function(companyDomain){
+    this.loadWarnify = async function(){
 
         const num = document.querySelector('#page_num').value;
-        const url = SERVER_URL+`/api/v1/warnify/list/${companyDomain}?page=${num}`;
-        const option = {
-            method : 'GET',
-            headers : {
-                'Content-Type' : 'application/json',
-            }
-        }
+        const url = `/api/v1/warnify/list/companyDomain?page=${num}`;
 
-        const result = await fetch(url, option);
+        const result = await fetchWithAuth(url, "method : 'GET'");
         const json = await result.json();
         const tbody = document.querySelector('#warnifyTable tbody')
 
