@@ -30,7 +30,7 @@ export async function login(memberEmail, memberPassword) {
                     sessionStorage.setItem(REFRESH_KEY, refreshToken);
                     sessionStorage.setItem('user', JSON.stringify({
                         memberEmail: user.memberEmail,
-                        role: user.role,
+                        role: user.role,curl
                         isLoggedIn: true
                     }));
                     resolve({ memberEmail: user.memberEmail, role: user.role });
@@ -40,7 +40,7 @@ export async function login(memberEmail, memberPassword) {
             }, 500);
         });
     } else {
-        const response = await fetch('http://javame-gateway:10279/api/v1/auth/login', {
+        const response = await fetch('http://gateway.javame.live/api/v1/auth/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
