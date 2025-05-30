@@ -5,7 +5,7 @@
 const TOKEN_KEY = 'accessToken';
 const REFRESH_KEY = 'refreshToken';
 const USE_MOCK_LOGIN = false;
-const CICD_URL = 'https://gateway.javame.live';
+const CICD_URL = 'https://javame-gateway:10279;
 
 /**
  * 로그인 요청 → 토큰 받아서 저장 + 사용자 정보 반환
@@ -40,7 +40,7 @@ export async function login(memberEmail, memberPassword) {
             }, 500);
         });
     } else {
-        const response = await fetch('http://javame-gateway:10279/api/v1/auth/login', {
+        const response = await fetch('https://javame-gateway:10279/api/v1/auth/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -122,7 +122,7 @@ export async function refreshAccessToken() {
         throw new Error('Refresh token is missing');
     }
 
-    const response = await fetch('http://javame-gateway:10279/api/v1/auth/refresh', {
+    const response = await fetch('https://javame-gateway:10279/api/v1/auth/refresh', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
