@@ -1,28 +1,29 @@
 import {
-    fetchWithAuth
+    fetchWithAuth, fetchWithAuthPut
 } from '../../index/js/auth.js'
 
 window.addEventListener('DOMContentLoaded', function (){
 
-    const warnify = new warnifyTable();
-    warnify.loadWarnify("testLocal.com");
+    const member = new memberTable();
+    member.loadWarnify();
 
 });
 
-const warnifyTable = function (){
+const memberTable = function (){
     'use strict';
 
     //todo1 api 주소 나중에 배포할때 바꾸기
     const SERVER_URL = "http://localhost:10279";
 
-    this.loadWarnify = async function(companyDomain){
+    this.loadWarnify = async function(){
 
         const num = document.querySelector('#page_num').value;
-        const url = SERVER_URL+`/api/v1/members/companies/company-domain?isPending=false&page=${num}`;
+        const url = `/api/v1/members/companies/companyDomain?isPending=false&page=${num}`;
 
-        const json = await fetchWithAuth(url);
+        const result = await fetchWithAuth(url);
+        const json = await result.json();
         const tbody = document.querySelector('#membersTable tbody')
-        console.log(json);
+
 
         if(tbody){
             json.content.forEach(json =>{
@@ -43,13 +44,8 @@ const warnifyTable = function (){
                         if(!confirm(`${email}님의 권한을 없에시겠습니까???`)) return;
                         const memberNo = json.memberNo;
                         const url = SERVER_URL + `/api/v1/members/role/${memberNo}?role=ROLE_PENDING`
-                        const option = {
-                            method : 'PUT',
-                            headers : {
-                                'Content-Type' : 'application/json',
-                            }
-                        }
-                        fetch(url,option)
+
+                        fetchWithAuthPut(url)
                             .then(response => {
                                 if(!response.ok) {
                                     alert("서버 오류 발생");
