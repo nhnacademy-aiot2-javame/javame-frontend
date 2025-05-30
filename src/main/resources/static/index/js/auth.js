@@ -46,6 +46,7 @@ export async function login(memberEmail, memberPassword) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ memberEmail, memberPassword }),
+            credentials: 'include'
         });
 
         if (!response.ok) {
