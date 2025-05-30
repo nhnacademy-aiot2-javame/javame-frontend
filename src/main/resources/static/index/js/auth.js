@@ -5,6 +5,7 @@
 const TOKEN_KEY = 'accessToken';
 const REFRESH_KEY = 'refreshToken';
 const USE_MOCK_LOGIN = false;
+const CICD_URL = 'https://gateway.javame.live';
 
 /**
  * 로그인 요청 → 토큰 받아서 저장 + 사용자 정보 반환
@@ -140,7 +141,8 @@ export async function refreshAccessToken() {
 
 export async function fetchWithAuth(url, options) {
     let token = sessionStorage.getItem(TOKEN_KEY);
-    const response = await fetch(url, {
+    const final_url = CICD_URL + url;
+    const response = await fetch(final_url, {
         options,
         headers: {
             Authorization: `Bearer ${token}`,
@@ -169,7 +171,7 @@ export async function fetchWithAuth(url, options) {
 
 export async function fetchWithAuthPut(url, data) {
     let token = sessionStorage.getItem(TOKEN_KEY);
-
+    const final_url = CICD_URL + url;
     const option = {
         method: 'PUT',
         headers: {
@@ -181,7 +183,7 @@ export async function fetchWithAuthPut(url, data) {
     if(data){
         option.body = JSON.stringify(data);
     }
-    const response = await fetch(url, option);
+    const response = await fetch(final_url, option);
 
     if (response.status === 401) { // 액세스 토큰 만료
         // 리프레시 토큰을 사용해 새로운 액세스 토큰을 받음

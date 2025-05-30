@@ -19,7 +19,7 @@ const pendigTable = function (){
     this.loadPending = async function(){
 
         const num = document.querySelector('#page_num').value;
-        const url = SERVER_URL+`/api/v1/members/companies/companyDomain?isPending=true&page=${num}`;
+        const url = `/api/v1/members/companies/companyDomain?isPending=true&page=${num}`;
 
         const result = await fetchWithAuth(url,"method : 'GET");
         const json = await result.json();

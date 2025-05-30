@@ -18,7 +18,7 @@ const warnifyTable = function (){
     this.loadWarnify = async function(){
 
         const num = document.querySelector('#page_num').value;
-        const url = SERVER_URL+`/api/v1/warnify/list/companyDomain?page=${num}`;
+        const url = `/api/v1/warnify/list/companyDomain?page=${num}`;
 
         const result = await fetchWithAuth(url, "method : 'GET'");
         const json = await result.json();
