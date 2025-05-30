@@ -6,6 +6,7 @@ const TOKEN_KEY = 'accessToken';
 const REFRESH_KEY = 'refreshToken';
 const USE_MOCK_LOGIN = false;
 
+window.logout = logout;
 /**
  * 로그인 요청 → 토큰 받아서 저장 + 사용자 정보 반환
  */
@@ -84,7 +85,7 @@ export function logout() {
     sessionStorage.removeItem(TOKEN_KEY);
     sessionStorage.removeItem(REFRESH_KEY);
     sessionStorage.removeItem('user');
-    location.href = '/auth/login.html';
+    location.href = '/auth/login';
 }
 
 export function getAccessToken() {

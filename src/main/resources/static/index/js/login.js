@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateNavBar();
 
                 if (user.role === 'ROLE_USER' || user.role === 'ROLE_OWNER') {
-                    window.location.href = '/environment/dashboard';
+                    window.location.href = '/environment/dashboard-main';
                 } else if (user.role === 'ROLE_ADMIN') {
                     window.location.href = '/admin/index';
                 } else {
