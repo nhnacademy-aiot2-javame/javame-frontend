@@ -1,5 +1,5 @@
 import {
-    fetchWithAuth
+    fetchWithAuth, fetchWithAuthPut
 } from '../../index/js/auth.js'
 
 window.addEventListener('DOMContentLoaded', function (){
@@ -18,7 +18,7 @@ const memberTable = function (){
     this.loadWarnify = async function(){
 
         const num = document.querySelector('#page_num').value;
-        const url = SERVER_URL+`/api/v1/members/companies/companyDomain?isPending=false&page=${num}`;
+        const url = `/api/v1/members/companies/companyDomain?isPending=false&page=${num}`;
 
         const result = await fetchWithAuth(url);
         const json = await result.json();
@@ -44,13 +44,8 @@ const memberTable = function (){
                         if(!confirm(`${email}님의 권한을 없에시겠습니까???`)) return;
                         const memberNo = json.memberNo;
                         const url = SERVER_URL + `/api/v1/members/role/${memberNo}?role=ROLE_PENDING`
-                        const option = {
-                            method : 'PUT',
-                            headers : {
-                                'Content-Type' : 'application/json',
-                            }
-                        }
-                        fetch(url,option)
+
+                        fetchWithAuthPut(url)
                             .then(response => {
                                 if(!response.ok) {
                                     alert("서버 오류 발생");

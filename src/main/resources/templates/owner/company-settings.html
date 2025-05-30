@@ -9,6 +9,7 @@
     <title>회사 설정 - NHN Academy IoT 센서 관리</title>
     <link href="/admin/css/styles.css" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <script type="module" src="/index/js/companySetting.js" defer></script>
 </head>
 <body class="sb-nav-fixed">
 <div th:replace="~{fragments/head :: header}"></div>
@@ -19,32 +20,61 @@
         <main class="container-fluid px-4 mt-4">
             <h1 class="mb-4">회사 설정</h1>
 
-            <div class="card mb-4">
+            <div class="card mb-4" id="companyCard">
+                <div class="card-header"><i class="fas fa-building me-1"></i> 회사 정보</div>
                 <div class="card-body">
-                    <form>
-<!--                        <input type="hidden" name="companyId" th:value="${company.id}" />-->
+                    <!-- 보기 모드 -->
+                    <div id="viewMode">
+                        <dl class="row">
+                            <dt class="col-sm-3">회사 도메인</dt>
+                            <dd class="col-sm-9" id="companyDomain"></dd>
 
-                        <div class="mb-3">
-                            <label for="name" class="form-label">회사 이름</label>
-                            <input type="text" class="form-control" id="name" name="name"  />
-<!--                                   th:value="${company.name}" required />-->
+                            <dt class="col-sm-3">회사명</dt>
+                            <dd class="col-sm-9" id="companyName"></dd>
+
+                            <dt class="col-sm-3">회사 이메일</dt>
+                            <dd class="col-sm-9" id="companyEmail"></dd>
+
+                            <dt class="col-sm-3">회사 연락처</dt>
+                            <dd class="col-sm-9" id="companyMobile"></dd>
+
+                            <dt class="col-sm-3">회사 주소</dt>
+                            <dd class="col-sm-9" id="companyAddress"></dd>
+                        </dl>
+
+                        <div class="text-end">
+                            <button class="btn btn-outline-primary" id="editButton">수정</button>
                         </div>
+                    </div>
 
+                    <!-- 수정 모드 -->
+                    <div id="editMode" style="display: none;">
                         <div class="mb-3">
-                            <label for="domain" class="form-label">도메인</label>
-                            <input type="text" class="form-control" id="domain" name="domain" />
-<!--                                   th:value="${company.domain}" required -->
-
+                            <label>회사 도메인</label>
+                            <label id="editCompanyDomain"></label>
                         </div>
-
                         <div class="mb-3">
-                            <label for="address" class="form-label">주소</label>
-                            <input type="text" class="form-control" id="address" name="address" />
-<!--                                   th:value="${company.address}" />-->
+                            <label>회사명</label>
+                            <input class="form-control" id="editCompanyName" type="text">
                         </div>
+                        <div class="mb-3">
+                            <label>회사 이메일</label>
+                            <label id="editCompanyEmail"></label>
+                        </div>
+                        <div class="mb-3">
+                            <label>회사 연락처</label>
+                            <input class="form-control" id="editCompanyMobile" type="text">
+                        </div>
+                        <div class="mb-3">
+                            <label>회사 주소</label>
+                            <input class="form-control" id="editCompanyAddress" type="text">
+                        </div>
+                        <div class="text-end">
+                            <button class="btn btn-secondary me-2" id="cancelEdit">취소</button>
+                            <button class="btn btn-primary" id="saveCompanyInfo">저장</button>
+                        </div>
+                    </div>
 
-                        <button type="submit" class="btn btn-warning">저장</button>
-                    </form>
                 </div>
             </div>
         </main>
