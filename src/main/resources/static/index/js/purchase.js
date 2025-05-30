@@ -1,4 +1,4 @@
-const BASE_URL = 'http://javame-gateway:10279/api/v1';
+const BASE_URL = 'https://gateway.javame.live/api/v1';
 
 document.getElementById('purchaseBtn').addEventListener('click', async function (e) {
     e.preventDefault();

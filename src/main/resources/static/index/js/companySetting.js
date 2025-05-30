@@ -3,7 +3,7 @@ import {
 } from './auth.js'
 
 window.addEventListener('DOMContentLoaded', async function (){
-    const url = 'http://javame-gateway:10279/api/v1/companies/companyDomain';
+    const url = 'https://gateway.javame.live/api/v1/companies/companyDomain';
     const result = await fetchWithAuth(url);
     const json = await result.json();
 
@@ -43,7 +43,7 @@ async function saveCompanyInfo() {
     };
 
     try {
-        const url = 'http://javame-gateway:10279/api/v1/companies/companyDomain';
+        const url = 'https://gateway.javame.live/api/v1/companies/companyDomain';
         const response = await fetchWithAuthPut(url, data);
         const json = await response.json();
         console.log(json);
