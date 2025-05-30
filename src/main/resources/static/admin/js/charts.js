@@ -1,11 +1,9 @@
-//charts.js
+// charts.js (트리 기반 필터링 구조로 전면 리팩토링)
 import {
-    getOrigins,
-    getDropdownValues,
-    getMeasurementList,
     startSensorDataStream,
     getChartDataForSensor,
-    getPieChartData
+    getPieChartData,
+    getTree
 } from './iotSensorApi.js';
 
 import {
@@ -16,70 +14,56 @@ import {
 
 let currentChartFilter = { companyDomain: 'javame' };
 
-window.addEventListener('DOMContentLoaded', initChartPage);
-
-async function initChartPage() {
-    await loadOriginDropdown();
+window.addEventListener('DOMContentLoaded', async () => {
+    const tree = await getTree(currentChartFilter.companyDomain);
+    renderSlTree(document.getElementById('filterTree'), tree);
 
     document.getElementById('applyChartFilter')?.addEventListener('click', async () => {
-        updateFilterFromDropdowns();
         restartSseChart();
         await loadBarChart();
         await loadPieChart();
+    });
+});
 
+// 재귀 렌더링 함수
+function renderSlTree(container, node) {
+    if (!node?.children?.length) return;
+
+    // 각 하위 노드 렌더링
+    node.children.forEach(child => {
+        const item = createSlTreeItem(child);
+        container.appendChild(item);  // 반드시 <sl-tree> 또는 <sl-tree-item> 하위에 추가
     });
 }
 
-async function loadOriginDropdown() {
-    const origins = await getOrigins(currentChartFilter.companyDomain);
-    console.log('origins', origins);
-    populateDropdown('originDropdown', origins, async (origin) => {
-        currentChartFilter.origin = origin;
-        await loadDependentDropdowns(origin);
-    });
-}
+function createSlTreeItem(node) {
+    const item = document.createElement('sl-tree-item');
+    item.textContent = node.label;
+    item.dataset.tag = node.tag;
+    item.dataset.label = node.label;
 
-async function loadDependentDropdowns(origin) {
-    const tags = ['location', 'place', 'device_id', 'building', '_field'];
-    for (const tag of tags) {
-        const values = await getDropdownValues(currentChartFilter.companyDomain, origin, tag);
-        populateDropdown(`${tag}Dropdown`, values);
-    }
+    item.addEventListener('click', async (e) => {
+        currentChartFilter[node.tag] = node.value;
+        console.log('현재 필터:', currentChartFilter);
 
-    const measurements = await getMeasurementList(currentChartFilter.companyDomain, origin);
-    populateDropdown('measurementDropdown', measurements);
-}
-
-function populateDropdown(id, items, onChange) {
-    const select = document.getElementById(id);
-    if (!select) return;
-
-    select.innerHTML = '<option value="">선택</option>';
-    items.forEach(item => {
-        const opt = document.createElement('option');
-        opt.value = item;
-        opt.textContent = item;
-        select.appendChild(opt);
-    });
-
-    if (items.length > 0) {
-        select.value = items[0];
-        onChange?.(items[0]);
-    }
-
-    select.onchange = (e) => onChange?.(e.target.value);
-}
-
-function updateFilterFromDropdowns() {
-    const tags = ['location', 'place', 'device_id', 'building', '_field', 'measurement','range'];
-    tags.forEach(tag => {
-        const select = document.getElementById(`${tag}Dropdown`);
-        if (select) {
-            const key = tag === 'measurement' ? '_measurement' : tag;
-            currentChartFilter[key] = select.value;
+        if (node.tag === 'measurement') {
+            currentChartFilter._measurement = node.value;
+            restartSseChart();
+            await loadBarChart();
+            await loadPieChart();
         }
     });
+
+    // 자식 노드 렌더링
+    node.children?.forEach(child => {
+        const childItem = createSlTreeItem(child);
+        childItem.setAttribute('slot', 'children');
+        item.appendChild(childItem);
+    });
+
+    return item;
 }
+
 
 function restartSseChart() {
     const measurement = currentChartFilter._measurement;
@@ -103,7 +87,7 @@ async function loadBarChart() {
     const { companyDomain, origin, _measurement } = currentChartFilter;
     if (!origin || !_measurement) return;
 
-    const chartData = await getChartDataForSensor(companyDomain, origin, _measurement);
+    const chartData = await getChartDataForSensor(origin, _measurement);
     if (!chartData.labels?.length) return;
 
     if (window.barChart) window.barChart.destroy();
@@ -114,7 +98,7 @@ async function loadPieChart() {
     const { companyDomain, origin } = currentChartFilter;
     if (!origin) return;
 
-    const pieData = await getPieChartData(companyDomain, origin);
+    const pieData = await getPieChartData(origin);
     if (!pieData.labels?.length) return;
 
     if (window.pieChart) window.pieChart.destroy();
