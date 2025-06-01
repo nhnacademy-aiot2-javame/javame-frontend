@@ -142,7 +142,7 @@ export async function refreshAccessToken() {
 
 export async function fetchWithAuth(url, options) {
     let token = sessionStorage.getItem(TOKEN_KEY);
-    const final_url = CICD_URL + url;
+    const final_url = url;
     console.log(final_url);
     const response = await fetch(final_url, {
         options,
