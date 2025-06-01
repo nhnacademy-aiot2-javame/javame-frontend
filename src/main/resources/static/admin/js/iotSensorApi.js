@@ -54,11 +54,30 @@ export function startSensorDataStream(params, onData) {
 }
 
 export async function getHourlyAverages(origin, measurement, filters) {
-    const params = new URLSearchParams(filters);
+    // ★★★ 필터에서 companyDomain 추출 ★★★
+    const companyDomain = filters.companyDomain;
+
+    if (!companyDomain) {
+        console.error('getHourlyAverages: companyDomain이 필요합니다.');
+        return {};
+    }
+
+    // ★★★ companyDomain을 제거한 나머지 필터만 params에 추가 ★★★
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+        if (key !== 'companyDomain') {
+            params.append(key, value);
+        }
+    });
+
     params.append("origin", origin);
     params.append("measurement", measurement);
 
-    const url = `${API_BASE_URL}/1h?${params.toString()}`;
+    // ★★★ URL에 companyDomain 포함 ★★★
+    const url = `http://localhost:10279/api/v1/environment/companyDomain/${companyDomain}/1h?${params.toString()}`;
+
+    console.log('getHourlyAverages 호출:', url);
+
     const res = await fetchWithAuth(url);
     if (!res.ok) {
         console.error('getHourlyAverages() 실패', res.status, await res.text());
@@ -66,6 +85,7 @@ export async function getHourlyAverages(origin, measurement, filters) {
     }
     return await res.json();
 }
+
 
 
 export async function getChartDataForSensor(origin, sensor) {

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.thymeleaf.org/layout">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -10,21 +10,26 @@
     <!-- Font Awesome 아이콘 -->
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     <style>
-        /* 차트 컨테이너의 높이를 고정하여 레이아웃 안정화 */
         .chart-container {
             position: relative;
-            height: 350px; /* 차트 높이를 약간 늘림 (제목 등 공간 고려) */
+            height: 400px;
             width: 100%;
         }
-        /* 체크박스 영역 스크롤 (항목이 많을 경우 대비) */
-        #measurementCheckboxContainer {
-            max-height: 150px;
-            overflow-y: auto;
-            padding: 1rem; /* 내부 패딩 추가 */
+        .combo-chart-container {
+            position: relative;
+            height: 500px;
+            width: 100%;
         }
-        /* 체크박스 인라인 스타일 개선 */
+        #measurementCheckboxContainer {
+            padding: 1rem;
+        }
         #measurementCheckboxContainer .form-check {
-            margin-right: 1rem; /* 체크박스 간 간격 */
+            margin-right: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .status-badge {
+            font-size: 0.875rem;
+            padding: 0.375rem 0.75rem;
         }
     </style>
 </head>
@@ -35,117 +40,163 @@
     <div id="layoutSidenav_content">
         <main>
             <div class="container-fluid px-4">
-                <h1 class="mt-4">통합 차트 분석</h1>
-                <ol class="breadcrumb mb-4">
-                    <li class="breadcrumb-item"><a th:href="@{/environment/dashboard-main}">메인 대시보드</a></li>
-                    <li class="breadcrumb-item active">통합 차트</li>
-                </ol>
+                <!-- 헤더 -->
+                <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
+                    <div>
+                        <h1 class="mb-1">통합 차트 분석</h1>
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a th:href="@{/environment/dashboard-main}">메인 대시보드</a></li>
+                            <li class="breadcrumb-item active">통합 차트</li>
+                        </ol>
+                    </div>
+                    <div>
+                        <span class="me-2">연결 상태:</span>
+                        <span id="integration-websocket-status" class="badge bg-secondary status-badge">연결 중...</span>
+                    </div>
+                </div>
 
-                <!-- Measurement 선택 체크박스 영역 -->
+                <!-- 측정 항목 선택 -->
                 <div class="card mb-4">
-                    <div class="card-header">
-                        <i class="fas fa-check-square me-1"></i>
-                        측정 항목 선택 (Measurement)
+                    <div class="card-header d-flex align-items-center">
+                        <i class="fas fa-check-square me-2"></i>
+                        <h5 class="mb-0">측정 항목 선택</h5>
                     </div>
                     <div class="card-body" id="measurementCheckboxContainer">
-                        <!-- JavaScript로 여기에 _measurement 체크박스들이 동적으로 생성됩니다. -->
-                        <!-- 예시 더미 체크박스 (JS에서 실제 생성될 때 이 부분은 덮어씌워짐) -->
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="checkbox" value="CPU 사용률" id="chkDummyCpu" checked>
-                            <label class="form-check-label" for="chkDummyCpu">CPU 사용률</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="checkbox" value="메모리 사용량" id="chkDummyMemory" checked>
-                            <label class="form-check-label" for="chkDummyMemory">메모리 사용량</label>
-                        </div>
+<!--                        &lt;!&ndash; JavaScript로 동적 생성 &ndash;&gt;-->
+<!--                        <div class="form-check form-check-inline">-->
+<!--                            <input class="form-check-input" type="checkbox" value="usage_user" id="chkCpu" data-gateway="cpu" checked>-->
+<!--                            <label class="form-check-label" for="chkCpu">CPU 사용률</label>-->
+<!--                        </div>-->
+<!--                        <div class="form-check form-check-inline">-->
+<!--                            <input class="form-check-input" type="checkbox" value="used_percent" id="chkMemory" data-gateway="mem" checked>-->
+<!--                            <label class="form-check-label" for="chkMemory">메모리 사용량</label>-->
+<!--                        </div>-->
+<!--                        <div class="form-check form-check-inline">-->
+<!--                            <input class="form-check-input" type="checkbox" value="temperature_celsius" id="chkTemp" data-gateway="modbus" checked>-->
+<!--                            <label class="form-check-label" for="chkTemp">서버 온도</label>-->
+<!--                        </div>-->
+<!--                        <div class="form-check form-check-inline">-->
+<!--                            <input class="form-check-input" type="checkbox" value="power_factor_avg_percent" id="chkPower" data-gateway="modbus" checked>-->
+<!--                            <label class="form-check-label" for="chkPower">역률 평균</label>-->
+<!--                        </div>-->
                     </div>
                     <div class="card-footer text-end">
                         <button class="btn btn-primary" id="applyIntegrationChartFilterButton">
-                            <i class="fas fa-sync-alt me-1"></i> 선택 항목 차트 보기
+                            <i class="fas fa-chart-line me-1"></i> 차트 업데이트
                         </button>
                     </div>
                 </div>
 
-                <!-- 현재 상태 바 + 과거 라인 콤보 차트 -->
+                <!-- 콤보 차트 (현재값 + 과거평균) -->
                 <div class="card mb-4">
-                    <div class="card-header">
-                        <i class="fas fa-chart-bar me-1"></i>
-                        선택 항목 현재 값 (막대) 및 과거 평균 (선) 비교
+                    <div class="card-header d-flex align-items-center">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        <h5 class="mb-0">현재값 vs 과거평균 비교</h5>
+                        <small class="text-muted ms-2">(실시간 데이터 + 1시간 평균)</small>
                     </div>
                     <div class="card-body">
-                        <div class="chart-container">
-                            <!-- 콤보 차트를 이 캔버스에 그립니다. -->
+                        <div class="combo-chart-container">
                             <canvas id="currentStateBarChart"></canvas>
                         </div>
                     </div>
                 </div>
 
-                <!-- 과거 상태 개별 라인 차트 (일/주/월) - 이 부분은 콤보 차트에 통합되거나, 별도로 유지할 수 있음 -->
-                <!-- 여기서는 일단 콤보 차트에 집중하므로, 이 부분은 주석 처리하거나 나중에 추가할 수 있습니다. -->
+<!--                &lt;!&ndash; 추이 차트 3개 (시간별/일별/주별) &ndash;&gt;-->
+<!--                <div class="row">-->
+<!--                    <div class="col-lg-4">-->
+<!--                        <div class="card mb-4">-->
+<!--                            <div class="card-header d-flex align-items-center">-->
+<!--                                <i class="fas fa-clock me-2 text-primary"></i>-->
+<!--                                <h6 class="mb-0">시간별 추이</h6>-->
+<!--                                <small class="text-muted ms-2">(최근 24시간)</small>-->
+<!--                            </div>-->
+<!--                            <div class="card-body">-->
+<!--                                <div class="chart-container">-->
+<!--                                    <canvas id="hourlyTrendChart"></canvas>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="col-lg-4">-->
+<!--                        <div class="card mb-4">-->
+<!--                            <div class="card-header d-flex align-items-center">-->
+<!--                                <i class="fas fa-calendar-day me-2 text-success"></i>-->
+<!--                                <h6 class="mb-0">일별 추이</h6>-->
+<!--                                <small class="text-muted ms-2">(최근 7일)</small>-->
+<!--                            </div>-->
+<!--                            <div class="card-body">-->
+<!--                                <div class="chart-container">-->
+<!--                                    <canvas id="dailyTrendChart"></canvas>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="col-lg-4">-->
+<!--                        <div class="card mb-4">-->
+<!--                            <div class="card-header d-flex align-items-center">-->
+<!--                                <i class="fas fa-calendar-week me-2 text-warning"></i>-->
+<!--                                <h6 class="mb-0">주별 추이</h6>-->
+<!--                                <small class="text-muted ms-2">(최근 4주)</small>-->
+<!--                            </div>-->
+<!--                            <div class="card-body">-->
+<!--                                <div class="chart-container">-->
+<!--                                    <canvas id="weeklyTrendChart"></canvas>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
 
-                <h3 class="mt-5 mb-3">과거 상태 추이 (선택된 항목)</h3>
-                <div class="row">
-                    <div class="col-lg-4">
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <i class="fas fa-chart-line me-1"></i>
-                                일별 추이
-                            </div>
-                            <div class="card-body">
-                                <div class="chart-container">
-                                    <canvas id="pastStateDailyLineChart"></canvas>
+                <!-- 차트 정보 -->
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-wifi text-success me-2"></i>
+                                    <span class="fw-bold">실시간 연결</span>
                                 </div>
+                                <small class="text-muted">WebSocket 기반</small>
                             </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <i class="fas fa-chart-line me-1"></i>
-                                주별 추이
-                            </div>
-                            <div class="card-body">
-                                <div class="chart-container">
-                                    <canvas id="pastStateWeeklyLineChart"></canvas>
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-database text-primary me-2"></i>
+                                    <span class="fw-bold">InfluxDB</span>
                                 </div>
+                                <small class="text-muted">시계열 데이터</small>
                             </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <i class="fas fa-chart-line me-1"></i>
-                                월별 추이
-                            </div>
-                            <div class="card-body">
-                                <div class="chart-container">
-                                    <canvas id="pastStateMonthlyLineChart"></canvas>
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-sync-alt text-info me-2"></i>
+                                    <span class="fw-bold">자동 갱신</span>
                                 </div>
+                                <small class="text-muted">15초마다</small>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-chart-line text-warning me-2"></i>
+                                    <span class="fw-bold">다중 지표</span>
+                                </div>
+                                <small class="text-muted">동시 비교</small>
                             </div>
                         </div>
                     </div>
                 </div>
 
-            </div> <!-- /.container-fluid -->
+            </div>
         </main>
         <div th:replace="~{fragments/footer :: footer}"></div>
-    </div> <!-- /#layoutSidenav_content -->
-</div> <!-- /#layoutSidenav -->
+    </div>
+</div>
 
-<!-- Bootstrap Bundle JS -->
+<!-- JavaScript Libraries -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<!-- SB Admin 기본 스크립트 -->
 <script src="/admin/js/scripts.js"></script>
-<!-- Chart.js 최신 버전 CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- 만약 datalabels 플러그인을 사용하려면 아래 주석 해제 -->
-<!-- <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script> -->
 
-
-<!-- 이 페이지 전용 JavaScript 파일들 (type="module"로 선언) -->
-<script type="module" src="/admin/js/iotSensorApi.js"></script>
+<!-- 페이지 전용 JavaScript -->
 <script type="module" src="/admin/js/chartUtils.js"></script>
-<script type="module" src="/admin/js/dashboardIntegration.js"></script> <!-- 이 HTML을 위한 JS 파일 -->
+<script type="module" src="/admin/js/dashboardIntegration.js"></script>
 
 </body>
 </html>
