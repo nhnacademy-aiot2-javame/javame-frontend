@@ -4,13 +4,12 @@
      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
         <!-- Navbar Brand -->
-        <a class="navbar-brand ps-3" href="/environment/dashboard">NHN Academy 센서 관리</a>
+        <a class="navbar-brand ps-3" href="/environment/dashboard-main">NHN Academy 센서 관리</a>
         <!-- Sidebar Toggle -->
         <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0 ps-3" id="sidebarToggle">
             <i class="fas fa-bars"></i>
         </button>
 
-        <a class="navbar-brand ps-3" href="/environment/dashboard">NHN Academy 센서 관리</a>
         <!-- Sidebar Toggle -->
 
 <!--        &lt;!&ndash; Navbar Search &ndash;&gt;-->
@@ -34,13 +33,13 @@
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     <li><a class="dropdown-item" href=/members/settings>설정</a></li>
                     <li><a class="dropdown-item" href=/members/mypage>마이페이지</a></li>
-                    <li><a class="dropdown-item" href="/auth/login" onclick="logout()">로그아웃</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="logout(); return false;">로그아웃</a></li>
                     <li><hr class="dropdown-divider" /></li>
 
-                    <li sec:authorize="hasAnyAuthority('ADMIN')">
-                        <a class="dropdown-item" href="/members/member-list">사용자 관리</a>
-                        <a class="dropdown-item" href="/companies/company-list">회사 관리</a>
-                    </li>
+<!--                    <li sec:authorize="hasAnyAuthority('ADMIN')">-->
+<!--                        <a class="dropdown-item" href="/members/member-list">사용자 관리</a>-->
+<!--                        <a class="dropdown-item" href="/companies/company-list">회사 관리</a>-->
+<!--                    </li>-->
 
                     <li sec:authorize="hasAnyAuthority('OWNER')">
                         <a class="dropdown-item" href="/members/member-list">사용자 관리</a>

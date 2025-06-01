@@ -1,0 +1,16 @@
+GET http://localhost:10279/api/v1/members/companies/companyDomain?ispending=false&page=1
+###
+GET http://localhost:10279/api/v1/environment/companyDomain/tree
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QGphdmFtZS5jb20iLCJyb2xlIjoiUk9MRV9PV05FUiIsImlhdCI6MTc0ODUwMzk3MywiZXhwIjoxNzQ4NTA5MzczfQ.gXhOyMDvxtyAmiT_fDV7y5yePwt9ljf2zPvAfqq90p6OoDiH7Ymngpjrz4TBVrW3Tk8R5IlEduc9nipuHB-hLQ
+
+###
+GET http://localhost:10279/api/v1/environment/companyDomain/origins
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QGphdmFtZS5jb20iLCJyb2xlIjoiUk9MRV9PV05FUiIsImlhdCI6MTc0ODUwMzk3MywiZXhwIjoxNzQ4NTA5MzczfQ.gXhOyMDvxtyAmiT_fDV7y5yePwt9ljf2zPvAfqq90p6OoDiH7Ymngpjrz4TBVrW3Tk8R5IlEduc9nipuHB-hLQ
+
+###
+GET http://localhost:10279/api/v1/environment/companyDomain/chart/type/current_amps?origin=server_data
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QGphdmFtZS5jb20iLCJyb2xlIjoiUk9MRV9PV05FUiIsImlhdCI6MTc0ODUwNjQ0NCwiZXhwIjoxNzQ4NTExODQ0fQ.5WcPstZsG97_IzyF8uRE8OAcqfDTaHdT474yBwY10X2Sc2fyp0Fg7yemG2INlqTALrf_W-GrsQzcTdxZUNKRgg
+#http://localhost:10279/api/v1/environment/companyDomain/time-series-stream?origin=server_data&building=gyeongnam_campus&location=power_meter&deviceId=192.168.71.74&place=server_room&gatewayId=modbus&measurement=current_amps&_measurement=current_amps 500 (Internal Server Error)
+
+http://localhost:10279/api/v1/environment/companyDomain/time-series-stream?origin=server_data&building=gyeongnam_campus&location=power_meter&deviceId=192.168.71.74&place=server_room&gatewayId=modbus&measurement=current_amps&_measurement=current_amps
+

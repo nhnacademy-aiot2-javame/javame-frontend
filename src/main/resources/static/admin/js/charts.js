@@ -87,7 +87,7 @@ async function loadBarChart() {
     const { companyDomain, origin, _measurement } = currentChartFilter;
     if (!origin || !_measurement) return;
 
-    const chartData = await getChartDataForSensor(companyDomain, origin, _measurement);
+    const chartData = await getChartDataForSensor(origin, _measurement);
     if (!chartData.labels?.length) return;
 
     if (window.barChart) window.barChart.destroy();
@@ -98,7 +98,7 @@ async function loadPieChart() {
     const { companyDomain, origin } = currentChartFilter;
     if (!origin) return;
 
-    const pieData = await getPieChartData(companyDomain, origin);
+    const pieData = await getPieChartData(origin);
     if (!pieData.labels?.length) return;
 
     if (window.pieChart) window.pieChart.destroy();
