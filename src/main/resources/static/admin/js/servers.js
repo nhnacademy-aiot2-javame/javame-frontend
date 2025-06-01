@@ -4,7 +4,7 @@ import {
 
 window.addEventListener('DOMContentLoaded', async event => {
 
-    const url = 'http://localhost:10279/api/v1/rule/servers?domain=javame';
+    const url = '/api/v1/rule/servers?domain=javame';
     const serverResponse = await fetchWithAuth(url);
     const json = await serverResponse.json();
 
@@ -33,7 +33,7 @@ window.addEventListener('DOMContentLoaded', async event => {
 
             tr.addEventListener('click',async function() {
 
-                const url = `http://localhost:10279/api/v1/rule/server-datas/by-server-no/${smallJson.serverNo}`;
+                const url = `/api/v1/rule/server-datas/by-server-no/${smallJson.serverNo}`;
                 //클릭한 행의 서버 넘버 가져오기.
                 const serverResponse = await fetchWithAuth(url);
                 const serverDataList = await serverResponse.json();
