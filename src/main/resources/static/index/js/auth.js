@@ -5,7 +5,7 @@
 const TOKEN_KEY = 'accessToken';
 const REFRESH_KEY = 'refreshToken';
 const USE_MOCK_LOGIN = false;
-const CICD_URL = 'http://gateway.javame.live:10279';
+const CICD_URL = 'http://localhost:10279';
 
 /**
  * 로그인 요청 → 토큰 받아서 저장 + 사용자 정보 반환

@@ -5,6 +5,7 @@
     <title>NHN Academy IoT 센서 관리 - 멤버 리스트</title>
     <link href="/admin/css/styles.css" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <script type="module" src="/admin/js/membersTable.js"></script>
 </head>
 <body class="sb-nav-fixed">
 <div th:replace="~{fragments/head :: header}"></div>
@@ -22,7 +23,7 @@
                     등록된 멤버 목록
                 </div>
                 <div class="card-body">
-                    <table class="table table-hover">
+                    <table class="table table-hover" id="membersTable">
                         <thead>
                         <tr>
                             <th>이름</th>

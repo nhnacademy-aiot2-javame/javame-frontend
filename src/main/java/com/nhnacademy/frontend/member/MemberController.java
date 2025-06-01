@@ -10,7 +10,7 @@ public class MemberController {
 
     @GetMapping("/member-list")
     public String memberList() {
-        return "admin/member-list";
+        return "admin/members";
     }
 
     // 오너는 본인 회사 회원 리스트 페이지로 이동
