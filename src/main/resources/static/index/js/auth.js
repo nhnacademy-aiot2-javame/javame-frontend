@@ -40,7 +40,7 @@ export async function login(memberEmail, memberPassword) {
             }, 500);
         });
     } else {
-        const response = await fetch('https://gateway.javame.live/api/v1/auth/login', {
+        const response = await fetch('https://javame.live/api/v1/auth/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
