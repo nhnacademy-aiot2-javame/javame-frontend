@@ -47,6 +47,7 @@ export async function login(memberEmail, memberPassword) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ memberEmail, memberPassword }),
+            credentials: 'include'
         });
 
         if (!response.ok) {
@@ -142,8 +143,7 @@ export async function refreshAccessToken() {
 
 export async function fetchWithAuth(url, options) {
     let token = sessionStorage.getItem(TOKEN_KEY);
-    const final_url = url;
-    console.log(final_url);
+    const final_url = CICD_URL + url;
     const response = await fetch(final_url, {
         options,
         headers: {
