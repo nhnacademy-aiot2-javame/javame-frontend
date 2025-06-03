@@ -13,7 +13,7 @@ const WarnifyTable = function () {
     'use strict';
 
     this.loadWarnify = async function () {
-        const url = `/api/v1/warnify/list/companyDomain?page=${currentPage}&size=10`;
+        const url = `/warnify/list/companyDomain?page=${currentPage}&size=10`;
 
         const result = await fetchWithAuth(url);
         const json = await result.json();

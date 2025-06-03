@@ -15,7 +15,7 @@ const memberTable = function (){
     this.loadWarnify = async function(){
 
         const num = document.querySelector('#page_num').value;
-        const url = `/api/v1/members/companies/companyDomain?isPending=false&page=${num}`;
+        const url = `/members/companies/companyDomain?isPending=false&page=${num}`;
 
         const result = await fetchWithAuth(url);
         const json = await result.json();
@@ -40,7 +40,7 @@ const memberTable = function (){
 
                         if(!confirm(`${email}님의 권한을 없에시겠습니까???`)) return;
                         const memberNo = json.memberNo;
-                        const url = `/api/v1/members/role/${memberNo}?role=ROLE_PENDING`;
+                        const url = `/members/role/${memberNo}?role=ROLE_PENDING`;
 
                         fetchWithAuthPut(url)
                             .then(response => {
