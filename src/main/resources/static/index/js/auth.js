@@ -5,7 +5,7 @@
 const TOKEN_KEY = 'accessToken';
 const REFRESH_KEY = 'refreshToken';
 const USE_MOCK_LOGIN = false;
-const CICD_URL = 'http://gateway.javame.live:10279';
+const CICD_URL = 'https://javame.live/api/v1';
 
 window.logout = logout;
 /**
@@ -41,12 +41,13 @@ export async function login(memberEmail, memberPassword) {
             }, 500);
         });
     } else {
-        const response = await fetch('http://localhost:10279/api/v1/auth/login', {
+        const response = await fetch('https://javame.live/api/v1/auth/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ memberEmail, memberPassword }),
+            credentials: 'include'
         });
 
         if (!response.ok) {
@@ -123,7 +124,7 @@ export async function refreshAccessToken() {
         throw new Error('Refresh token is missing');
     }
 
-    const response = await fetch('http://gateway.javame.live/api/v1/auth/refresh', {
+    const response = await fetch('https://javame.live/api/v1/auth/refresh', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -142,8 +143,7 @@ export async function refreshAccessToken() {
 
 export async function fetchWithAuth(url, options) {
     let token = sessionStorage.getItem(TOKEN_KEY);
-    const final_url = url;
-    console.log(final_url);
+    const final_url = CICD_URL + url;
     const response = await fetch(final_url, {
         options,
         headers: {
@@ -157,10 +157,10 @@ export async function fetchWithAuth(url, options) {
             token = await refreshAccessToken();
             // 새로운 토큰을 사용해 다시 요청
             return fetch(url, {
-                ...options,
+                options,
                 headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+                    'Refresh-Token': `Bearer ${token}`,
+                }
             });
         } catch (error) {
             console.error('리프레시 토큰 갱신 실패', error);
