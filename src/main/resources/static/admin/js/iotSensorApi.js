@@ -2,7 +2,7 @@ import {
     fetchWithAuth
 } from '/index/js/auth.js';
 
-const API_BASE_URL = 'http://localhost:10279/api/v1/environment/companyDomain';
+const API_BASE_URL = 'https://javame.live/api/v1/environment/companyDomain';
 
 let eventSource = null;
 
@@ -35,23 +35,88 @@ export async function getMeasurementList(origin, gatewayId = "") {
     return await res.json();
 }
 
-export function startSensorDataStream(params, onData) {
-    if (eventSource) eventSource.close();
+// export function startSensorDataStream(params, onData) {
+//     if (eventSource) eventSource.close();
+//
+//     const { companyDomain, origin, ...rest } = params;
+//     const query = new URLSearchParams({ origin, ...rest });
+//     const url = `${API_BASE_URL}/time-series-stream?${query.toString()}`;
+//
+//     eventSource = new EventSource(url);
+//     eventSource.addEventListener("time-series-update", (event) => {
+//         const data = JSON.parse(event.data);
+//         onData(data);
+//     });
+//     eventSource.onerror = (err) => {
+//         console.error("SSE 오류", err);
+//         eventSource.close();
+//     };
+// }
+
+let ws = null;
+
+export function startSensorDataWebSocket(params, onData) {
+    if (ws) {
+        ws.close();
+        ws = null;
+    }
 
     const { companyDomain, origin, ...rest } = params;
-    const query = new URLSearchParams({ origin, ...rest });
-    const url = `${API_BASE_URL}/time-series-stream?${query.toString()}`;
+    const token = sessionStorage.getItem("accessToken") || ""; // 또는 auth에서 토큰 가져오기
+    const wsUrl = `ws://javame.live/api/v1/ws/environment?token=${token}`;
 
-    eventSource = new EventSource(url);
-    eventSource.addEventListener("time-series-update", (event) => {
-        const data = JSON.parse(event.data);
-        onData(data);
-    });
-    eventSource.onerror = (err) => {
-        console.error("SSE 오류", err);
-        eventSource.close();
+    console.log("WebSocket 연결 시 토큰:", token); // 이 줄이 반드시 먼저 나와야 함
+    console.log("WebSocket 연결할 URL:", wsUrl);
+
+    ws = new WebSocket(wsUrl);
+
+    ws.onopen = () => {
+        // 실시간 데이터 구독 메시지 전송
+        ws.send(JSON.stringify({
+            action: "subscribe",
+            ...params // 필요 파라미터
+        }));
+    };
+
+    ws.onmessage = (event) => {
+        try {
+            const obj = JSON.parse(event.data);
+
+            if (obj.type === 'realtime' && Array.isArray(obj.data)) {
+                // 진짜 데이터 온 경우만 차트 갱신
+                onData(obj.data);
+            } else if (obj.type === 'subscribe') {
+                // 구독 응답, 최초 메시지 → 무시
+                console.log('구독 성공 메시지:', obj.status);
+            } else {
+                // 혹시 모를 fallback
+                onData([]);
+            }
+        } catch (e) {
+            console.error("WebSocket 데이터 파싱 오류", e);
+            onData([]);
+        }
+    };
+
+
+    ws.onclose = () => {
+        console.log("WebSocket 연결 종료");
+    };
+
+    ws.onerror = (err) => {
+        console.error("WebSocket 에러", err);
+        ws.close();
     };
 }
+
+// 명시적 연결 종료 함수
+export function closeSensorDataWebSocket() {
+    if (ws) {
+        ws.close();
+        ws = null;
+    }
+}
+
 
 export async function getHourlyAverages(origin, measurement, filters) {
     const params = new URLSearchParams(filters);
@@ -69,16 +134,17 @@ export async function getHourlyAverages(origin, measurement, filters) {
 
 
 export async function getChartDataForSensor(origin, sensor) {
-    const res = await fetchWithAuth(`${API_BASE_URL}/chart/type/${sensor}?origin=${origin}`);
+    const res = await fetchWithAuth(`${API_BASE_URL}/chart/type/${sensor}?origin=${encodeURIComponent(origin)}`);
     if (!res.ok) return { labels: [], values: [] };
     return await res.json();
 }
 
 export async function getPieChartData(origin) {
-    const res = await fetchWithAuth(`${API_BASE_URL}/chart/pie?origin=${origin}`);
+    const res = await fetchWithAuth(`${API_BASE_URL}/chart/pie?origin=${encodeURIComponent(origin)}`);
     if (!res.ok) return { labels: [], values: [] };
     return await res.json();
 }
+
 
 /**
  * 특정 센서의 현재(최신) 값을 가져옵니다.

@@ -12,9 +12,9 @@ import java.util.Objects;
 @RequestMapping("/environment")
 public class DashboardController {
 
-    @GetMapping({"/dashboard"})
+    @GetMapping({"/dashboard-main"})
     public String adminDashboard() {
-        return "dashboard/dashboard";
+        return "dashboard/dashboard-main";
     }
 
     @GetMapping("/charts")
@@ -53,7 +53,6 @@ public class DashboardController {
 
     @GetMapping("/pending")
     public String pendingMember(@RequestParam(value = "page", required = false)Long pageNum, Model model) {
-
         if(Objects.isNull(pageNum)){
             return "redirect:/environment/pending?page=1";
         }
@@ -75,5 +74,10 @@ public class DashboardController {
     @GetMapping("/dashboard-prediction")
     public String dashboardPrediction() {
         return "dashboard/dashboard-prediction";
+    }
+
+    @GetMapping("/test-websocket")
+    public String testWebSocket() {
+        return "test/test";
     }
 }

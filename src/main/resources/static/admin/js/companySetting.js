@@ -1,9 +1,9 @@
 import {
     fetchWithAuth, fetchWithAuthPut
-} from './auth.js'
+} from '../../index/js/auth.js'
 
 window.addEventListener('DOMContentLoaded', async function (){
-    const url = 'https://gateway.javame.live/api/v1/companies/companyDomain';
+    const url = 'https://javame.live/api/v1/companies/companyDomain';
     const result = await fetchWithAuth(url);
     const json = await result.json();
 
@@ -43,7 +43,7 @@ async function saveCompanyInfo() {
     };
 
     try {
-        const url = 'https://gateway.javame.live/api/v1/companies/companyDomain';
+        const url = '/api/v1/companies/companyDomain';
         const response = await fetchWithAuthPut(url, data);
         const json = await response.json();
         console.log(json);

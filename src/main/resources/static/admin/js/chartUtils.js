@@ -18,12 +18,13 @@ export function createAreaChart(canvasId, labels, data, title = 'Area Chart') {
         return null;
     }
 
-    // 기존 차트가 있다면 destroy()로 제거
-    if (Chart.getChart(canvasId)) {
-        Chart.getChart(canvasId).destroy();
+    // 기존 차트 인스턴스가 있으면 제거
+    if (window[canvasId + '_chart']) {
+        window[canvasId + '_chart'].destroy();
     }
 
-    return new Chart(ctx, {
+    // 차트 생성 후 window에 인스턴스 보관
+    const chart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: labels,
@@ -58,7 +59,12 @@ export function createAreaChart(canvasId, labels, data, title = 'Area Chart') {
             }
         }
     });
+
+    window[canvasId + '_chart'] = chart; // <- 여기만 추가
+
+    return chart;
 }
+
 /**
  * 막대 차트를 생성합니다.
  * @param {string} canvasId 캔버스 요소의 ID
@@ -73,11 +79,12 @@ export function createBarChart(canvasId, labels, data, title = 'Bar Chart') {
         return null;
     }
 
-    if (Chart.getChart(canvasId)) {
-        Chart.getChart(canvasId).destroy();
+    // 기존 차트 인스턴스 제거 (window에 보관)
+    if (window[canvasId + '_chart']) {
+        window[canvasId + '_chart'].destroy();
     }
 
-    return new Chart(ctx, {
+    const chart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: labels,
@@ -104,6 +111,9 @@ export function createBarChart(canvasId, labels, data, title = 'Bar Chart') {
             }
         }
     });
+
+    window[canvasId + '_chart'] = chart; // 이 라인 추가!
+    return chart;
 }
 
 /**
@@ -120,22 +130,43 @@ export function createPieChart(canvasId, labels, data, title = 'Pie Chart') {
         return null;
     }
 
-    if (Chart.getChart(canvasId)) {
-        Chart.getChart(canvasId).destroy();
+    // 기존 차트 인스턴스 제거 (window에 보관)
+    if (window[canvasId + '_chart']) {
+        window[canvasId + '_chart'].destroy();
     }
 
+    // 색상 더 많게
     const backgroundColors = [
-        'rgba(255, 99, 132, 0.8)',
-        'rgba(54, 162, 235, 0.8)',
-        'rgba(255, 205, 86, 0.8)',
-        'rgba(75, 192, 192, 0.8)',
-        'rgba(153, 102, 255, 0.8)',
-        'rgba(255, 159, 64, 0.8)',
-        'rgba(199, 199, 199, 0.8)',
-        'rgba(83, 102, 255, 0.8)'
+        'rgba(255, 99, 132, 0.8)',  'rgba(54, 162, 235, 0.8)',  'rgba(255, 205, 86, 0.8)',  'rgba(75, 192, 192, 0.8)',
+        'rgba(153, 102, 255, 0.8)', 'rgba(255, 159, 64, 0.8)',  'rgba(199, 199, 199, 0.8)', 'rgba(83, 102, 255, 0.8)',
+        'rgba(105, 255, 132, 0.8)', 'rgba(200, 100, 250, 0.8)', 'rgba(80, 200, 120, 0.8)',  'rgba(240, 180, 60, 0.8)',
+        'rgba(160, 230, 240, 0.8)', 'rgba(255, 80, 180, 0.8)',  'rgba(50, 60, 220, 0.8)',   'rgba(210, 210, 50, 0.8)',
+        'rgba(90, 120, 200, 0.8)',  'rgba(0, 175, 255, 0.8)',   'rgba(255, 0, 120, 0.8)',   'rgba(10, 130, 50, 0.8)'
     ];
 
-    return new Chart(ctx, {
+    // 캔버스 크기 직접 지정 (크게 보고 싶을 때)
+    // ctx.width = 600;
+    // ctx.height = 500;
+
+    // 부모 카드/body에 스크롤 스타일 부여 (canvas 바로 부모로 접근)
+    // 이 부분은 "파이차트 렌더 후에" DOM 조작이 들어가야 함
+    setTimeout(() => {
+        // canvas → card-body div → card div
+        const cardBody = ctx.parentNode;
+        if (cardBody) {
+            cardBody.style.maxHeight = '540px';
+            cardBody.style.overflowY = 'auto';
+        }
+        // legend 스크롤
+        const legends = ctx.parentNode.parentNode.querySelectorAll('.chartjs-legend');
+        legends.forEach(legend => {
+            legend.style.maxHeight = '140px';
+            legend.style.overflowY = 'auto';
+        });
+    }, 100);
+
+    // 차트 생성
+    const chart = new Chart(ctx, {
         type: 'pie',
         data: {
             labels: labels,
@@ -147,22 +178,30 @@ export function createPieChart(canvasId, labels, data, title = 'Pie Chart') {
             }],
         },
         options: {
-            responsive: true,
+            responsive: true,        // 반응형으로, 부모 크기 따라감
             maintainAspectRatio: false,
             plugins: {
                 legend: {
                     position: 'bottom',
-                    labels: { padding: 20 }
+                    labels: {
+                        padding: 20,
+                        // font 크기 키우기 (더 잘 보이게)
+                        font: { size: 15 }
+                    }
                 },
                 title: {
                     display: !!title,
                     text: title,
-                    font: { size: 16 }
+                    font: { size: 18 }
                 }
             }
         }
     });
+
+    window[canvasId + '_chart'] = chart;
+    return chart;
 }
+
 
 /**
  * 게이지 차트를 생성합니다.

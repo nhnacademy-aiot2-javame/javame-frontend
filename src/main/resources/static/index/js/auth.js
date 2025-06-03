@@ -5,8 +5,9 @@
 const TOKEN_KEY = 'accessToken';
 const REFRESH_KEY = 'refreshToken';
 const USE_MOCK_LOGIN = false;
-const CICD_URL = 'https://gateway.javame.live';
+const CICD_URL = 'https://javame.live/api';
 
+window.logout = logout;
 /**
  * 로그인 요청 → 토큰 받아서 저장 + 사용자 정보 반환
  */
@@ -86,7 +87,7 @@ export function logout() {
     sessionStorage.removeItem(TOKEN_KEY);
     sessionStorage.removeItem(REFRESH_KEY);
     sessionStorage.removeItem('user');
-    location.href = '/auth/login.html';
+    location.href = '/auth/login';
 }
 
 export function getAccessToken() {
@@ -123,7 +124,7 @@ export async function refreshAccessToken() {
         throw new Error('Refresh token is missing');
     }
 
-    const response = await fetch('https://gateway.javame.live/api/v1/auth/refresh', {
+    const response = await fetch('https://javame.live/api/v1/auth/refresh', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -146,8 +147,8 @@ export async function fetchWithAuth(url, options) {
     const response = await fetch(final_url, {
         options,
         headers: {
-            Authorization: `Bearer ${token}`,
-        },
+            Authorization: `Bearer ${token}`
+        }
     });
 
     if (response.status === 401) { // 액세스 토큰 만료
