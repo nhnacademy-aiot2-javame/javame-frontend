@@ -4,7 +4,7 @@ import {
 
 window.addEventListener('DOMContentLoaded', async event => {
 
-    const url = '/api/v1/rule/sensors/cp/companyDomain';
+    const url = 'http://localhost:10279/api/v1/rule/sensors/cp/companyDomain';
     const sensorResponse = await fetchWithAuth(url);
     const sensors = await sensorResponse.json();
     console.log(sensors);
@@ -32,7 +32,7 @@ window.addEventListener('DOMContentLoaded', async event => {
 
             tr.addEventListener('click', async  function(){
 
-                const url = `/api/v1/rule/sensor-datas/by-sensor-no/${sensor.sensorNo}`;
+                const url = `http://localhost:10279/api/v1/rule/sensor-datas/by-sensor-no/${sensor.sensorNo}`;
                 const sensorDataResponse = await fetchWithAuth(url);
                 const sensorDatas = await sensorDataResponse.json();
                 console.log(sensorDatas);

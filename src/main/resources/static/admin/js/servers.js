@@ -4,7 +4,7 @@ import {
 
 window.addEventListener('DOMContentLoaded', async event => {
 
-    const url = '/api/v1/rule/servers?domain=javame';
+    const url = 'http://localhost:10279/api/v1/rule/servers/cp/javame';
     const serverResponse = await fetchWithAuth(url);
     const json = await serverResponse.json();
 

@@ -5,7 +5,7 @@
 const TOKEN_KEY = 'accessToken';
 const REFRESH_KEY = 'refreshToken';
 const USE_MOCK_LOGIN = false;
-const CICD_URL = 'http://gateway.javame.live:10279';
+const CICD_URL = 'https://javame.live:10279';
 
 window.logout = logout;
 /**
