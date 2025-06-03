@@ -2,7 +2,7 @@ import {
     fetchWithAuth
 } from '/index/js/auth.js';
 
-const API_BASE_URL = 'https://javame.live/api/v1/environment/companyDomain';
+const API_BASE_URL = '/environment/companyDomain';
 
 let eventSource = null;
 
