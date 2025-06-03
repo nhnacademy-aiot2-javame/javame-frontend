@@ -1,6 +1,5 @@
 // /admin/js/dashboardDetail.js
-
-import { fetchWithAuth } from '/index/js/auth.js';
+import { createMultiLineChart } from './chartUtils.js';
 
 // 차트 인스턴스 저장
 const chartInstances = {};
@@ -451,125 +450,46 @@ function renderMultiLineChart(canvasId, measurement) {
         chartInstances[canvasId].destroy();
     }
 
-    // ★★★ 선택된 날짜 범위에 따른 시간 라벨 생성 ★★★
+    // 1. X축 라벨 생성
     const timeLabels = generateTimeLabelsForDateRange(
         selectedDateRange.startDate,
         selectedDateRange.endDate
     );
 
-    // 데이터셋 생성
-    const datasets = [];
-
-    SERVICES.forEach(service => {
-        if (selectedServices.has(service.gatewayId)) {
+    // 2. 데이터셋 생성 (label, data, unit, borderColor 필수)
+    const datasetsInput = SERVICES
+        .filter(service => selectedServices.has(service.gatewayId))
+        .map(service => {
             const dataKey = `${service.gatewayId}:${measurement}`;
             const realtimeData = serviceWS.serviceData.get(dataKey);
 
-            // ★★★ 날짜 범위에 맞는 시계열 데이터 생성 ★★★
-            const timeSeriesData = generateTimeSeriesDataForDateRange(
-                measurement,
-                service.gatewayId,
-                selectedDateRange.startDate,
-                selectedDateRange.endDate,
-                realtimeData?.value
-            );
-
-            datasets.push({
+            return {
                 label: service.label,
-                data: timeSeriesData,
-                borderColor: service.color,
-                backgroundColor: service.color.replace('1)', '0.1)'),
-                tension: 0.4,
-                fill: false,
-                pointRadius: 2,
-                pointHoverRadius: 4,
-                borderWidth: 2
-            });
-        }
-    });
-
-    // ★★★ Chart.js 시간 축 설정 ★★★
-    const ctx = document.getElementById(canvasId);
-    if (ctx) {
-        const chartTitle = selectedDateRange.isRealtime
-            ? `${getMeasurementDisplayName(measurement)} - 실시간 서비스별 비교`
-            : `${getMeasurementDisplayName(measurement)} - 서비스별 비교 (${selectedDateRange.startDate} ~ ${selectedDateRange.endDate})`;
-
-        const xAxisTitle = selectedDateRange.isRealtime
-            ? '시간 (실시간 업데이트)'
-            : `시간 (${selectedDateRange.startDate} ~ ${selectedDateRange.endDate})`;
-
-        chartInstances[canvasId] = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: timeLabels,
-                datasets: datasets
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: {
-                    mode: 'index',
-                    intersect: false,
-                },
-                scales: {
-                    x: {
-                        type: 'category',
-                        title: {
-                            display: true,
-                            text: xAxisTitle
-                        },
-                        ticks: {
-                            maxTicksLimit: 10, // ★★★ 최대 10개 라벨 표시 ★★★
-                            callback: function(value, index, values) {
-                                // ★★★ 라벨 간격 조정 ★★★
-                                const totalLabels = values.length;
-                                const interval = Math.ceil(totalLabels / 8); // 8개 정도만 표시
-                                return index % interval === 0 ? this.getLabelForValue(value) : '';
-                            }
-                        }
-                    },
-                    y: {
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: getMeasurementUnit(measurement)
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    title: {
-                        display: true,
-                        text: chartTitle,
-                        font: {
-                            size: 16,
-                            weight: 'bold'
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            title: function(context) {
-                                return `시간: ${context[0].label}`;
-                            }
-                        }
-                    }
-                },
-                animation: {
-                    duration: 750
-                }
-            }
+                data: generateTimeSeriesDataForDateRange(
+                    measurement,
+                    service.gatewayId,
+                    selectedDateRange.startDate,
+                    selectedDateRange.endDate,
+                    realtimeData ? realtimeData.value : null
+                ),
+                unit: getMeasurementUnit(measurement),
+                borderColor: service.color
+            };
         });
 
-        console.log(`멀티라인 차트 생성: ${measurement} - ${timeLabels.length}개 시간 포인트, ${selectedServices.size}개 서비스`);
-    }
-}
+    // 3. 차트 타이틀 생성
+    const chartTitle = selectedDateRange.isRealtime
+        ? `${getMeasurementDisplayName(measurement)} - 실시간 서비스별 비교`
+        : `${getMeasurementDisplayName(measurement)} - 서비스별 비교 (${selectedDateRange.startDate} ~ ${selectedDateRange.endDate})`;
 
+    // 4. chartUtils.js의 createMultiLineChart로 차트 생성
+    chartInstances[canvasId] = createMultiLineChart(
+        canvasId,
+        timeLabels,
+        datasetsInput,
+        chartTitle
+    );
+}
 // ★★★ 실시간 업데이트 타이머 시작 ★★★
 function startRealtimeUpdate() {
     // 기존 타이머 정리

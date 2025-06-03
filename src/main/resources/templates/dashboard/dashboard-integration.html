@@ -20,6 +20,15 @@
             height: 500px;
             width: 100%;
         }
+
+        /* ★★★ 검색 결과 [3] 다중 차트 그리드 레이아웃 적용 ★★★ */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            padding: 1rem 0;
+        }
+
         #measurementCheckboxContainer {
             padding: 1rem;
         }
@@ -30,6 +39,21 @@
         .status-badge {
             font-size: 0.875rem;
             padding: 0.375rem 0.75rem;
+        }
+
+        /* ★★★ 카테고리별 체크박스 스타일 ★★★ */
+        .category-section {
+            border: 1px solid #e3e6f0;
+            border-radius: 0.35rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+        }
+        .category-header {
+            font-weight: 600;
+            color: #5a5c69;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e3e6f0;
         }
     </style>
 </head>
@@ -57,28 +81,20 @@
 
                 <!-- 측정 항목 선택 -->
                 <div class="card mb-4">
-                    <div class="card-header d-flex align-items-center">
-                        <i class="fas fa-check-square me-2"></i>
-                        <h5 class="mb-0">측정 항목 선택</h5>
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-square me-2"></i>
+                            <h5 class="mb-0">측정 항목 선택</h5>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary" id="selectAllMeasurementsBtn">
+                            <i class="fas fa-check-double me-1"></i> 전체 선택/해제
+                        </button>
                     </div>
                     <div class="card-body" id="measurementCheckboxContainer">
-<!--                        &lt;!&ndash; JavaScript로 동적 생성 &ndash;&gt;-->
-<!--                        <div class="form-check form-check-inline">-->
-<!--                            <input class="form-check-input" type="checkbox" value="usage_user" id="chkCpu" data-gateway="cpu" checked>-->
-<!--                            <label class="form-check-label" for="chkCpu">CPU 사용률</label>-->
-<!--                        </div>-->
-<!--                        <div class="form-check form-check-inline">-->
-<!--                            <input class="form-check-input" type="checkbox" value="used_percent" id="chkMemory" data-gateway="mem" checked>-->
-<!--                            <label class="form-check-label" for="chkMemory">메모리 사용량</label>-->
-<!--                        </div>-->
-<!--                        <div class="form-check form-check-inline">-->
-<!--                            <input class="form-check-input" type="checkbox" value="temperature_celsius" id="chkTemp" data-gateway="modbus" checked>-->
-<!--                            <label class="form-check-label" for="chkTemp">서버 온도</label>-->
-<!--                        </div>-->
-<!--                        <div class="form-check form-check-inline">-->
-<!--                            <input class="form-check-input" type="checkbox" value="power_factor_avg_percent" id="chkPower" data-gateway="modbus" checked>-->
-<!--                            <label class="form-check-label" for="chkPower">역률 평균</label>-->
-<!--                        </div>-->
+                        <!-- JavaScript로 카테고리별 동적 생성 -->
+                        <div class="text-center text-muted p-3">
+                            <i class="fas fa-spinner fa-spin"></i> 측정 항목 로딩 중...
+                        </div>
                     </div>
                     <div class="card-footer text-end">
                         <button class="btn btn-primary" id="applyIntegrationChartFilterButton">
@@ -87,97 +103,117 @@
                     </div>
                 </div>
 
-                <!-- 콤보 차트 (현재값 + 과거평균) -->
-                <div class="card mb-4">
-                    <div class="card-header d-flex align-items-center">
-                        <i class="fas fa-chart-bar me-2"></i>
-                        <h5 class="mb-0">현재값 vs 과거평균 비교</h5>
-                        <small class="text-muted ms-2">(실시간 데이터 + 1시간 평균)</small>
+                <!-- ★★★ 3개 콤보 차트 (검색 결과 [3] 그리드 레이아웃 적용) ★★★ -->
+                <div class="dashboard-grid">
+                    <!-- 1시간 평균 차트 -->
+                    <div class="card">
+                        <div class="card-header d-flex align-items-center">
+                            <i class="fas fa-clock me-2 text-primary"></i>
+                            <h5 class="mb-0">1시간 평균 비교</h5>
+                            <small class="text-muted ms-2">(현재 vs 1시간 평균)</small>
+                        </div>
+                        <div class="card-body">
+                            <div class="combo-chart-container">
+                                <canvas id="currentStateBarChart"></canvas>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <div class="combo-chart-container">
-                            <canvas id="currentStateBarChart"></canvas>
+
+                    <!-- 24시간 평균 차트 -->
+                    <div class="card">
+                        <div class="card-header d-flex align-items-center">
+                            <i class="fas fa-calendar-day me-2 text-success"></i>
+                            <h5 class="mb-0">24시간 평균 비교</h5>
+                            <small class="text-muted ms-2">(현재 vs 24시간 평균)</small>
+                        </div>
+                        <div class="card-body">
+                            <div class="combo-chart-container">
+                                <canvas id="dailyComboChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 주별 평균 차트 -->
+                    <div class="card">
+                        <div class="card-header d-flex align-items-center">
+                            <i class="fas fa-calendar-week me-2 text-warning"></i>
+                            <h5 class="mb-0">주별 평균 비교</h5>
+                            <small class="text-muted ms-2">(현재 vs 1주 평균)</small>
+                        </div>
+                        <div class="card-body">
+                            <div class="combo-chart-container">
+                                <canvas id="weeklyComboChart"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-<!--                &lt;!&ndash; 추이 차트 3개 (시간별/일별/주별) &ndash;&gt;-->
-<!--                <div class="row">-->
-<!--                    <div class="col-lg-4">-->
-<!--                        <div class="card mb-4">-->
-<!--                            <div class="card-header d-flex align-items-center">-->
-<!--                                <i class="fas fa-clock me-2 text-primary"></i>-->
-<!--                                <h6 class="mb-0">시간별 추이</h6>-->
-<!--                                <small class="text-muted ms-2">(최근 24시간)</small>-->
-<!--                            </div>-->
-<!--                            <div class="card-body">-->
-<!--                                <div class="chart-container">-->
-<!--                                    <canvas id="hourlyTrendChart"></canvas>-->
-<!--                                </div>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                    <div class="col-lg-4">-->
-<!--                        <div class="card mb-4">-->
-<!--                            <div class="card-header d-flex align-items-center">-->
-<!--                                <i class="fas fa-calendar-day me-2 text-success"></i>-->
-<!--                                <h6 class="mb-0">일별 추이</h6>-->
-<!--                                <small class="text-muted ms-2">(최근 7일)</small>-->
-<!--                            </div>-->
-<!--                            <div class="card-body">-->
-<!--                                <div class="chart-container">-->
-<!--                                    <canvas id="dailyTrendChart"></canvas>-->
-<!--                                </div>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                    <div class="col-lg-4">-->
-<!--                        <div class="card mb-4">-->
-<!--                            <div class="card-header d-flex align-items-center">-->
-<!--                                <i class="fas fa-calendar-week me-2 text-warning"></i>-->
-<!--                                <h6 class="mb-0">주별 추이</h6>-->
-<!--                                <small class="text-muted ms-2">(최근 4주)</small>-->
-<!--                            </div>-->
-<!--                            <div class="card-body">-->
-<!--                                <div class="chart-container">-->
-<!--                                    <canvas id="weeklyTrendChart"></canvas>-->
-<!--                                </div>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
-
-                <!-- 차트 정보 -->
-                <div class="card">
-                    <div class="card-body">
-                        <div class="row text-center">
-                            <div class="col-md-3">
-                                <div class="d-flex align-items-center justify-content-center">
-                                    <i class="fas fa-wifi text-success me-2"></i>
-                                    <span class="fw-bold">실시간 연결</span>
-                                </div>
-                                <small class="text-muted">WebSocket 기반</small>
+                <!-- ★★★ 차트 정보 및 통계 ★★★ -->
+                <div class="row mt-4">
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-info-circle me-2"></i>
+                                시스템 정보
                             </div>
-                            <div class="col-md-3">
-                                <div class="d-flex align-items-center justify-content-center">
-                                    <i class="fas fa-database text-primary me-2"></i>
-                                    <span class="fw-bold">InfluxDB</span>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-md-3">
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <i class="fas fa-wifi text-success me-2"></i>
+                                            <span class="fw-bold">실시간 연결</span>
+                                        </div>
+                                        <small class="text-muted">WebSocket 기반</small>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <i class="fas fa-database text-primary me-2"></i>
+                                            <span class="fw-bold">InfluxDB</span>
+                                        </div>
+                                        <small class="text-muted">시계열 데이터</small>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <i class="fas fa-sync-alt text-info me-2"></i>
+                                            <span class="fw-bold">자동 갱신</span>
+                                        </div>
+                                        <small class="text-muted">20초마다</small>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <i class="fas fa-chart-line text-warning me-2"></i>
+                                            <span class="fw-bold">다중 지표</span>
+                                        </div>
+                                        <small class="text-muted">16개 항목</small>
+                                    </div>
                                 </div>
-                                <small class="text-muted">시계열 데이터</small>
                             </div>
-                            <div class="col-md-3">
-                                <div class="d-flex align-items-center justify-content-center">
-                                    <i class="fas fa-sync-alt text-info me-2"></i>
-                                    <span class="fw-bold">자동 갱신</span>
-                                </div>
-                                <small class="text-muted">15초마다</small>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-chart-bar me-2"></i>
+                                차트 통계
                             </div>
-                            <div class="col-md-3">
-                                <div class="d-flex align-items-center justify-content-center">
-                                    <i class="fas fa-chart-line text-warning me-2"></i>
-                                    <span class="fw-bold">다중 지표</span>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-6 text-center">
+                                        <div class="h4 mb-0 text-primary" id="selectedItemCount">4</div>
+                                        <small class="text-muted">선택된 항목</small>
+                                    </div>
+                                    <div class="col-6 text-center">
+                                        <div class="h4 mb-0 text-success" id="activeChartCount">3</div>
+                                        <small class="text-muted">활성 차트</small>
+                                    </div>
                                 </div>
-                                <small class="text-muted">동시 비교</small>
+                                <hr>
+                                <div class="small">
+                                    <div class="d-flex justify-content-between">
+                                        <span>마지막 업데이트:</span>
+                                        <span id="lastUpdateTime" class="text-muted">-</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -197,6 +233,21 @@
 <!-- 페이지 전용 JavaScript -->
 <script type="module" src="/admin/js/chartUtils.js"></script>
 <script type="module" src="/admin/js/dashboardIntegration.js"></script>
+
+<script>
+    // ★★★ 마지막 업데이트 시간 표시 ★★★
+    function updateLastUpdateTime() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('ko-KR');
+        document.getElementById('lastUpdateTime').textContent = timeString;
+    }
+
+    // 페이지 로드 시 시간 설정
+    document.addEventListener('DOMContentLoaded', () => {
+        updateLastUpdateTime();
+        setInterval(updateLastUpdateTime, 1000); // 1초마다 시간 업데이트
+    });
+</script>
 
 </body>
 </html>
