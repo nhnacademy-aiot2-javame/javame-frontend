@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="센서 데이터 등록" />
     <meta name="author" content="NHN Academy" />
-    <title><<도메인>> 센서 조회</title>
+    <title>NHN Academy IoT 센서 리스트 조회</title>
     <link href="/admin/css/styles.css" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     <script type="module" src="/admin/js/sensors.js"></script>
@@ -35,9 +35,9 @@
 </style>
 
 <div th:replace="~{fragments/head :: header}"></div>
-<div id="layoutSidenav">
+    <div id="layoutSidenav">
     <div th:replace="~{fragments/sidebar :: sidebar}"></div>
-    <div id="layoutSidenav_content">
+        <div id="layoutSidenav_content">
 
         <main class="container-fluid px-4 mt-4">
             <h1 class="mb-4">센서 조회</h1>
@@ -76,4 +76,12 @@
 
     </div>
 </div>
+
+
+<!-- 공통 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<script src="/admin/js/scripts.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
+
+
 </body>

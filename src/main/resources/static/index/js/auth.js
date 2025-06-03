@@ -147,6 +147,7 @@ export async function fetchWithAuth(url, options) {
     const response = await fetch(final_url, {
         options,
         headers: {
+
             Authorization: `Bearer ${token}`
         }
     });
