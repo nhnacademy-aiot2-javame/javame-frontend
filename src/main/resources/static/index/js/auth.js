@@ -157,10 +157,10 @@ export async function fetchWithAuth(url, options) {
             token = await refreshAccessToken();
             // 새로운 토큰을 사용해 다시 요청
             return fetch(url, {
-                ...options,
+                options,
                 headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+                    'Refresh-Token': `Bearer ${token}`,
+                }
             });
         } catch (error) {
             console.error('리프레시 토큰 갱신 실패', error);
