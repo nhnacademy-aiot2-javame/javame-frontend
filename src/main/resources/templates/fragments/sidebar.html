@@ -8,16 +8,35 @@
                 <div class="nav">
 
                     <div class="sb-sidenav-menu-heading">핵심</div>
-                    <a class="nav-link" href="/environment/dashboard">
-                        <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-                        대시보드
+                    <a class="nav-link" href="/environment/dashboard-main">
+                        <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
+                        메인 대시보드
                     </a>
+                    <a class="nav-link collapsed"
+                       href="#"
+                       data-bs-toggle="collapse"
+                       data-bs-target="#dashboardCollapse"
+                       aria-expanded="false"
+                       aria-controls="dashboardCollapse">
+                        <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                        상세 대시보드
+                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                    </a>
+                    <div class="collapse" id="dashboardCollapse" data-bs-parent="#sidenavAccordion">
+                        <nav class="sb-sidenav-menu-nested nav">
+                            <a class="nav-link" href="/environment/charts">트리</a>
+                            <a class="nav-link" href="/environment/dashboard-integration">통합</a>
+                            <a class="nav-link" href="/environment/dashboard-detail">시계열</a>
+                        </nav>
+                    </div>
 
                     <div class="sb-sidenav-menu-heading">분석</div>
-                    <a class="nav-link" href="/environment/charts">
-                        <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
-                        차트
+
+                    <a class="nav-link" href="/environment/dashboard-prediction">
+                        <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
+                        AI 예측 차트
                     </a>
+
                     <a class="nav-link" href="/environment/tables">
                         <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
                         테이블
@@ -26,6 +45,7 @@
                         <div class="sb-nav-link-icon"><i class="fas fa-file-alt"></i></div>
                         리포트
                     </a>
+
                     <div class="sb-sidenav-menu-heading">등록</div>
                     <a class="nav-link" href="/rules/sensorRegister">
                         <div class="sb-nav-link-icon"><i class="fas fa-file-alt"></i></div>
@@ -35,6 +55,22 @@
                         <div class="sb-nav-link-icon"><i class="fas fa-file-alt"></i></div>
                         서버 및 데이터 등록
                     </a>
+
+                    <div class="sb-sidenav-menu-heading">알람</div>
+                    <a class="nav-link" href="/environment/warnify">
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-bell"></i></div>
+                        경고 내역
+                    </a>
+
+                    <a class="nav-link" href="/environment/members">
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-bell"></i></div>
+                        회원 관리
+                    </a>
+                    <a class="nav-link" href="/environment/pending">
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-bell"></i></div>
+                        승인 대기
+                    </a>
+
                     <div class="sb-sidenav-menu-heading">조회</div>
                     <a class="nav-link" href="/rules/sensorList">
                         <div class="sb-nav-link-icon"><i class="fas fa-file-alt"></i></div>
@@ -43,6 +79,12 @@
                     <a class="nav-link" href="/rules/serverList">
                         <div class="sb-nav-link-icon"><i class="fas fa-file-alt"></i></div>
                         서버리스트 조회
+                    </a>
+
+                    <div class="sb-sidenav-menu-heading">테스트</div>
+                    <a class="nav-link" href="/environment/test-websocket">
+                        <div class="sb-nav-link-icon"><i class="fas fa-file-alt"></i></div>
+                        웹소켓 테스트 용
                     </a>
                 </div>
             </div>

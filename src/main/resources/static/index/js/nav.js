@@ -25,9 +25,9 @@ export function updateNavBar() {
         if (isLoggedIn()) {
             // 로그인 상태일 때
             loginLogoutBtn.textContent = '로그아웃';
-            loginLogoutBtn.href = '#'; // 로그아웃은 JS로 처리하므로 링크 비활성화
+            loginLogoutBtn.href = '#';
             registerDashboardBtn.textContent = '대시보드';
-            registerDashboardBtn.href = '/environment/dashboard'; // 대시보드 경로로 변경
+            registerDashboardBtn.href = '/environment/dashboard-main'; // 대시보드 경로로 변경
         } else {
             // 로그아웃 상태일 때
             loginLogoutBtn.textContent = '로그인';
