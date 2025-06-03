@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/docs-layout}"> <!-- 사용할 레이아웃 파일 지정 -->
+
+<head>
+    <title>서비스 안내 - NHN Academy IoT</title>
+    <!-- 이 페이지에만 필요한 추가 CSS (이전 페이지들과 유사한 스타일 사용 가능) -->
+    <th:block layout:fragment="css">
+        <style>
+            .guide-content h2 {
+                margin-top: 2.5rem;
+                margin-bottom: 1.5rem;
+                font-size: 1.75rem;
+                color: #2c3e50; /* 약간 진한 파란색 계열 */
+                border-bottom: 2px solid #3498db; /* 포인트 색상 밑줄 */
+                padding-bottom: 0.5rem;
+            }
+            .guide-content h3 {
+                margin-top: 2rem;
+                margin-bottom: 1rem;
+                font-size: 1.4rem;
+                color: #34495e; /* 약간 연한 파란색 계열 */
+            }
+            .guide-content h4 {
+                margin-top: 1.5rem;
+                margin-bottom: 0.75rem;
+                font-size: 1.15rem;
+                color: #7f8c8d; /* 회색 계열 */
+            }
+            .guide-content p, .guide-content ul, .guide-content ol {
+                line-height: 1.8;
+                color: #555;
+                margin-bottom: 1rem;
+            }
+            .guide-content ul, .guide-content ol {
+                padding-left: 1.5rem;
+            }
+            .guide-content li {
+                margin-bottom: 0.5rem;
+            }
+            .guide-content code {
+                background-color: #f8f9fa;
+                padding: 0.2em 0.4em;
+                margin: 0;
+                font-size: 85%;
+                border-radius: 3px;
+                color: #e83e8c;
+            }
+            .guide-content pre {
+                background-color: #f8f9fa;
+                border: 1px solid #ddd;
+                padding: 1rem;
+                border-radius: 0.25rem;
+                overflow-x: auto; /* 코드 블록 가로 스크롤 */
+            }
+            .guide-content .img-fluid { /* 이미지 반응형 및 스타일 */
+                max-width: 100%;
+                height: auto;
+                border-radius: 0.25rem;
+                box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+                margin-top: 1rem;
+                margin-bottom: 1rem;
+            }
+            .badge-custom {
+                font-size: 0.85em;
+                font-weight: 600;
+            }
+        </style>
+    </th:block>
+</head>
+
+<body>
+<!-- layout:fragment="content" 영역을 이 내용으로 채웁니다. -->
+<div layout:fragment="content">
+    <main>
+        <div class="container-fluid px-4">
+            <h1 class="mt-4">NHN Academy IoT 서비스 안내</h1>
+            <ol class="breadcrumb mb-4">
+                <li class="breadcrumb-item"><a th:href="@{/}">홈</a></li>
+                <li class="breadcrumb-item active">서비스 안내</li>
+            </ol>
+
+            <div class="card mb-4">
+                <div class="card-body guide-content">
+
+                    <p class="lead">NHN Academy IoT 모니터링 서비스에 오신 것을 환영합니다! 본 가이드는 서비스의 주요 기능, 설정 방법, 활용 팁 등을 안내하여 사용자가 서비스를 최대한 효과적으로 이용할 수 있도록 돕기 위해 마련되었습니다.</p>
+
+                    <h2>1. 서비스 개요</h2>
+                    <p>NHN Academy IoT 서비스는 다양한 환경(서버룸, 개별 서버, 애플리케이션 등)에서 발생하는 센서 데이터 및 시스템 정보를 실시간으로 수집, 저장, 분석하고 시각화하여 보여주는 통합 모니터링 플랫폼입니다. 사용자는 본 서비스를 통해 인프라 및 서비스 상태를 직관적으로 파악하고, 문제 발생 시 신속하게 대응할 수 있습니다.</p>
+                    <h4>주요 제공 기능:</h4>
+                    <ul>
+                        <li>실시간 데이터 대시보드: 주요 지표를 한눈에 파악할 수 있는 맞춤형 대시보드 제공</li>
+                        <li>시계열 데이터 분석: 과거 데이터 추이 분석 및 패턴 파악</li>
+                        <li>통합 차트: 여러 측정 항목을 비교 분석할 수 있는 유연한 차트 기능</li>
+                        <li>알림 설정: 특정 조건 충족 시 알림 수신 (향후 제공 예정)</li>
+                        <li>데이터 관리: 수집된 데이터 조회 및 관리 기능</li>
+                    </ul>
+
+                    <h2>2. 서비스 시작하기: 에이전트 설치 및 설정</h2>
+                    <p>서비스를 이용하기 위해서는 모니터링 대상에 데이터 수집 에이전트(예: Telegraf)를 설치하고, 수집된 데이터를 저희 시스템으로 전송하도록 설정해야 합니다. 데이터는 MQTT 프로토콜을 통해 지정된 토픽으로 전송됩니다.</p>
+
+                    <h3>2.1. 데이터 수집 에이전트 (Telegraf 예시)</h3>
+                    <p>Telegraf는 다양한 플러그인을 통해 시스템 메트릭, 센서 데이터 등을 쉽게 수집할 수 있는 오픈소스 에이전트입니다. 다음은 Telegraf 설치 및 기본 설정 가이드입니다.</p>
+                    <h4>설치 방법:</h4>
+                    <ol>
+                        <li>Telegraf 공식 홈페이지(<a href="https://www.influxdata.com/time-series-platform/telegraf/" target="_blank">https://www.influxdata.com/time-series-platform/telegraf/</a>)에서 사용 환경에 맞는 버전을 다운로드하여 설치합니다.</li>
+                        <li>설치가 완료되면 Telegraf 설정 파일(보통 <code>/etc/telegraf/telegraf.conf</code>)을 수정합니다.</li>
+                    </ol>
+
+                    <h4>주요 설정 (<code>telegraf.conf</code>):</h4>
+                    <p><strong>출력 플러그인 (Outputs - MQTT 설정):</strong></p>
+                    <p>수집된 데이터를 MQTT 브로커로 전송하도록 설정합니다. <code>[[outputs.mqtt]]</code> 섹션을 다음과 같이 구성합니다.</p>
+                    <pre><code class="language-toml">
+[[outputs.mqtt]]
+  servers = ["tcp://[귀사의 MQTT 브로커 주소]:1883"] # 예: "tcp://mqtt.example.com:1883"
+  topic_prefix = "" # 필요에 따라 토픽 접두사 설정 (아래 토픽 구조 참고)
+  username = "[MQTT 사용자 이름]" # MQTT 브로커 인증 정보 (필요시)
+  password = "[MQTT 비밀번호]"
+  qos = 0
+  keep_alive = "30s"
+  data_format = "influx" # InfluxDB 라인 프로토콜 형식으로 데이터 전송
+                        </code></pre>
+
+                    <p><strong>입력 플러그인 (Inputs - 수집 대상 설정):</strong></p>
+                    <p>모니터링할 대상에 따라 다양한 입력 플러그인을 활성화합니다. 예를 들어, CPU, 메모리, 디스크, 네트워크 정보를 수집하려면 다음 플러그인들을 설정합니다.</p>
+                    <pre><code class="language-toml">
+# CPU 사용량 수집
+[[inputs.cpu]]
+  percpu = true
+  totalcpu = true
+  collect_cpu_time = false
+  report_active = true
+
+# 디스크 사용량 수집
+[[inputs.disk]]
+  ignore_fs = ["tmpfs", "devtmpfs", "devfs", "iso9660", "overlay", "aufs", "squashfs"]
+
+# 메모리 사용량 수집
+[[inputs.mem]]
+  # no configuration
+
+# 네트워크 I/O 수집
+[[inputs.net]]
+  # no configuration
+
+# 시스템 정보 수집 (Load Average 등)
+[[inputs.system]]
+  # no configuration
+
+# 특정 프로세스 모니터링 (선택적)
+# [[inputs.procstat]]
+#   exe = "my_application" # 모니터링할 프로세스 실행 파일 이름
+#   prefix = "my_app_proc"
+                        </code></pre>
+                    <p>온도/습도 센서 등 외부 장치 데이터는 해당 장치와 통신하는 스크립트나 별도 플러그인(예: `inputs.exec`, `inputs.http`)을 통해 수집하고 MQTT로 전송할 수 있습니다.</p>
+
+                    <h3>2.2. MQTT 토픽 구조 가이드</h3>
+                    <p>데이터는 다음의 토픽 구조를 따라 MQTT 브로커로 전송되어야 합니다. <code>{companyDomain}</code>은 귀사에 할당된 고유 도메인 값으로 대체해야 합니다.</p>
+                    <h4>📌 서버룸 등 환경 센서 데이터:</h4>
+                    <p><code>{companyDomain}/server_room/d/{device_id}/n/{location}/e/{metric}</code></p>
+                    <ul>
+                        <li><code>{device_id}</code>: 센서 장치의 고유 ID (예: <code>24e12abc</code>)</li>
+                        <li><code>{location}</code>: 센서 설치 위치 (예: <code>입구</code>, <code>rack1_top</code>). URL 인코딩 가능한 문자 사용.</li>
+                        <li><code>{metric}</code>: 측정 항목 (예: <code>temperature</code>, <code>humidity</code>)</li>
+                        <li><strong>예시:</strong> <code>javame/server_room/d/24e12abc/n/입구/e/temperature</code></li>
+                    </ul>
+
+                    <h4>📌 서버 정보 (IP 또는 호스트명 기반):</h4>
+                    <p><code>{companyDomain}/server_data/h/{hostname_or_ip}/n/{hardware_component}/e/{metric}</code></p>
+                    <ul>
+                        <li><code>{hostname_or_ip}</code>: 서버의 호스트명 또는 IP 주소 (예: <code>192.168.1.100</code>, <code>web_server_01</code>). 점(.)은 밑줄(_)로 대체 권장 (예: <code>192_168_1_100</code>).</li>
+                        <li><code>{hardware_component}</code>: 하드웨어 구성 요소 (예: <code>cpu</code>, <code>memory</code>, <code>disk_sda1</code>, <code>net_eth0</code>)</li>
+                        <li><code>{metric}</code>: 해당 구성 요소의 측정 항목 (예: <code>usage_user</code>, <code>used_percent</code>, <code>bytes_sent</code>)</li>
+                        <li><strong>예시:</strong> <code>javame/server_data/h/192_168_1_100/n/cpu/e/usage_user</code></li>
+                    </ul>
+
+                    <h4>📌 서비스(애플리케이션) 정보:</h4>
+                    <p><code>{companyDomain}/service_data/s/{service_name}/g/{category}/e/{metric}</code></p>
+                    <ul>
+                        <li><code>{service_name}</code>: 모니터링 대상 서비스/애플리케이션 이름 (예: <code>MyWebApp</code>, <code>OrderProcessingService</code>)</li>
+                        <li><code>{category}</code>: 서비스 내 측정 항목 카테고리 (예: <code>jvm_memory</code>, <code>active_threads</code>, <code>request_latency</code>)</li>
+                        <li><code>{metric}</code>: 구체적인 측정 항목 (예: <code>heap_used</code>, <code>count</code>, <code>p95_microseconds</code>)</li>
+                        <li><strong>예시:</strong> <code>javame/service_data/s/MyWebApp/g/jvm_memory/e/heap_used</code></li>
+                    </ul>
+                    <p><span class="badge bg-info text-dark badge-custom">참고:</span> Telegraf의 `influx` 데이터 포맷 사용 시, 태그(tag)와 필드(field)가 자동으로 InfluxDB 라인 프로토콜에 맞게 구성됩니다. 위 토픽 구조는 데이터 그룹핑 및 라우팅을 위한 논리적 구조이며, 실제 InfluxDB에 저장될 때는 토픽의 일부가 태그로 변환될 수 있습니다. (예: `origin=server_data`, `host=192_168_1_100`, `location=cpu` / `_measurement=usage_user`, `_field=value`)</p>
+
+
+                    <h2>3. 수집되는 데이터 종류 및 확인</h2>
+                    <p>본 서비스를 통해 다음과 같은 유형의 데이터들을 주로 수집하고 모니터링할 수 있습니다. 실제 수집되는 데이터는 에이전트 설정에 따라 달라집니다.</p>
+                    <ul>
+                        <li><strong>서버 하드웨어:</strong> CPU 사용률 (코어별/전체), 메모리 사용량 (전체, 사용 가능, 버퍼/캐시), 디스크 사용량 (파티션별 용량, I/O), 네트워크 트래픽 (인터페이스별 송수신량, 에러), 시스템 Load Average 등</li>
+                        <li><strong>서버룸 환경:</strong> 온도, 습도, 전력 사용량 (power_watts), 누수 감지 등 (지원 센서에 따라 다름)</li>
+                        <li><strong>애플리케이션/서비스:</strong> JVM 메트릭 (힙 메모리, 스레드 수, GC 현황), 특정 프로세스 CPU/메모리 사용량, 애플리케이션 응답 시간, 처리량 등 (애플리케이션 및 에이전트 설정에 따라 다름)</li>
+                    </ul>
+                    <p>수집된 데이터는 "메인 대시보드" 및 "통합 차트 분석" 페이지에서 확인할 수 있습니다.</p>
+
+                    <h2>4. 대시보드 활용 가이드</h2>
+                    <h3>4.1. 메인 대시보드</h3>
+                    <p>메인 대시보드에서는 시스템의 전반적인 상태와 주요 지표들을 한눈에 확인할 수 있습니다. CPU, 메모리, 디스크, 네트워크 등의 현재 사용률을 게이지 차트로 보여주며, 주요 알림 사항도 함께 제공됩니다.</p>
+                    <p><img th:src="@{/admin/assets/img/main_dashboard_example.png}" alt="메인 대시보드 예시" class="img-fluid"></p>
+
+                    <h3>4.2. 통합 차트 분석</h3>
+                    <p>통합 차트 분석 페이지에서는 사용자가 직접 조회 기간, Y축 단위, 측정 항목 등을 선택하여 원하는 데이터를 심층적으로 분석할 수 있습니다. 여러 측정 항목의 시계열 데이터를 하나의 그래프에 중첩하여 비교 분석하는 것이 가능합니다.</p>
+                    <h4>사용 방법:</h4>
+                    <ol>
+                        <li><strong>조회 기간 선택:</strong> 분석하고자 하는 데이터의 시작일과 종료일을 선택합니다.</li>
+                        <li><strong>Y축 단위 선택:</strong> '% (퍼센트)' 또는 '°C (섭씨 온도)' 등 분석하려는 데이터의 단위를 선택합니다. 이 선택에 따라 아래 "측정 항목 목록"이 필터링됩니다.</li>
+                        <li><strong>(선택) 데이터 Origin 선택:</strong> 특정 Origin의 데이터만 보고 싶을 경우 선택합니다.</li>
+                        <li><strong>조회 버튼 클릭:</strong> 선택한 조건에 맞는 측정 항목 목록이 아래 테이블에 표시됩니다.</li>
+                        <li><strong>측정 항목 선택:</strong> 테이블에서 그래프로 보고자 하는 측정 항목들을 체크박스로 선택합니다.</li>
+                        <li>선택된 항목들의 시계열 데이터가 상단 꺾은선 그래프에 자동으로 그려집니다.</li>
+                    </ol>
+                    <p><img th:src="@{/admin/assets/img/integration_chart_example.png}" alt="통합 차트 예시" class="img-fluid"></p>
+                    <p><span class="badge bg-warning text-dark badge-custom">팁:</span> 단위가 다른 데이터들(예: %와 °C)은 그래프의 Y축이 자동으로 분리되어 표시되므로, 값의 범위가 크게 달라도 함께 비교 분석할 수 있습니다.</p>
+
+                    <h2>5. 문제 해결 및 문의</h2>
+                    <p>서비스 이용 중 문제가 발생하거나 궁금한 점이 있으시면, 먼저 본 가이드 및 FAQ(향후 제공 예정)를 확인해주시기 바랍니다. 해결되지 않는 문제는 다음 연락처로 문의해주시면 신속하게 지원해드리겠습니다.</p>
+                    <ul>
+                        <li>기술 지원팀 이메일: <code>support@nhnacademy.iot</code> (예시)</li>
+                        <li>문의 전화: <code>1588-XXXX</code> (예시)</li>
+                    </ul>
+
+                    <hr class="my-5">
+                    <p class="text-center text-muted small">본 서비스 안내는 최신 정보를 반영하기 위해 주기적으로 업데이트될 수 있습니다. (최종 업데이트: 2025년 05월 23일)</p>
+
+                </div>
+            </div>
+        </div>
+    </main>
+</div> <!-- /#layoutSidenav_content -->
+</div> <!-- /#layoutSidenav -->
+
+<!-- 공통 Footer -->
+<div th:replace="~{fragments/footer :: footerFragment}"></div>
+
+<!-- 공통 JavaScript 파일들 -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<script th:src="@{/admin/js/scripts.js}"></script>
+<!-- 이 페이지에만 필요한 JS가 있다면 여기에 추가 -->
+<th:block layout:fragment="script">
+    <!-- 예시: <script>hljs.highlightAll(); // 만약 코드 하이라이팅 라이브러리 사용 시</script> -->
+</th:block>
+
+</body>
+</html>

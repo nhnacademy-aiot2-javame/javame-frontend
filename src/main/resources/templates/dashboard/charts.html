@@ -2,6 +2,7 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
 
+
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -10,8 +11,20 @@
   <title>NHN Academy IoT 센서 관리 - 차트</title>
   <link href="/admin/css/styles.css" rel="stylesheet" />
   <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css" />
+  <style>
+    /* Shoelace 커스텀 트리 아이콘 설정 */
+    .custom-icons sl-tree-item.selected::part(base) {
+      background-color: #007bff;
+      color: white;
+      border-radius: 4px;
+    }
+  </style>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace-autoloader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script type="module" src="/admin/js/charts.js"></script>
   <script type="module" src="/admin/js/iotSensorApi.js"></script>
+
 </head>
 <body class="sb-nav-fixed">
 <div th:replace="~{fragments/head :: header}"></div>
@@ -20,90 +33,76 @@
   <div id="layoutSidenav_content">
     <main>
       <div class="container-fluid px-4">
-        <h1 class="mt-4">차트</h1>
+        <h1 class="mt-4">트리 차트</h1>
         <ol class="breadcrumb mb-4">
           <li class="breadcrumb-item"><a href="/admin/">대시보드</a></li>
-          <li class="breadcrumb-item active">차트</li>
+          <li class="breadcrumb-item active">트리</li>
         </ol>
 
-        <!-- 필터 드롭다운 구성 -->
-        <div class="card mb-4">
-          <div class="card-body">
-            <div class="row g-3 align-items-center mb-2">
-              <div class="col-md-3">
-                <label for="originDropdown" class="form-label">데이터 종류 (origin):</label>
-                <select id="originDropdown" class="form-select"></select>
-              </div>
-              <div class="col-md-3">
-                <label for="locationDropdown" class="form-label">Location:</label>
-                <select id="locationDropdown" class="form-select"></select>
-              </div>
-              <div class="col-md-3">
-                <label for="placeDropdown" class="form-label">Place:</label>
-                <select id="placeDropdown" class="form-select"></select>
-              </div>
-              <div class="col-md-3">
-                <label for="measurementDropdown" class="form-label">Measurement:</label>
-                <select id="measurementDropdown" class="form-select"></select>
-              </div>
-            </div>
-            <div class="row g-3 align-items-center mb-2">
-              <div class="col-md-3">
-                <label for="device_idDropdown" class="form-label">Device ID:</label>
-                <select id="device_idDropdown" class="form-select"></select>
-              </div>
-              <div class="col-md-3">
-                <label for="_fieldDropdown" class="form-label">Field:</label>
-                <select id="_fieldDropdown" class="form-select"></select>
-              </div>
-              <div class="col-md-3">
-                <label for="buildingDropdown" class="form-label">Building:</label>
-                <select id="buildingDropdown" class="form-select"></select>
-              </div>
-              <div class="col-md-3">
-                <label for="rangeDropdown" class="form-label">조회 범위 (분):</label>
-                <select id="rangeDropdown" class="form-select">
-                  <option value="30">30분</option>
-                  <option value="60">1시간</option>
-                  <option value="180" selected>3시간</option>
-                  <option value="1440">1일</option>
-                </select>
-              </div>
-            </div>
-            <div class="text-end">
-              <button class="btn btn-primary" id="applyChartFilter">차트 조회</button>
-            </div>
-          </div>
-        </div>
-
-        <div id="areaChartCard" class="card mb-4">
-          <div class="card-header">
-            <i class="fas fa-chart-area me-1"></i>
-            영역 차트
-          </div>
-          <div class="card-body"><canvas id="myAreaChart" width="100%" height="40"></canvas></div>
-          <div class="card-footer small text-muted">마지막 업데이트: 오늘 00:00</div>
-        </div>
-
+        <!-- 트리 기반 필터 + 차트 구조로 대체 -->
         <div class="row">
-          <div class="col-lg-6">
-            <div id="barChartCard" class="card mb-4">
+          <!-- 왼쪽 트리 필터 영역 -->
+          <div class="col-md-3">
+            <div class="card">
               <div class="card-header">
-                <i class="fas fa-chart-bar me-1"></i>
-                막대 차트
+                <strong>필터 선택</strong>
               </div>
-              <div class="card-body"><canvas id="myBarChart" width="100%" height="50"></canvas></div>
-              <div class="card-footer small text-muted">마지막 업데이트: 오늘 00:00</div>
+              <div class="card-body" style="max-height: 80vh; overflow-y: auto;">
+                <!-- Shoelace 트리 -->
+                <sl-tree id="filterTree" class="custom-icons">
+                  <!-- JavaScript 에서 <sl-tree-item>을 동적으로 렌더링 -->
+                  <sl-icon name="plus-square" slot="expand-icon"></sl-icon>
+                  <sl-icon name="dash-square" slot="collapse-icon"></sl-icon>
+                </sl-tree>
+              </div>
             </div>
           </div>
-          <div class="col-lg-6">
-            <div id="pieChartCard" class="card mb-4">
+
+          <!-- 오른쪽 차트 영역 -->
+          <div class="col-md-9">
+            <div id="areaChartCard" class="card mb-4">
               <div class="card-header">
-                <i class="fas fa-chart-pie me-1"></i>
-                파이 차트
+                <i class="fas fa-chart-area me-1"></i>
+                영역 차트
               </div>
-              <div class="card-body"><canvas id="myPieChart" width="100%" height="50"></canvas></div>
+              <div class="card-body"><canvas id="myAreaChart" width="800" height="300"></canvas></div>
               <div class="card-footer small text-muted">마지막 업데이트: 오늘 00:00</div>
+            </div>
+
+            <div class="row">
+              <div class="col-lg-6">
+                <div id="barChartCard" class="card mb-4">
+                  <div class="card-header">
+                    <i class="fas fa-chart-bar me-1"></i>
+                    막대 차트
+                  </div>
+                  <div class="card-body" style="height: 500px; display: flex; align-items: center; justify-content: center;">
+                    <canvas id="myBarChart" style="max-height:100%;"></canvas>
+                  </div>
+                  <div class="card-footer small text-muted">마지막 업데이트: 오늘 00:00</div>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div id="pieChartCard" class="card mb-4">
+                  <div class="card-header">
+                    <i class="fas fa-chart-pie me-1"></i>
+                    파이 차트
+                  </div>
+                  <div class="card-body d-flex flex-column p-0" style="height: 500px;">
+                    <div class="flex-grow-1 d-flex align-items-center justify-content-center" style="min-height:120px;">
+                      <canvas id="myPieChart"></canvas>
+                    </div>
+                    <div id="pieChartLegend"
+                         class="custom-legend px-3"
+                         style="max-height: 120px; overflow-y: auto;">
+                      <!-- legend 항목 -->
+                    </div>
+                  </div>
+                  <div class="card-footer small text-muted">마지막 업데이트: 오늘 00:00</div>
+
+                </div>
+
+              </div>
             </div>
           </div>
         </div>
@@ -114,7 +113,6 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 <script src="/admin/js/scripts.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
 
 </body>
 </html>

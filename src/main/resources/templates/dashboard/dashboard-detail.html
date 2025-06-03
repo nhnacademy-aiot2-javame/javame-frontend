@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.thymeleaf.org/layout">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>IoT 센서 통합 시계열 분석</title>
+    <link href="/admin/css/styles.css" rel="stylesheet" />
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <!-- Bootstrap Datepicker CSS (날짜 선택기용) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet">
+    <style>
+        .chart-container {
+            position: relative;
+            height: 400px; /* 차트 높이 충분히 확보 */
+            width: 100%;
+        }
+        #measurementTableContainer {
+            max-height: 300px; /* 테이블 높이 제한 및 스크롤 */
+            overflow-y: auto;
+        }
+        .table th:first-child, .table td:first-child { /* 체크박스 컬럼 너비 */
+            width: 50px;
+            text-align: center;
+        }
+        .table th:nth-child(2) { /* 항목 이름 컬럼 너비 */
+            width: auto;
+        }
+        /* 현재 값, 최소/최대값 컬럼 너비 (선택적) */
+        .table th:nth-child(3), .table th:nth-child(4), .table th:nth-child(5) {
+            width: 15%;
+        }
+        .form-check-input { cursor: pointer; }
+        .date-picker-input { background-color: #fff !important; } /* Datepicker 입력창 배경 흰색 */
+    </style>
+</head>
+<body class="sb-nav-fixed">
+<div th:replace="~{fragments/head :: header}"></div>
+<div id="layoutSidenav">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid px-4">
+                <h1 class="mt-4">통합 시계열 분석</h1>
+                <ol class="breadcrumb mb-4">
+                    <li class="breadcrumb-item"><a th:href="@{/environment/dashboard-main}">메인 대시보드</a></li>
+                    <li class="breadcrumb-item active">통합 시계열 분석</li>
+                </ol>
+
+                <!-- 필터 영역: 날짜 선택 및 Y축 단위 선택 -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-filter me-1"></i>
+                        조회 조건 설정
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-4">
+                                <label for="dateRangePicker" class="form-label">조회 기간</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control date-picker-input" id="startDate" placeholder="시작일">
+                                    <span class="input-group-text">~</span>
+                                    <input type="text" class="form-control date-picker-input" id="endDate" placeholder="종료일">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="yAxisUnitSelector" class="form-label">Y축 단위</label>
+                                <select class="form-select" id="yAxisUnitSelector">
+                                    <option value="" selected>단위 선택...</option>
+                                    <option value="percentage">% (퍼센트)</option>
+                                    <option value="celsius">°C (섭씨 온도)</option>
+                                    <!-- 필요에 따라 다른 단위 추가 -->
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="originSelector" class="form-label">데이터 Origin (선택적)</label>
+                                <select class="form-select" id="originSelector">
+                                    <!-- JS로 origin 목록 로드 -->
+                                    <option value="" selected>전체 Origin</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-primary w-100" id="applyFiltersButton">
+                                    <i class="fas fa-search me-1"></i> 조회
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 꺾은선 그래프 프레임 (카드) -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-chart-line me-1"></i>
+                        선택 항목 시계열 그래프
+                        <span id="chartDateRange" class="small text-muted ms-2"></span>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="multiLineChartCanvas"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 측정 항목 선택 테이블 -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-tasks me-1"></i>
+                        측정 항목 목록 (선택한 단위: <span id="selectedUnitDisplay" class="fw-bold">미선택</span>)
+                    </div>
+                    <div class="card-body p-0" id="measurementTableContainer">
+                        <table class="table table-hover table-sm mb-0">
+                            <thead class="table-light">
+                            <tr>
+                                <th scope="col"><input type="checkbox" id="selectAllMeasurements" class="form-check-input"></th>
+                                <th scope="col">항목 이름 (_measurement)</th>
+                                <th scope="col">현재 값</th>
+                                <th scope="col">최소 값 (선택 기간)</th>
+                                <th scope="col">최대 값 (선택 기간)</th>
+                                <th scope="col">Origin</th>
+                                <th scope="col">Location</th>
+                            </tr>
+                            </thead>
+                            <tbody id="measurementTableBody">
+                            <!-- JavaScript로 여기에 측정 항목 행들이 동적으로 생성됩니다. -->
+                            <tr>
+                                <td colspan="7" class="text-center text-muted p-3">조회 조건을 설정하고 '조회' 버튼을 눌러주세요.</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer text-muted small">
+                        체크박스를 선택/해제하면 그래프에 실시간으로 반영됩니다. (또는 "그래프 업데이트" 버튼 추가 가능)
+                    </div>
+                </div>
+
+            </div> <!-- /.container-fluid -->
+        </main>
+        <div th:replace="~{fragments/footer :: footer}"></div>
+    </div> <!-- /#layoutSidenav_content -->
+</div> <!-- /#layoutSidenav -->
+
+<!-- JavaScript 라이브러리 -->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script> <!-- Datepicker가 jQuery 의존성 가질 수 있음 -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/admin/js/scripts.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.ko.min.js"></script> <!-- Datepicker 한국어 -->
+<!-- chartjs-adapter-date-fns 와 date-fns (Chart.js 시간 축 사용 시 권장) -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/esm/index.js" type="module"></script> <!-- date-fns는 모듈로 로드될 수 있음 -->
+
+
+<!-- 이 페이지 전용 JavaScript 파일들 -->
+<script type="module" src="/admin/js/iotSensorApi.js"></script>
+<script type="module" src="/admin/js/chartUtils.js"></script>
+<script type="module" src="/admin/js/dashboardDetail.js"></script>
+
+<script>
+    // Datepicker 초기화
+    $(document).ready(function(){
+        $('.date-picker-input').datepicker({
+            format: "yyyy-mm-dd",
+            autoclose: true,
+            language: "ko",
+            todayHighlight: true
+        });
+        // 기본 날짜 설정 (예: 오늘부터 일주일 전)
+        const today = new Date();
+        const endDate = today.toISOString().split('T')[0];
+        today.setDate(today.getDate() - 6); // 7일 전
+        const startDate = today.toISOString().split('T')[0];
+        $('#startDate').datepicker('update', startDate);
+        $('#endDate').datepicker('update', endDate);
+    });
+</script>
+</body>
+</html>
