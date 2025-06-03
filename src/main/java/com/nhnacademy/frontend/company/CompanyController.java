@@ -8,13 +8,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/companies")
 public class CompanyController {
 
-    @GetMapping("company-list")
+    @GetMapping("/company-list")
     public String companyList() {
-        return "company/company-list";
+        return "admin/company-list";
     }
 
-    @GetMapping("company-detail")
+    @GetMapping("/settings")
     public String companyDetail() {
-        return "company/company-detail";
+        return "owner/company-settings";
     }
 }

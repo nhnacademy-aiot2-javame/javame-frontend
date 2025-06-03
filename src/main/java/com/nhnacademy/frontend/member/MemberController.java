@@ -8,13 +8,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/members")
 public class MemberController {
 
-    @GetMapping("/member-list")
-    public String memberList() {
-        return "member/member-list";
+    @GetMapping("/mypage")
+    public String myPage() {
+        return "common/my-page";  // templates/common/my-page.html
     }
 
-    @GetMapping("/member-detail")
-    public String memberDetail() {
-        return "member/member-detail";
+    // 회원 설정은 공통
+    @GetMapping("/settings")
+    public String settingsPage() {
+        return "common/settings";  // templates/common/settings.html
+    }
+
+    // 회원 권한 주기, owner, admin 가능
+    @GetMapping("/permission")
+    public String permissionPage() {
+        return "owner/pendingmembers";
+    }
+
+    // 오너는 본인 회사 회원 리스트 페이지로 이동
+    @GetMapping("/member-list")
+    public String memberListOwner() {
+        return "owner/members";  // templates/owner/member-list.html
     }
 }

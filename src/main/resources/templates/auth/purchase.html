@@ -1,3 +1,4 @@
+<!-- templates/auth/purchase.html -->
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -7,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(to right, #fffbe6, #ffffff); /* 노란빛 부드러운 배경 */
+            background: linear-gradient(to right, #fffbe6, #ffffff);
             height: 100vh;
             display: flex;
             justify-content: center;
@@ -18,7 +19,7 @@
         .purchase-card {
             background: #fff;
             border-radius: 20px;
-            box-shadow: 0 15px 25px rgba(0,0,0,0.08);
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.08);
             padding: 40px;
             width: 450px;
             transition: all 0.3s ease-in-out;
@@ -42,19 +43,19 @@
             padding: 12px 20px;
             font-weight: 600;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
         }
 
         .btn-purchase:hover {
             background-color: #cca000;
+            color: #fff;
             transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
         }
 
         h2 {
             font-weight: 700;
             color: #333;
-            font-family: 'Montserrat', Arial, sans-serif;
         }
 
         .price-info {
@@ -68,7 +69,7 @@
             display: flex;
             align-items: center;
             text-align: center;
-            margin: 40px 0;
+            margin: 40px 0 20px;
         }
 
         .divider::before, .divider::after {
@@ -97,6 +98,7 @@
     </div>
 
     <form id="purchase-form">
+        <!-- 회사 정보 입력 -->
         <div class="mb-3">
             <input type="text" id="companyDomain" name="companyDomain" class="form-control" placeholder="회사 도메인" required>
         </div>
@@ -104,7 +106,7 @@
             <input type="text" id="companyName" name="companyName" class="form-control" placeholder="회사 이름" required>
         </div>
         <div class="mb-3">
-            <input type="text" id="companyEmail" name="companyEmail" class="form-control" placeholder="회사 이메일" required>
+            <input type="email" id="companyEmail" name="companyEmail" class="form-control" placeholder="회사 이메일" required>
         </div>
         <div class="mb-3">
             <input type="tel" id="companyMobile" name="companyMobile" class="form-control" placeholder="전화번호" required>
@@ -112,15 +114,21 @@
         <div class="mb-3">
             <input type="text" id="companyAddress" name="companyAddress" class="form-control" placeholder="회사 주소" required>
         </div>
+
+        <!-- 구분선 -->
         <div class="divider">
-            <h2 class="mb-2">대표 회원 등록</h2>
+            <span>대표 회원 등록</span>
         </div>
+
+        <!-- 대표 회원 정보 입력 -->
         <div class="mb-3">
             <input type="email" id="ownerEmail" name="ownerEmail" class="form-control" placeholder="대표 이메일" required>
         </div>
         <div class="mb-3">
             <input type="password" id="ownerPassword" name="ownerPassword" class="form-control" placeholder="비밀번호" required>
         </div>
+
+        <!-- 제출 버튼 -->
         <button type="button" class="btn btn-purchase w-100" id="purchaseBtn">회사 등록</button>
     </form>
 
@@ -128,6 +136,8 @@
         &larr; 홈으로 돌아가기
     </a>
 </div>
+
+<!-- JS 모듈 로딩 -->
 <script src="/index/js/purchase.js" type="module"></script>
 </body>
 </html>
