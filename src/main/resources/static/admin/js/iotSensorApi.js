@@ -2,7 +2,7 @@ import {
     fetchWithAuth
 } from '/index/js/auth.js';
 
-const API_BASE_URL = 'http://localhost:10279/api/v1/environment/companyDomain';
+const API_BASE_URL = '/environment/companyDomain';
 
 let eventSource = null;
 
@@ -63,7 +63,7 @@ export function startSensorDataWebSocket(params, onData) {
 
     const { companyDomain, origin, ...rest } = params;
     const token = sessionStorage.getItem("accessToken") || ""; // 또는 auth에서 토큰 가져오기
-    const wsUrl = `ws://localhost:10279/ws/environment?token=${token}`;
+    const wsUrl = `ws://javame.live/api/v1/ws/environment?token=${token}`;
 
     console.log("WebSocket 연결 시 토큰:", token); // 이 줄이 반드시 먼저 나와야 함
     console.log("WebSocket 연결할 URL:", wsUrl);

@@ -16,7 +16,7 @@ const pendigTable = function (){
     this.loadPending = async function(){
 
         const num = document.querySelector('#page_num').value;
-        const url = `/api/v1/members/companies/companyDomain?isPending=true&page=${num}`;
+        const url = `/members/companies/companyDomain?isPending=true&page=${num}`;
 
         const result = await fetchWithAuth(url,"method : 'GET");
         const json = await result.json();
@@ -41,7 +41,7 @@ const pendigTable = function (){
                         const email = json.memberEmail;
                         if(!confirm(`${email}님의 권한을 주시겠습니까?????`)) return;
                         const memberNo = json.memberNo;
-                        const url = `/api/v1/members/role/${memberNo}?role=ROLE_USER`;
+                        const url = `/members/role/${memberNo}?role=ROLE_USER`;
 
                         fetchWithAuthPut(url)
                             .then(response => {
@@ -60,7 +60,7 @@ const pendigTable = function (){
                         const email = json.memberEmail;
                         if(!confirm(`${email}님을 삭제하시겠습니까?????`)) return;
                         const memberNo = json.memberNo;
-                        const url = SERVER_URL + `/api/v1/members/${memberNo}`
+                        const url = SERVER_URL + `/members/${memberNo}`
 
                         fetchWithAuthPut(url)
                             .then(response => {
