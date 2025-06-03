@@ -5,7 +5,7 @@
 const TOKEN_KEY = 'accessToken';
 const REFRESH_KEY = 'refreshToken';
 const USE_MOCK_LOGIN = false;
-const CICD_URL = 'http://localhost:10279';
+const CICD_URL = 'https://javame.live/api';
 
 window.logout = logout;
 /**
@@ -41,7 +41,7 @@ export async function login(memberEmail, memberPassword) {
             }, 500);
         });
     } else {
-        const response = await fetch('http://localhost:10279/api/v1/auth/login', {
+        const response = await fetch('https://javame.live/api/v1/auth/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -123,7 +123,7 @@ export async function refreshAccessToken() {
         throw new Error('Refresh token is missing');
     }
 
-    const response = await fetch('http://gateway.javame.live/api/v1/auth/refresh', {
+    const response = await fetch('https://javame.live/api/v1/auth/refresh', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
