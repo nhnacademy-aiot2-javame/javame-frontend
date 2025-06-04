@@ -151,6 +151,9 @@ function drawDiskPredictionChart() {
 /**
  * ★★★ 전력량 예측 차트 (핵심!) ★★★
  */
+/**
+ * ★★★ 전력량 예측 차트 (스마트 리팩터링) ★★★
+ */
 async function drawMonthlyWattsPredictionChart() {
     const canvasId = 'monthlyWattsPredictionChart';
     const canvas = document.getElementById(canvasId);
@@ -159,67 +162,94 @@ async function drawMonthlyWattsPredictionChart() {
         return;
     }
 
-    const response = await fetchWithAuth(`/forecast/monthly`,"method : 'GET");
-    if (!response.ok) {
-        throw new Error(`서버 오류: ${response.status}`);
-    }
-    const data = await response.json();
-    const used = data.actual_kWh;
-    const predicted = data.predicted_kWh;
+    try {
+        const response = await fetchWithAuth('/forecast/monthly', { method: 'GET' });
+        if (!response.ok) {
+            throw new Error(`서버 오류: ${response.status}`);
+        }
 
-    if (chartInstances[canvasId]) {
-        chartInstances[canvasId].destroy();
-    }
+        const data = await response.json();
+        const used = data.actual_kWh;
+        const predicted = data.predicted_kWh;
 
-    const ctx = canvas.getContext('2d');
-    chartInstances[canvasId] = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['6월 전력 사용량'],
-            datasets: [
-                {
-                    label: '사용된 전력량 (kWh)',
-                    data: [used],
-                    backgroundColor: 'rgba(54, 162, 235, 0.9)',
-                    stack: 'stack1'
-                },
-                {
-                    label: '예측 전력량 (kWh)',
-                    data: [predicted],
-                    backgroundColor: 'rgba(255,0,0,0.8)',
-                    stack: 'stack1'
-                }
-            ]
-        },
-        options: {
-            indexAxis: 'y',
-            plugins: {
-                title: {
-                    display: true,
-                    text: '월간 전력 소비량 및 예측'
-                },
-                tooltip: {
-                    mode: 'index',
-                    intersect: false,
-                    callbacks: {
-                        label: context => `${context.dataset.label}: ${context.raw} kWh`
+        if (chartInstances[canvasId]) {
+            chartInstances[canvasId].destroy();
+        }
+
+        const ctx = canvas.getContext('2d');
+        chartInstances[canvasId] = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['6월 총 예상 사용량'],
+                datasets: [
+                    {
+                        label: '실제 사용량',
+                        data: [used],
+                        backgroundColor: 'rgba(54, 162, 235, 0.9)',
+                        borderRadius: 6,
+                        barThickness: 30,
+                        stack: 'usage'
+                    },
+                    {
+                        label: '예측 사용량',
+                        data: [predicted],
+                        backgroundColor: 'rgba(255, 99, 132, 0.8)',
+                        borderRadius: 6,
+                        barThickness: 30,
+                        stack: 'usage'
+                    }
+                ]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: false
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            label: context => {
+                                const label = context.dataset.label || '';
+                                const value = context.raw?.toFixed(2);
+                                return ` ${label}: ${value} kWh`;
+                            }
+                        }
+                    },
+                    legend: {
+                        display: false
                     }
                 },
-                legend: { position: 'bottom' }
-            },
-            responsive: true,
-            scales: {
-                x: {
-                    stacked: true,
-                    title: { display: true, text: 'kWh' }
-                },
-                y: {
-                    stacked: true
+                scales: {
+                    x: {
+                        stacked: true,
+                        title: {
+                            display: true,
+                            text: '사용량 (kWh)'
+                        },
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    },
+                    y: {
+                        stacked: true,
+                        ticks: {
+                            font: { weight: 'bold' }
+                        }
+                    }
                 }
             }
-        }
-    });
+        });
+
+        console.log("✅ 월간 예측 차트 성공");
+    } catch (err) {
+        console.error("❌ 차트 로딩 실패:", err);
+    }
 }
+
 
 /**
  * 정확도 분석 차트
