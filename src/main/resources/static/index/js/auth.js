@@ -55,9 +55,6 @@ export async function login(memberEmail, memberPassword) {
         }
 
         // 헤더에서 토큰 받아오기
-
-
-        console.log("Authorization: " + response.headers.get('Authorization'));
         const authHeader = response.headers.get('Authorization');
         const refreshToken = response.headers.get('Refresh-Token');
 
@@ -141,33 +138,131 @@ export async function refreshAccessToken() {
     return data.accessToken;
 }
 
-export async function fetchWithAuth(url, options) {
+export async function fetchWithAuth(url, options = {}) {
     let token = sessionStorage.getItem(TOKEN_KEY);
-    const final_url = CICD_URL + url;
-    const response = await fetch(final_url, {
-        options,
+
+    const response = await fetch(url, {
+        ...options,
         headers: {
-            Authorization: `Bearer ${token}`
-        }
+            ...(options.headers || {}),
+            Authorization: `Bearer ${token}`,
+        },
     });
 
-    if (response.status === 401) { // 액세스 토큰 만료
-        // 리프레시 토큰을 사용해 새로운 액세스 토큰을 받음
-        try {
-            token = await refreshAccessToken();
-            // 새로운 토큰을 사용해 다시 요청
-            return fetch(url, {
-                options,
+    if (response.status === 401) {
+        console.log("X-Refresh-Required : ", response.headers.get('X-Refresh-Required'));
+        console.log("X-Reauth-Required : ", response.headers.get('X-Reauth-Required'));
+        console.log("X-Token-Required : ", response.headers.get('X-Token-Required'));
+
+        const refreshRequired = response.headers.get('X-Refresh-Required') === 'true';
+        const reauthRequired = response.headers.get('X-Reauth-Required') === 'true';
+        const tokenRequired = response.headers.get('X-Token-Required') === 'true';
+
+        if (reauthRequired) {
+            window.location.href = "/auth/login";
+            return;
+        }
+
+        if (refreshRequired) {
+            const refreshToken = getRefreshToken();
+            if (!refreshToken) {
+                window.location.href = "/auth/login";
+                return;
+            }
+
+            const retryResponse = await fetch(url, {
+                ...options,
                 headers: {
-                    'Refresh-Token': `Bearer ${token}`,
-                }
+                    ...(options.headers || {}),
+                    'X-Refresh-Token': refreshToken,
+                },
             });
-        } catch (error) {
-            console.error('리프레시 토큰 갱신 실패', error);
-            window.location.href = "/auth/login.html"; // 로그인 페이지로 리다이렉트
+
+            return retryResponse;
+        }
+
+        if (tokenRequired) {
+            try {
+                token = await refreshAccessToken();
+                const retryResponse = await fetch(url, {
+                    ...options,
+                    headers: {
+                        ...(options.headers || {}),
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                return retryResponse;
+            } catch (error) {
+                console.error("accessToken 갱신 실패", error);
+                window.location.href = "/auth/login";
+            }
         }
     }
+    return response;
+}
 
+export async function fetchWithAuthBody(url, bodyOptions) {
+    let token = sessionStorage.getItem(TOKEN_KEY);
+
+    const mergedOptions = {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(bodyOptions)
+    };
+
+    let response = await fetch(url, mergedOptions);
+
+    if (response.status === 401) {
+        const refreshRequired = response.headers.get('X-Refresh-Required') === 'true';
+        const reauthRequired = response.headers.get('X-Reauth-Required') === 'true';
+        const tokenRequired = response.headers.get('X-Token-Required') === 'true';
+
+        if (reauthRequired) {
+            window.location.href = "/auth/login";
+            return;
+        }
+
+        if (refreshRequired) {
+            const refreshToken = getRefreshToken();
+            if (!refreshToken) {
+                window.location.href = "/auth/login";
+                return;
+            }
+
+            const retryOptions = {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Refresh-Token': refreshToken,
+                },
+                body: JSON.stringify(bodyOptions)
+            };
+
+            return fetch(url, retryOptions);
+        }
+
+        if (tokenRequired) {
+            try {
+                token = await refreshAccessToken();
+                const retryOptions = {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(bodyOptions)
+                };
+                return fetch(url, retryOptions);
+            } catch (error) {
+                console.error("accessToken 갱신 실패", error);
+                window.location.href = "/auth/login";
+            }
+        }
+    }
     return response;
 }
 
