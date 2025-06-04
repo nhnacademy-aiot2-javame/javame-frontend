@@ -4,7 +4,7 @@ import {
 
 const API_BASE_URL = '/environment/companyDomain';
 
-let eventSource = null;
+let ws = null;
 
 export async function getTree() {
     const res = await fetchWithAuth(`${API_BASE_URL}/tree`);
@@ -35,26 +35,7 @@ export async function getMeasurementList(origin, gatewayId = "") {
     return await res.json();
 }
 
-// export function startSensorDataStream(params, onData) {
-//     if (eventSource) eventSource.close();
-//
-//     const { companyDomain, origin, ...rest } = params;
-//     const query = new URLSearchParams({ origin, ...rest });
-//     const url = `${API_BASE_URL}/time-series-stream?${query.toString()}`;
-//
-//     eventSource = new EventSource(url);
-//     eventSource.addEventListener("time-series-update", (event) => {
-//         const data = JSON.parse(event.data);
-//         onData(data);
-//     });
-//     eventSource.onerror = (err) => {
-//         console.error("SSE 오류", err);
-//         eventSource.close();
-//     };
-// }
-
-let ws = null;
-
+// ★★★ WebSocket 연결 함수 ★★★
 export function startSensorDataWebSocket(params, onData) {
     if (ws) {
         ws.close();
@@ -63,7 +44,7 @@ export function startSensorDataWebSocket(params, onData) {
 
     const { companyDomain, origin, ...rest } = params;
     const token = sessionStorage.getItem("accessToken") || ""; // 또는 auth에서 토큰 가져오기
-    const wsUrl = `wss://javame.live/api/v1/ws/environment?token=${token}`;
+    const wsUrl = 'ws://localhost:10279/ws/environment?token=' + token;
 
     console.log("WebSocket 연결 시 토큰:", token); // 이 줄이 반드시 먼저 나와야 함
     console.log("WebSocket 연결할 URL:", wsUrl);
@@ -117,22 +98,100 @@ export function closeSensorDataWebSocket() {
     }
 }
 
+// ★★★ 통합 평균 데이터 조회 함수 (1h/24h/1w 지원) ★★★
+export async function getAverageData(origin, measurement, filters, timeRange = '1h') {
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+        if (key !== 'companyDomain') { // companyDomain은 게이트웨이에서 처리
+            params.append(key, value);
+        }
+    });
 
-export async function getHourlyAverages(origin, measurement, filters) {
-    const params = new URLSearchParams(filters);
     params.append("origin", origin);
     params.append("measurement", measurement);
 
-    const url = `${API_BASE_URL}/1h?${params.toString()}`;
-    const res = await fetchWithAuth(url);
-    if (!res.ok) {
-        console.error('getHourlyAverages() 실패', res.status, await res.text());
-        return {};
+    let endpoint;
+    switch(timeRange) {
+        case '1h':
+            endpoint = '/1h';
+            break;
+        case '24h':
+            endpoint = '/24h';
+            break;
+        case '1w':
+            endpoint = '/1w';
+            break;
+        default:
+            endpoint = '/average/' + timeRange;
     }
-    return await res.json();
+
+    // ★★★ companyDomain 제거 - 게이트웨이 필터에서 자동 처리 ★★★
+    const url = API_BASE_URL + endpoint + '?' + params.toString();
+
+    console.log('getAverageData 호출 (' + timeRange + '):', url);
+    try {
+        const res = await fetchWithAuth(url);
+        if (!res.ok) {
+            console.error('getAverageData(' + timeRange + ') 실패', res.status, await res.text());
+            return {
+                timeSeriesAverage: [],
+                overallAverage: 0.0,
+                timeRange: timeRange,
+                error: true
+            };
+        }
+        return await res.json();
+    } catch (error) {
+        console.error('getAverageData(' + timeRange + ') 오류:', error);
+        return {
+            timeSeriesAverage: [],
+            overallAverage: 0.0,
+            timeRange: timeRange,
+            error: true
+        };
+    }
 }
 
+// ★★★ 1시간 평균 데이터 (기존 호환성 유지) ★★★
+export async function getHourlyAverages(origin, measurement, filters) {
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+        if (key !== 'companyDomain') {
+            params.append(key, value);
+        }
+    });
 
+    params.append("origin", origin);
+    params.append("measurement", measurement);
+
+    const url = API_BASE_URL + '/1h?' + params.toString();
+
+    console.log('getHourlyAverages 호출:', url);
+
+    try {
+        const res = await fetchWithAuth(url);
+        if (!res.ok) {
+            console.error('getHourlyAverages() 실패', res.status, await res.text());
+            return {};
+        }
+        return await res.json();
+    } catch (error) {
+        console.error('getHourlyAverages() 오류:', error);
+        return {};
+    }
+}
+
+// ★★★ 24시간 평균 데이터 ★★★
+export async function get24HourAverages(origin, measurement, filters) {
+    return getAverageData(origin, measurement, filters, '24h');
+}
+
+// ★★★ 주별 평균 데이터 ★★★
+export async function getWeeklyAverages(origin, measurement, filters) {
+    return getAverageData(origin, measurement, filters, '1w');
+}
+
+// ★★★ 차트 데이터 조회 함수들 ★★★
 export async function getChartDataForSensor(origin, sensor) {
     const res = await fetchWithAuth(`${API_BASE_URL}/chart/type/${sensor}?origin=${encodeURIComponent(origin)}`);
     if (!res.ok) return { labels: [], values: [] };
@@ -145,61 +204,111 @@ export async function getPieChartData(origin) {
     return await res.json();
 }
 
-
-/**
- * 특정 센서의 현재(최신) 값을 가져옵니다.
- * 백엔드 API가 '/{companyDomain}/current?origin=...&location=...&measurement=...' 형태의 엔드포인트를 제공한다고 가정합니다.
- * @param {string} companyDomain 회사 도메인
- * @param {string} origin 데이터 출처
- * @param {string} location 위치 (예: 'cpu', 'memory', '입구')
- * @param {string} measurement 측정 항목 (예: 'usage_user', 'used_percent', 'temperature')
- * @param {string} [field] (옵션) 값을 가져올 특정 필드명 (백엔드 API가 요구하는 경우)
- * @returns {Promise<Object|null>} { value: 숫자, time: "타임스탬프" } 형태의 객체 또는 오류 시 null
- */
-export async function getCurrentSensorValue(companyDomain, origin, location, measurement, field = null) {
-    // 쿼리 파라미터 구성
-    const queryParams = new URLSearchParams({
-        origin: origin,
-        location: location,
-        _measurement: measurement // 백엔드 컨트롤러가 @RequestParam("_measurement")로 받는다면 _measurement 사용
-        // 또는 @RequestParam("measurement")라면 measurement 사용
-    });
-
-    if (field) {
-        queryParams.append('_field', field); // 백엔드 컨트롤러가 @RequestParam("_field")로 받는다면 _field 사용
-        // 또는 @RequestParam("field")라면 field 사용
-    }
-
-    const url = `${API_BASE_URL}/${companyDomain}/current?${queryParams.toString()}`;
-    console.log(`Fetching current value from: ${url}`);
-
+// ★★★ 서비스 개수 조회 (companyDomain + gatewayId 기준) ★★★
+export async function getServiceCount() {
     try {
-        const res = await fetch(url);
+        const res = await fetchWithAuth(API_BASE_URL + '/services/count');
         if (!res.ok) {
-            console.error(`Failed to fetch current value for ${measurement}. Status: ${res.status}`, await res.text());
-            return null; // 오류 발생 시 null 반환
+            console.warn('서비스 개수 조회 실패: ' + res.status);
+            return 0;
         }
         const data = await res.json();
-        // API가 반환하는 JSON 객체에 'value' 필드가 있고, 그 값이 숫자라고 가정합니다.
-        // 실제 응답 형식에 맞춰 파싱 로직을 조정해야 할 수 있습니다.
-        // 예: if (data && data.latest && typeof data.latest.value === 'number') return data.latest;
-        return data; // API가 { value: ..., time: ... } 형태의 단일 객체를 반환한다고 가정
+        return data.count || 0;
     } catch (error) {
-        console.error(`Error fetching current value for ${measurement}:`, error);
-        return null;
+        console.error('서비스 개수 조회 오류:', error);
+        return 0;
     }
 }
 
-
-/**
- * 현재 활성화된 센서 데이터 스트림(EventSource) 연결을 명시적으로 닫습니다.
- */
-export function closeSensorDataStream() {
-    if (eventSource) {
-        console.log("Explicitly closing EventSource connection.");
-        eventSource.close();
-        eventSource = null; // 참조 제거하여 상태 반영
-    } else {
-        // console.log("No active EventSource connection to close.");
+export async function getSensorCount() {
+    try {
+        const res = await fetchWithAuth(API_BASE_URL + '/sensors/count');
+        if (!res.ok) {
+            console.warn('센서 개수 조회 실패: ' + res.status);
+            return 0;
+        }
+        const data = await res.json();
+        return data.count || 0;
+    } catch (error) {
+        console.error('센서 개수 조회 오류:', error);
+        return 0;
     }
 }
+
+export async function getServerCount() {
+    try {
+        const res = await fetchWithAuth(API_BASE_URL + '/servers/count');
+        if (!res.ok) {
+            console.warn('센서 개수 조회 실패: ' + res.status);
+            return 0;
+        }
+        const data = await res.json();
+        return data.count || 0;
+    } catch (error) {
+        console.error('센서 개수 조회 오류:', error);
+        return 0;
+    }
+}
+
+export async function getOutboundTraffic() {
+    try {
+        const res = await fetchWithAuth(API_BASE_URL + '/traffic/outbound');
+        if (!res.ok) {
+            console.warn('아웃바운드 트래픽 조회 실패: ' + res.status);
+            return { formattedValue: '0.0 MB', success: false };
+        }
+        const data = await res.json();
+        return data.traffic || { formattedValue: '0.0 MB', success: false };
+    } catch (error) {
+        console.error('아웃바운드 트래픽 조회 오류:', error);
+        return { formattedValue: '0.0 MB', success: false };
+    }
+}
+
+// ★★★ 통합 통계 조회 함수 (새로 추가) ★★★
+export async function getDashboardStats() {
+    try {
+        const res = await fetchWithAuth(API_BASE_URL + '/stats');
+        if (!res.ok) {
+            console.warn('통합 통계 조회 실패: ' + res.status);
+            return {
+                serviceCount: 0,
+                serverCount: 0,
+                sensorCount: 0,
+                outboundTraffic: { formattedValue: '0.0 MB' },
+                inboundTraffic: { formattedValue: '0.0 MB' },
+                success: false
+            };
+        }
+        const data = await res.json();
+        return data;
+    } catch (error) {
+        console.error('통합 통계 조회 오류:', error);
+        return {
+            serviceCount: 0,
+            serverCount: 0,
+            sensorCount: 0,
+            outboundTraffic: { formattedValue: '0.0 MB' },
+            inboundTraffic: { formattedValue: '0.0 MB' },
+            success: false
+        };
+    }
+}
+
+// ★★★ 디버깅 함수 ★★★
+export function debugApiStatus() {
+    console.log('=== iotSensorApi 상태 ===');
+    console.log('WebSocket 연결 상태:', ws ? ws.readyState : 'null');
+    console.log('EventSource 연결 상태:', eventSource ? eventSource.readyState : 'null');
+    console.log('API Base URL:', API_BASE_URL);
+
+    const token = sessionStorage.getItem("accessToken") || localStorage.getItem("jwtToken");
+    console.log('토큰 존재 여부:', token ? '있음' : '없음');
+
+    if (token) {
+        console.log('토큰 미리보기:', token.substring(0, 20) + '...');
+    }
+}
+
+// ★★★ 전역 함수로 디버깅 함수 노출 ★★★
+window.debugApiStatus = debugApiStatus;

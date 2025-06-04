@@ -1,139 +1,290 @@
 // /admin/js/dashboardIntegration.js
 
-// chartUtils.js에서 콤보 차트 생성 함수 import
 import { createComboBarLineChart } from './chartUtils.js';
-// iotSensorApi.js는 실제 데이터 연동 시 사용 (지금은 주석 처리)
-// import { getMeasurementList, getCurrentSensorValue, getAggregatedTimeSeriesData } from './iotSensorApi.js';
+import { getHourlyAverages, get24HourAverages, getWeeklyAverages, startSensorDataWebSocket, closeSensorDataWebSocket } from './iotSensorApi.js';
 
-// 차트 인스턴스를 저장할 객체 (여러 차트를 관리할 경우 유용)
+// 차트 인스턴스 저장
 const chartInstances = {};
 
-// DOM 로드 완료 후 실행
+// 회사 도메인 (WebSocket 연결 후 설정)
+let COMPANY_DOMAIN = null;
+
+// 측정 항목 정보 (category 정보 추가)
+const ALL_MEASUREMENTS = [
+    { measurement: 'usage_user', gatewayId: 'cpu', name: 'CPU 사용률', category: 'CPU' },
+    { measurement: 'used_percent', gatewayId: 'mem', name: '메모리 사용률', category: '메모리' },
+    { measurement: 'temperature_celsius', gatewayId: 'modbus', name: '서버 온도', category: '환경' },
+    { measurement: 'power_factor_avg_percent', gatewayId: 'modbus', name: '역률 평균', category: '전력' }
+];
+
+class IntegrationWebSocket {
+    constructor() {
+        this.currentData = new Map();
+        this.selectedMeasurements = new Set(['usage_user', 'used_percent', 'temperature_celsius', 'power_factor_avg_percent']); // 기본 선택
+        this.isConnected = false;
+        this.refreshTimer = null;
+    }
+
+    // WebSocket 연결 및 데이터 수신 처리
+    connect() {
+        COMPANY_DOMAIN = 'javame'; // 실제로는 동적으로 설정해야 함
+
+        const params = {
+            companyDomain: COMPANY_DOMAIN,
+            origin: 'server_data',
+            // measurement: 'all', // 서버에서 "all"을 지원하지 않는다면 제거
+            interval: 15
+        };
+
+        startSensorDataWebSocket(COMPANY_DOMAIN, (messageObject) => {
+            this.isConnected = true;
+            this.updateConnectionStatus('connected');
+            this.processWebSocketMessage(messageObject); // 메시지 처리 함수 호출
+            this.refreshAllCharts(); // 데이터 수신 후 차트 업데이트
+        });
+
+        // 주기적으로 차트 갱신 (테스트 용도, 실제는 WebSocket 데이터 기반으로만 갱신하는 것이 좋음)
+        this.refreshTimer = setInterval(() => {
+            if (this.isConnected) {
+                console.log('🔄 정기 차트 새로고침');
+                this.refreshAllCharts();
+            }
+        }, 20000);
+    }
+
+    // WebSocket 메시지 처리
+    processWebSocketMessage(messageObject) {
+        if (messageObject && messageObject.type === 'realtime' && messageObject.data) { // 필수 필드 확인
+            const measurement = messageObject.measurement;
+            const gatewayId = messageObject.gatewayId;
+            const data = messageObject.data; // TimeSeriesDataDto 객체
+
+            // console.log("[Integration] processWebSocketMessage - Raw data:", messageObject); // 전체 메시지 로그
+
+            if (measurement && gatewayId && data.value !== undefined) {
+                const key = `${measurement}:${gatewayId}`;
+                const value = parseFloat(data.value);
+                this.currentData.set(key, value); // 데이터 저장
+
+                console.log(`[Integration] Realtime Data: ${key} = ${value}`); // 저장 로그
+            } else {
+                console.warn('[Integration] Invalid data format:', messageObject); // 데이터 문제 발생 시 로그
+            }
+        }
+    }
+
+    // 모든 차트 새로고침
+    async refreshAllCharts() {
+        if (!COMPANY_DOMAIN) {
+            console.warn('COMPANY_DOMAIN이 설정되지 않았습니다.');
+            return;
+        }
+
+        try {
+            await this.updateComboChart('currentStateBarChart', '1h');
+            await this.updateComboChart('dailyComboChart', '24h');
+            await this.updateComboChart('weeklyComboChart', '1w');
+        } catch (error) {
+            console.error('차트 업데이트 실패:', error);
+        }
+    }
+
+    // 콤보 차트 업데이트 (1h, 24h, 1w 지원)
+    async updateComboChart(canvasId, timeRange) {
+        const selectedItems = this.getSelectedMeasurements(); // 선택된 측정항목 가져오기
+
+        if (selectedItems.length === 0) {
+            console.warn('선택된 측정 항목이 없습니다.');
+            return;
+        }
+
+        const labels = [];
+        const currentValues = [];
+        const averageValues = [];
+
+        // 각 측정항목별로 현재값과 평균값을 가져와 배열에 저장
+        for (const { measurement, gatewayId, name, category } of selectedItems) {
+            labels.push(`${name} (${category})`);
+
+            const currentValue = this.currentData.get(`${measurement}:${gatewayId}`) || 0;
+
+            let averageData;
+            try {
+                // 1시간, 24시간, 1주 평균 데이터 요청
+                switch (timeRange) {
+                    case '1h':
+                        averageData = await getHourlyAverages('server_data', measurement, { companyDomain: COMPANY_DOMAIN, gatewayId: gatewayId });
+                        break;
+                    case '24h':
+                        averageData = await get24HourAverages('server_data', measurement, { companyDomain: COMPANY_DOMAIN, gatewayId: gatewayId });
+                        break;
+                    case '1w':
+                        averageData = await getWeeklyAverages('server_data', measurement, { companyDomain: COMPANY_DOMAIN, gatewayId: gatewayId });
+                        break;
+                    default:
+                        console.warn('잘못된 timeRange:', timeRange);
+                        continue;
+                }
+
+                if (averageData && averageData.overallAverage !== undefined) {
+                    averageValues.push(averageData.overallAverage);
+                    currentValues.push(currentValue);
+                } else {
+                    console.warn(`[${timeRange}] ${name} 평균값 데이터 누락 또는 유효하지 않음`);
+                    averageValues.push(null); // 또는 다른 적절한 값
+                    currentValues.push(null);
+                }
+
+            } catch (error) {
+                console.error(`[${timeRange}] ${name} 평균값 조회 실패:`, error);
+                averageValues.push(null); // 에러 발생 시 null 처리
+                currentValues.push(null);
+            }
+        }
+
+        // 차트 업데이트 또는 생성
+        if (chartInstances[canvasId]) {
+            chartInstances[canvasId].destroy();
+        }
+
+        const timeDisplayName = this.getTimeDisplayName(timeRange);
+        chartInstances[canvasId] = createComboBarLineChart(
+            canvasId,
+            currentValues,
+            averageValues,
+            '현재값 (실시간)',
+            `${timeDisplayName} 평균`,
+            labels
+        );
+
+        console.log(`✅ ${timeDisplayName} 콤보 차트 업데이트 완료 - ${selectedItems.length}개 항목`);
+    }
+
+    // 선택된 측정 항목 가져오기
+    getSelectedMeasurements() {
+        return ALL_MEASUREMENTS.filter(item => this.selectedMeasurements.has(item.measurement));
+    }
+
+    // 시간 범위 표시명
+    getTimeDisplayName(timeRange) {
+        switch (timeRange) {
+            case '1h': return '1시간';
+            case '24h': return '24시간';
+            case '1w': return '1주';
+            default: return timeRange;
+        }
+    }
+
+    // 연결 상태 업데이트
+    updateConnectionStatus(status) {
+        const statusElement = document.getElementById('integration-websocket-status');
+        if (statusElement) {
+            statusElement.textContent = status;
+        }
+    }
+
+    // WebSocket 연결 종료
+    disconnect() {
+        this.isConnected = false;
+        this.updateConnectionStatus('disconnected');
+        closeSensorDataWebSocket();
+    }
+
+    // 카테고리별 체크박스 생성 (이 부분은 페이지 로드 시 1회만 실행되므로 별도 함수로 분리)
+    initializeCategoryCheckboxes() {
+        const container = document.getElementById('measurementCheckboxContainer');
+        if (!container) return;
+
+        container.innerHTML = ''; // 기존 내용 비우기
+
+        const categories = {}; // 카테고리별로 측정 항목을 그룹화
+        ALL_MEASUREMENTS.forEach(item => {
+            if (!categories[item.category]) {
+                categories[item.category] = [];
+            }
+            categories[item.category].push(item);
+        });
+
+        // 각 카테고리별로 체크박스 생성
+        Object.entries(categories).forEach(([category, items]) => {
+            const categoryDiv = document.createElement('div');
+            categoryDiv.className = 'mb-3';
+            categoryDiv.innerHTML = `<h6 class="text-muted">${category}</h6>`;
+
+            items.forEach(item => {
+                const checkboxId = `chk-${item.measurement}-${item.gatewayId}`;
+                const div = document.createElement('div');
+                div.classList.add('form-check', 'form-check-inline');
+                div.innerHTML = `
+                    <input class="form-check-input measurement-checkbox" type="checkbox" 
+                           value="${item.measurement}" id="${checkboxId}" 
+                           data-gateway="${item.gatewayId}" data-category="${item.category}"
+                           ${this.selectedMeasurements.has(item.measurement) ? 'checked' : ''}>
+                    <label class="form-check-label" for="${checkboxId}">
+                        ${item.name}
+                    </label>
+                `;
+                categoryDiv.appendChild(div);
+            });
+            container.appendChild(categoryDiv);
+        });
+
+        // 체크박스 변경 이벤트 리스너 추가
+        document.querySelectorAll('.measurement-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', (event) => {
+                const measurement = event.target.value;
+                if (event.target.checked) {
+                    this.selectedMeasurements.add(measurement);
+                } else {
+                    this.selectedMeasurements.delete(measurement);
+                }
+                console.log('측정 항목 선택 변경:', measurement, event.target.checked);
+                this.refreshAllCharts();
+            });
+        });
+
+        console.log('카테고리별 측정 항목 체크박스 초기화 완료');
+    }
+}
+
+// ★★★ 전역 WebSocket 인스턴스 ★★★
+const integrationWS = new IntegrationWebSocket();
+
+// 페이지 로드 시 초기화
 window.addEventListener('DOMContentLoaded', () => {
-    console.log("Dashboard Integration page loaded. Initializing dummy combo chart...");
+    console.log("통합 차트 페이지 로드");
 
-    // 1. 측정 항목 선택 체크박스 영역 (지금은 더미로 몇 개만 생성)
-    initializeDummyMeasurementCheckboxes();
+    // 카테고리별 체크박스 초기화
+    integrationWS.initializeCategoryCheckboxes();
 
-    // 2. "선택 항목 차트 보기" 버튼 이벤트 리스너 (지금은 버튼 클릭 시 더미 차트 생성)
-    const applyFilterButton = document.getElementById('applyIntegrationChartFilterButton');
-    if (applyFilterButton) {
-        applyFilterButton.addEventListener('click', () => {
-            // 실제로는 선택된 체크박스 값을 읽어와야 함
-            console.log("Apply filter button clicked. Drawing dummy combo chart...");
-            drawDummyComboChart();
+    // WebSocket 연결
+    integrationWS.connect();
+
+    // 전체 선택 버튼
+    const selectAllButton = document.getElementById('selectAllMeasurementsBtn');
+    if (selectAllButton) {
+        selectAllButton.addEventListener('click', () => {
+            if (integrationWS.selectedMeasurements.size === ALL_MEASUREMENTS.length) {
+                integrationWS.selectedMeasurements.clear();
+            } else {
+                integrationWS.selectedMeasurements = new Set(ALL_MEASUREMENTS.map(item => item.measurement));
+            }
+            integrationWS.initializeCategoryCheckboxes(); // 체크박스 다시 그리기
+            integrationWS.refreshAllCharts(); // 차트 업데이트
         });
     }
 
-    // 3. 페이지 로드 시 바로 더미 콤보 차트 하나를 그려봅니다.
-    // (또는 버튼 클릭 시에만 그리도록 할 수 있습니다.)
-    drawDummyComboChart(); // << 페이지 로드 시 바로 테스트용 차트 그리기
+    // 차트 업데이트 버튼
+    const applyButton = document.getElementById('applyIntegrationChartFilterButton');
+    if (applyButton) {
+        applyButton.addEventListener('click', () => {
+            console.log('차트 업데이트 버튼 클릭');
+            integrationWS.refreshAllCharts();
+        });
+    }
 });
 
-/**
- * 더미 측정 항목 체크박스를 생성합니다.
- * 실제로는 API를 통해 measurement 목록을 가져와야 합니다.
- */
-function initializeDummyMeasurementCheckboxes() {
-    const container = document.getElementById('measurementCheckboxContainer');
-    if (!container) return;
-
-    container.innerHTML = ''; // 기존 "로딩 중..." 메시지 제거
-
-    const dummyMeasurements = ['CPU 사용률', '메모리 사용량', '디스크 I/O'];
-    dummyMeasurements.forEach((measurement, index) => {
-        const div = document.createElement('div');
-        div.classList.add('form-check', 'form-check-inline');
-        div.innerHTML = `
-            <input class="form-check-input" type="checkbox" value="${measurement}" id="chkMeasurement${index}" checked>
-            <label class="form-check-label" for="chkMeasurement${index}">${measurement}</label>
-        `;
-        container.appendChild(div);
-    });
-}
-
-/**
- * 더미 데이터를 사용하여 콤보 차트(바 + 라인)를 생성하고 표시합니다.
- * 실제로는 선택된 measurement와 API 응답을 기반으로 데이터를 구성해야 합니다.
- */
-function drawDummyComboChart() {
-    const canvasId = 'currentStateBarChart'; // HTML에 있는 캔버스 ID
-
-    // 더미 데이터 생성
-    const xAxisLabels = ['항목 A', '항목 B', '항목 C', '항목 D', '항목 E'];
-    const barDataArray = [120, 190, 150, 210, 180]; // 예: 현재 값들
-    const lineDataArray = [100, 170, 130, 190, 160]; // 예: 과거 평균 값들
-
-    const barDatasetLabel = '현재 값 (단위 X)';
-    const lineDatasetLabel = '과거 평균 (단위 X)';
-
-    // 기존 차트가 있다면 파괴 (Chart.js v3+ 방식)
-    if (chartInstances[canvasId]) {
-        chartInstances[canvasId].destroy();
-    }
-    // 또는 if (Chart.getChart(canvasId)) { Chart.getChart(canvasId).destroy(); }
-
-    // chartUtils.js의 createComboBarLineChart 함수 호출
-    chartInstances[canvasId] = createComboBarLineChart(
-        canvasId,
-        barDataArray,
-        lineDataArray,
-        barDatasetLabel,
-        lineDatasetLabel,
-        xAxisLabels
-    );
-
-    if (chartInstances[canvasId]) {
-        console.log(`Dummy combo chart (${canvasId}) rendered successfully.`);
-    } else {
-        console.error(`Failed to render dummy combo chart (${canvasId}).`);
-    }
-
-    // 다른 차트들(일/주/월별 라인 차트)도 유사하게 더미 데이터로 테스트 가능
-    // 예: drawDummyLineChart('pastStateDailyLineChart', '일별 추이');
-}
-
-/**
- * (선택적) 더미 데이터를 사용하여 단순 라인 차트를 그리는 예시 함수
- */
-function drawDummyLineChart(canvasId, chartTitle) {
-    // chartUtils.js 에 createLineChart 함수가 정의되어 있다고 가정
-    // import { createLineChart } from './chartUtils.js';
-
-    const xAxisLabels = ['월', '화', '수', '목', '금', '토', '일'];
-    const dummyData = Array.from({ length: 7 }, () => Math.floor(Math.random() * 100));
-
-    if (chartInstances[canvasId]) {
-        chartInstances[canvasId].destroy();
-    }
-
-    // createLineChart 함수가 (canvasId, labels, data, title, yAxisLabel)을 받는다고 가정
-    // chartInstances[canvasId] = createLineChart(canvasId, xAxisLabels, dummyData, chartTitle, "값");
-    console.log(`Dummy line chart (${canvasId}) would be rendered here.`);
-}
-
-// --- 실제 데이터 연동 시 필요한 함수들 (지금은 주석 처리 또는 미구현) ---
-
-// async function loadAndDisplayCharts() {
-//     const selectedMeasurements = getSelectedMeasurements();
-//     if (selectedMeasurements.length === 0) {
-//         alert("표시할 측정 항목을 하나 이상 선택해주세요.");
-//         return;
-//     }
-
-//     // 1. 현재 상태 바 차트 데이터 가져오기 및 그리기
-//     //    - 선택된 measurement 각각에 대해 getCurrentSensorValue 호출
-//     //    - 또는 여러 measurement의 현재 값을 한 번에 가져오는 API 필요
-//     //    - 가져온 값들로 barDataArray와 xAxisLabels (measurement 이름들) 구성
-//     //    - createComboBarLineChart (또는 createBarChart) 호출
-
-//     // 2. 과거 상태 라인 차트 데이터 가져오기 및 그리기 (일/주/월)
-//     //    - 선택된 measurement 각각에 대해 getAggregatedTimeSeriesData(interval='daily') 호출
-//     //    - createLineChart (또는 콤보 차트의 라인 부분으로 통합) 호출
-//     //    - 주별, 월별도 동일한 방식으로 처리
-// }
-
-// function getSelectedMeasurements() {
-//     const checkboxes = document.querySelectorAll('#measurementCheckboxContainer input[type="checkbox"]:checked');
-//     return Array.from(checkboxes).map(cb => cb.value);
-// }
+// 페이지 종료 시 정리
+window.addEventListener('beforeunload', () => {
+    integrationWS.disconnect();
+});
