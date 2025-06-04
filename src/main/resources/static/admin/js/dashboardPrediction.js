@@ -150,7 +150,7 @@ function drawDiskPredictionChart() {
 /**
  * ★★★ 전력량 예측 차트 (핵심!) ★★★
  */
-function drawMonthlyWattsPredictionChart() {
+async function drawMonthlyWattsPredictionChart() {
     const canvasId = 'monthlyWattsPredictionChart';
     const canvas = document.getElementById(canvasId);
     if (!canvas) {
@@ -158,9 +158,13 @@ function drawMonthlyWattsPredictionChart() {
         return;
     }
 
-    // 예시 데이터
-    const used = 342;
-    const predicted = 158;
+    const response = await fetch('https://javame.live/api/forecast/monthly');
+    if (!response.ok) {
+        throw new Error(`서버 오류: ${response.status}`);
+    }
+    const data = await response.json();
+    const used = data.actual_kWh;
+    const predicted = data.predicted_kWh;
 
     if (chartInstances[canvasId]) {
         chartInstances[canvasId].destroy();
@@ -181,7 +185,7 @@ function drawMonthlyWattsPredictionChart() {
                 {
                     label: '예측 전력량 (kWh)',
                     data: [predicted],
-                    backgroundColor: 'rgba(255, 206, 86, 0.7)',
+                    backgroundColor: 'rgba(255,0,0,0.8)',
                     stack: 'stack1'
                 }
             ]
