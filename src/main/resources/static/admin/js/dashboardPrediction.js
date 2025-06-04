@@ -27,7 +27,7 @@ function drawAllPredictionCharts() {
     drawMainPredictionChart();      // mainPredictionMixedChart
     drawMemoryPredictionChart();    // memoryPredictionChart
     drawDiskPredictionChart();      // cpuPredictionChart (실제로는 디스크)
-    drawWattsPredictionChart();     // wattsPredictionMixedChart ★★★ 전력량 차트 ★★★
+    drawMonthlyWattsPredictionChart();     // ★★★ 전력량 차트 ★★★
     drawAccuracyChart();           // multiMetricComparisonChart
 }
 
@@ -150,48 +150,70 @@ function drawDiskPredictionChart() {
 /**
  * ★★★ 전력량 예측 차트 (핵심!) ★★★
  */
-function drawWattsPredictionChart() {
-    const canvasId = 'wattsPredictionMixedChart';
-
-    // 캔버스 요소 존재 확인
+function drawMonthlyWattsPredictionChart() {
+    const canvasId = 'monthlyWattsPredictionChart';
     const canvas = document.getElementById(canvasId);
     if (!canvas) {
         console.error(`❌ Canvas element not found: ${canvasId}`);
         return;
     }
 
-    const now = new Date();
-    const labels = [];
-    for (let i = -6; i <= 6; i++) {
-        const time = new Date(now.getTime() + i * 60 * 60 * 1000);
-        labels.push(time.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }));
-    }
-
-    // 전력 소비량 더미 데이터 (Watts) - 검색 결과 [3][4]의 전력량 패턴 참고
-    const currentData = [1250, 1180, 1320, 1450, 1380, 1290, 1420]; // 과거 7시간
-    const predictedData = [1480, 1520, 1580, 1650, 1590, 1510]; // 미래 6시간
-
-    const mixedData = {
-        currentData: currentData,
-        predictedData: predictedData,
-        splitIndex: 7
-    };
+    // 예시 데이터
+    const used = 342;
+    const predicted = 158;
 
     if (chartInstances[canvasId]) {
         chartInstances[canvasId].destroy();
     }
 
-    try {
-        chartInstances[canvasId] = createMixedLineChart(
-            canvasId,
-            labels,
-            mixedData,
-            '전력 소비량 예측 분석 (Watts)'
-        );
-        console.log(`✅ Watts prediction chart (${canvasId}) rendered successfully.`);
-    } catch (error) {
-        console.error(`❌ Failed to render watts prediction chart:`, error);
-    }
+    const ctx = canvas.getContext('2d');
+    chartInstances[canvasId] = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['6월 전력 사용량'],
+            datasets: [
+                {
+                    label: '사용된 전력량 (kWh)',
+                    data: [used],
+                    backgroundColor: 'rgba(54, 162, 235, 0.9)',
+                    stack: 'stack1'
+                },
+                {
+                    label: '예측 전력량 (kWh)',
+                    data: [predicted],
+                    backgroundColor: 'rgba(255, 206, 86, 0.7)',
+                    stack: 'stack1'
+                }
+            ]
+        },
+        options: {
+            indexAxis: 'y',
+            plugins: {
+                title: {
+                    display: true,
+                    text: '월간 전력 소비량 및 예측'
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    callbacks: {
+                        label: context => `${context.dataset.label}: ${context.raw} kWh`
+                    }
+                },
+                legend: { position: 'bottom' }
+            },
+            responsive: true,
+            scales: {
+                x: {
+                    stacked: true,
+                    title: { display: true, text: 'kWh' }
+                },
+                y: {
+                    stacked: true
+                }
+            }
+        }
+    });
 }
 
 /**
