@@ -4245,7 +4245,7 @@ textarea.form-control-lg {
 .card-body {
   display: flex;
   flex-direction: column;
-  height: 500px; /* 또는 min-height */
+  height: auto; /* 또는 min-height */
   padding: 0;
 }
 
