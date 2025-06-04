@@ -4,7 +4,7 @@ import {
 
 window.addEventListener('DOMContentLoaded', async event => {
 
-    const url = '/rule/servers/cp/javame';
+    const url = '/rule/servers/cp/companyDomain';
 
     const serverResponse = await fetchWithAuth(url);
     const json = await serverResponse.json();

@@ -63,7 +63,6 @@ public class DashboardController {
     @GetMapping("/dashboard-detail")
     public String dashboardDetail(){
         return "dashboard/dashboard-detail";
-
     }
 
     @GetMapping("/dashboard-integration")
