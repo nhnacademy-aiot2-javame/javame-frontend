@@ -11,19 +11,11 @@
  * @param {Array<number>} data 데이터 값
  * @param {string} title 차트 제목
  */
-export function createAreaChart(canvasId, labels, data, title = 'Area Chart') {
+export function createAreaChart(canvasId, labels, data, title = 'Area Chart', rawData = []) {
     const ctx = document.getElementById(canvasId);
-    if (!ctx) {
-        console.error(`캔버스 ID ${canvasId}를 찾을 수 없습니다.`);
-        return null;
-    }
+    if (!ctx) return null;
+    if (window[canvasId + '_chart']) window[canvasId + '_chart'].destroy();
 
-    // 기존 차트 인스턴스가 있으면 제거
-    if (window[canvasId + '_chart']) {
-        window[canvasId + '_chart'].destroy();
-    }
-
-    // 차트 생성 후 window에 인스턴스 보관
     const chart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -33,13 +25,9 @@ export function createAreaChart(canvasId, labels, data, title = 'Area Chart') {
                 data: data,
                 backgroundColor: "rgba(54, 162, 235, 0.2)",
                 borderColor: "rgba(54, 162, 235, 1)",
-                borderWidth: 2,
                 fill: true,
                 tension: 0.3,
-                pointRadius: 4,
-                pointBackgroundColor: "rgba(54, 162, 235, 1)",
-                pointBorderColor: "rgba(255, 255, 255, 0.8)",
-                pointBorderWidth: 2,
+                pointRadius: 3,
             }],
         },
         options: {
@@ -47,23 +35,36 @@ export function createAreaChart(canvasId, labels, data, title = 'Area Chart') {
             maintainAspectRatio: false,
             scales: {
                 x: {
-                    grid: { display: false }
-                },
-                y: {
-                    beginAtZero: true,
-                    grid: { color: "rgba(0, 0, 0, .125)" }
+                    ticks: {
+                        autoSkip: true,
+                        maxTicksLimit: 10,
+                        // major/minor tick 등 Chart.js 3.x에서만 지원
+                    }
                 }
             },
             plugins: {
-                legend: { display: false }
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            // context.dataIndex와 rawData의 인덱스 일치한다고 가정
+                            let timeStr = '';
+                            if (rawData?.length && rawData[context.dataIndex]?.time) {
+                                const date = new Date(rawData[context.dataIndex].time);
+                                timeStr = date.toLocaleString('ko-KR');
+                            }
+                            return `${title}: ${context.formattedValue}${timeStr ? ' ('+timeStr+')' : ''}`;
+                        }
+                    }
+                }
             }
         }
     });
 
-    window[canvasId + '_chart'] = chart; // <- 여기만 추가
-
+    window[canvasId + '_chart'] = chart;
     return chart;
 }
+
 
 /**
  * 막대 차트를 생성합니다.

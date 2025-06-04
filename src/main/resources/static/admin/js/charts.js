@@ -12,11 +12,20 @@ import {
     createPieChart
 } from './chartUtils.js';
 
-let currentChartFilter = { companyDomain: 'javame' };
+let currentChartFilter = {
+    companyDomain: '',
+    rangeMinutes: 5
+};
 
 window.addEventListener('DOMContentLoaded', async () => {
     const tree = await getTree(currentChartFilter.companyDomain);
     renderSlTree(document.getElementById('filterTree'), tree);
+
+    // [추가] rangeSelect 이벤트 등록
+    document.getElementById('rangeSelect').addEventListener('sl-change', (e) => {
+        currentChartFilter.rangeMinutes = Number(e.target.value);
+        refreshChartsWithFilter();
+    });
 
     document.getElementById('applyChartFilter')?.addEventListener('click', async () => {
         restartSseChart();
@@ -24,6 +33,12 @@ window.addEventListener('DOMContentLoaded', async () => {
         await loadPieChart();
     });
 });
+
+async function refreshChartsWithFilter() {
+    restartSseChart();
+    await loadBarChart();
+    await loadPieChart();
+}
 
 // 재귀 렌더링 함수
 function renderSlTree(container, node) {
@@ -43,19 +58,27 @@ function createSlTreeItem(node) {
     item.dataset.label = node.label;
 
     item.addEventListener('click', async (e) => {
+
         currentChartFilter[node.tag] = node.value;
         console.log('현재 필터:', currentChartFilter);
 
-        if (node.tag === 'measurement') {
+        if (node.tag === 'measurement' || node.tag === '_measurement') {
             currentChartFilter._measurement = node.value;
+            currentChartFilter._measurementLabel = node.label;
             restartSseChart();
             await loadBarChart();
             await loadPieChart();
         }
+
+        e.stopPropagation();
+
+        if (item.children.length > 0) {
+            item.expanded = !item.expanded;
+        }
     });
 
     // 자식 노드 렌더링
-    node.children?.forEach(child => {
+    (node.children || []).forEach(child => {
         const childItem = createSlTreeItem(child);
         childItem.setAttribute('slot', 'children');
         item.appendChild(childItem);
@@ -75,6 +98,21 @@ function restartSseChart() {
     });
 }
 
+function updateLastUpdatedTime(cardId) {
+    const footer = document.querySelector(`#${cardId} .card-footer`);
+    if (!footer) return;
+    const now = new Date();
+    const isToday = now.toDateString() === new Date().toDateString();
+    let timeStr;
+    if (isToday) {
+        timeStr = `오늘 ${now.toLocaleTimeString('ko-KR', { hour12: false })}`;
+    } else {
+        timeStr = now.toLocaleString('ko-KR', { hour12: false });
+    }
+    footer.textContent = `마지막 업데이트: ${timeStr}`;
+}
+
+
 function loadAreaChart(dataArray) {
     console.log('loadAreaChart data:', dataArray);
     if (!Array.isArray(dataArray) || dataArray.length === 0) {
@@ -82,11 +120,19 @@ function loadAreaChart(dataArray) {
         // 차트 지우거나 에러 표시해도 됨
         return;
     }
-    // 라벨/값 추출
-    const labels = dataArray.map(d => d.time ? d.time.substring(11, 19) : '');
+
+    // ISO 8601 → 로컬 HH:mm:ss
+    const labels = dataArray.map(d => {
+        if (!d.time) return '';
+        const date = new Date(d.time);
+        return date.toLocaleTimeString('ko-KR', { hour12: false }); // 'HH:mm:ss'
+    });
+
     const values = dataArray.map(d => d.value);
 
-    createAreaChart("myAreaChart", labels, values, "CPU 사용률(%)");
+    const title = currentChartFilter._measurementLabel || currentChartFilter._measurement || "측정값";
+    updateLastUpdatedTime('areaChartCard');
+    createAreaChart("myAreaChart", labels, values, title);
 }
 
 
@@ -110,12 +156,14 @@ async function loadBarChart() {
     }
 
     if (window.barChart) window.barChart.destroy();
-    window.barChart = createBarChart('myBarChart', chartData.labels, chartData.values, `${_measurement} 변화`);
+    const title = currentChartFilter._measurementLabel || currentChartFilter._measurement || "측정값";
+    updateLastUpdatedTime('areaChartCard');
+    window.barChart = createBarChart('myBarChart', chartData.labels, chartData.values, `${title} 변화`);
 }
 
 
 async function loadPieChart() {
-    const { companyDomain, origin } = currentChartFilter;
+    const { companyDomain, origin, _measurement, _measurementLabel } = currentChartFilter;
     console.log('loadPieChart 호출 - companyDomain:', companyDomain, 'origin:', origin);
 
     const pieData = await getPieChartData(origin);
@@ -126,8 +174,10 @@ async function loadPieChart() {
         return;
     }
 
+    // 한글/영문 measurementLabel 지원
+    const title = currentChartFilter._measurementLabel || currentChartFilter._measurement || "측정값";
+
     if (window.pieChart) window.pieChart.destroy();
-    window.pieChart = createPieChart('myPieChart', pieData.labels, pieData.values);
+    updateLastUpdatedTime('areaChartCard');
+    window.pieChart = createPieChart('myPieChart', pieData.labels, pieData.values, title);
 }
-
-
