@@ -1,37 +1,58 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.thymeleaf.org/layout">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>IoT 센서 통합 시계열 분석</title>
+    <title>서비스별 성능 비교 분석</title>
     <link href="/admin/css/styles.css" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
-    <!-- Bootstrap Datepicker CSS (날짜 선택기용) -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet">
     <style>
         .chart-container {
             position: relative;
-            height: 400px; /* 차트 높이 충분히 확보 */
+            height: 450px;
             width: 100%;
         }
-        #measurementTableContainer {
-            max-height: 300px; /* 테이블 높이 제한 및 스크롤 */
+        .service-selector {
+            max-height: 300px;
             overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            padding: 1rem;
         }
-        .table th:first-child, .table td:first-child { /* 체크박스 컬럼 너비 */
-            width: 50px;
-            text-align: center;
+        .measurement-card {
+            border: 1px solid #e3e6f0;
+            border-radius: 0.35rem;
+            margin-bottom: 1rem;
         }
-        .table th:nth-child(2) { /* 항목 이름 컬럼 너비 */
-            width: auto;
+        .measurement-header {
+            background-color: #f8f9fc;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e3e6f0;
+            font-weight: 600;
         }
-        /* 현재 값, 최소/최대값 컬럼 너비 (선택적) */
-        .table th:nth-child(3), .table th:nth-child(4), .table th:nth-child(5) {
-            width: 15%;
+        .service-checkbox-group {
+            padding: 1rem;
         }
         .form-check-input { cursor: pointer; }
-        .date-picker-input { background-color: #fff !important; } /* Datepicker 입력창 배경 흰색 */
+        .date-picker-input { background-color: #fff !important; }
+        .chart-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .legend-color {
+            width: 20px;
+            height: 3px;
+            border-radius: 2px;
+        }
     </style>
 </head>
 <body class="sb-nav-fixed">
@@ -41,13 +62,13 @@
     <div id="layoutSidenav_content">
         <main>
             <div class="container-fluid px-4">
-                <h1 class="mt-4">통합 시계열 분석</h1>
+                <h1 class="mt-4">서비스별 성능 비교 분석</h1>
                 <ol class="breadcrumb mb-4">
                     <li class="breadcrumb-item"><a th:href="@{/environment/dashboard-main}">메인 대시보드</a></li>
-                    <li class="breadcrumb-item active">통합 시계열 분석</li>
+                    <li class="breadcrumb-item active">서비스별 성능 비교</li>
                 </ol>
 
-                <!-- 필터 영역: 날짜 선택 및 Y축 단위 선택 -->
+                <!-- 필터 영역: 날짜 선택 -->
                 <div class="card mb-4">
                     <div class="card-header">
                         <i class="fas fa-filter me-1"></i>
@@ -56,124 +77,222 @@
                     <div class="card-body">
                         <div class="row g-3 align-items-end">
                             <div class="col-md-4">
-                                <label for="dateRangePicker" class="form-label">조회 기간</label>
+                                <label for="startDate" class="form-label">조회 기간</label> <!-- ★★★ for 속성 수정 ★★★ -->
                                 <div class="input-group">
-                                    <input type="text" class="form-control date-picker-input" id="startDate" placeholder="시작일">
+                                    <input type="text" class="form-control date-picker-input" id="startDate" placeholder="시작일" readonly>
                                     <span class="input-group-text">~</span>
-                                    <input type="text" class="form-control date-picker-input" id="endDate" placeholder="종료일">
+                                    <input type="text" class="form-control date-picker-input" id="endDate" placeholder="종료일" readonly>
                                 </div>
+                                <small class="form-text text-muted">날짜를 클릭하여 선택하세요</small>
                             </div>
-                            <div class="col-md-3">
-                                <label for="yAxisUnitSelector" class="form-label">Y축 단위</label>
-                                <select class="form-select" id="yAxisUnitSelector">
-                                    <option value="" selected>단위 선택...</option>
-                                    <option value="percentage">% (퍼센트)</option>
-                                    <option value="celsius">°C (섭씨 온도)</option>
-                                    <!-- 필요에 따라 다른 단위 추가 -->
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label for="originSelector" class="form-label">데이터 Origin (선택적)</label>
-                                <select class="form-select" id="originSelector">
-                                    <!-- JS로 origin 목록 로드 -->
-                                    <option value="" selected>전체 Origin</option>
-                                </select>
-                            </div>
-                            <div class="col-md-2">
+                            <div class="col-md-2" style="position: relative; top: -23px;">
                                 <button class="btn btn-primary w-100" id="applyFiltersButton">
                                     <i class="fas fa-search me-1"></i> 조회
                                 </button>
                             </div>
+                            <div class="col-md-6 text-end">
+                                <span class="me-2">연결 상태:</span>
+                                <span id="service-websocket-status" class="badge bg-secondary">연결 중...</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- 꺾은선 그래프 프레임 (카드) -->
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <i class="fas fa-chart-line me-1"></i>
-                        선택 항목 시계열 그래프
-                        <span id="chartDateRange" class="small text-muted ms-2"></span>
+                <div class="row">
+                    <!-- 서비스 선택 영역 -->
+                    <div class="col-lg-4">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-server me-1"></i>
+                                서비스 및 측정 항목 선택
+                                <button class="btn btn-sm btn-outline-primary float-end" id="selectAllServicesBtn">
+                                    <i class="fas fa-check-square me-1"></i> 전체 선택
+                                </button>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="service-selector" id="serviceSelector">
+                                    <!-- JavaScript로 동적 생성 -->
+                                    <div class="text-center text-muted p-3">
+                                        <i class="fas fa-spinner fa-spin"></i> 서비스 목록 로딩 중...
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer text-muted small">
+                                선택된 서비스: <span id="selectedServiceCount" class="fw-bold">0</span>개
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="multiLineChartCanvas"></canvas>
+
+                    <!-- 멀티라인 차트 영역 -->
+                    <div class="col-lg-8">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-chart-line me-1"></i>
+                                서비스별 성능 비교 차트
+                                <span id="chartDateRange" class="small text-muted ms-2"></span>
+                            </div>
+                            <div class="card-body">
+                                <!-- 차트 범례 -->
+                                <div class="chart-legend" id="chartLegend">
+                                    <!-- JavaScript로 동적 생성 -->
+                                </div>
+
+                                <!-- 측정 항목 탭 -->
+                                <ul class="nav nav-tabs" id="measurementTabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="cpu-tab" data-bs-toggle="tab" data-bs-target="#cpu-chart"
+                                                type="button" role="tab" data-measurement="cpu_utilization_percent">
+                                            <i class="fas fa-microchip me-1"></i> CPU 사용률
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="gc-tab" data-bs-toggle="tab" data-bs-target="#gc-chart"
+                                                type="button" role="tab" data-measurement="gc_g1_young_generation_count">
+                                            <i class="fas fa-recycle me-1"></i> GC 실행 횟수
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="memory-tab" data-bs-toggle="tab" data-bs-target="#memory-chart"
+                                                type="button" role="tab" data-measurement="memory_old_gen_used_bytes">
+                                            <i class="fas fa-memory me-1"></i> 메모리 사용량
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="heap-tab" data-bs-toggle="tab" data-bs-target="#heap-chart"
+                                                type="button" role="tab" data-measurement="memory_total_heap_used_bytes">
+                                            <i class="fas fa-database me-1"></i> Heap 사용량
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="files-tab" data-bs-toggle="tab" data-bs-target="#files-chart"
+                                                type="button" role="tab" data-measurement="process_open_file_descriptors_count">
+                                            <i class="fas fa-file me-1"></i> 열린 파일 수
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="threads-tab" data-bs-toggle="tab" data-bs-target="#threads-chart"
+                                                type="button" role="tab" data-measurement="thread_active_count">
+                                            <i class="fas fa-tasks me-1"></i> 활성 스레드 수
+                                        </button>
+                                    </li>
+                                </ul>
+
+                                <!-- 차트 컨테이너 -->
+                                <div class="tab-content mt-3" id="measurementTabContent">
+                                    <div class="tab-pane fade show active" id="cpu-chart" role="tabpanel">
+                                        <div class="chart-container">
+                                            <canvas id="cpuMultiLineChart"></canvas>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="gc-chart" role="tabpanel">
+                                        <div class="chart-container">
+                                            <canvas id="gcMultiLineChart"></canvas>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="memory-chart" role="tabpanel">
+                                        <div class="chart-container">
+                                            <canvas id="memoryMultiLineChart"></canvas>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="heap-chart" role="tabpanel">
+                                        <div class="chart-container">
+                                            <canvas id="heapMultiLineChart"></canvas>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="files-chart" role="tabpanel">
+                                        <div class="chart-container">
+                                            <canvas id="filesMultiLineChart"></canvas>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="threads-chart" role="tabpanel">
+                                        <div class="chart-container">
+                                            <canvas id="threadsMultiLineChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- 측정 항목 선택 테이블 -->
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <i class="fas fa-tasks me-1"></i>
-                        측정 항목 목록 (선택한 단위: <span id="selectedUnitDisplay" class="fw-bold">미선택</span>)
-                    </div>
-                    <div class="card-body p-0" id="measurementTableContainer">
-                        <table class="table table-hover table-sm mb-0">
-                            <thead class="table-light">
-                            <tr>
-                                <th scope="col"><input type="checkbox" id="selectAllMeasurements" class="form-check-input"></th>
-                                <th scope="col">항목 이름 (_measurement)</th>
-                                <th scope="col">현재 값</th>
-                                <th scope="col">최소 값 (선택 기간)</th>
-                                <th scope="col">최대 값 (선택 기간)</th>
-                                <th scope="col">Origin</th>
-                                <th scope="col">Location</th>
-                            </tr>
-                            </thead>
-                            <tbody id="measurementTableBody">
-                            <!-- JavaScript로 여기에 측정 항목 행들이 동적으로 생성됩니다. -->
-                            <tr>
-                                <td colspan="7" class="text-center text-muted p-3">조회 조건을 설정하고 '조회' 버튼을 눌러주세요.</td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="card-footer text-muted small">
-                        체크박스를 선택/해제하면 그래프에 실시간으로 반영됩니다. (또는 "그래프 업데이트" 버튼 추가 가능)
-                    </div>
-                </div>
-
-            </div> <!-- /.container-fluid -->
+            </div>
         </main>
         <div th:replace="~{fragments/footer :: footer}"></div>
-    </div> <!-- /#layoutSidenav_content -->
-</div> <!-- /#layoutSidenav -->
+    </div>
+</div>
 
 <!-- JavaScript 라이브러리 -->
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script> <!-- Datepicker가 jQuery 의존성 가질 수 있음 -->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/admin/js/scripts.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.ko.min.js"></script> <!-- Datepicker 한국어 -->
-<!-- chartjs-adapter-date-fns 와 date-fns (Chart.js 시간 축 사용 시 권장) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.ko.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/esm/index.js" type="module"></script> <!-- date-fns는 모듈로 로드될 수 있음 -->
 
-
-<!-- 이 페이지 전용 JavaScript 파일들 -->
+<!-- 페이지 전용 JavaScript -->
 <script type="module" src="/admin/js/iotSensorApi.js"></script>
 <script type="module" src="/admin/js/chartUtils.js"></script>
 <script type="module" src="/admin/js/dashboardDetail.js"></script>
 
 <script>
-    // Datepicker 초기화
+    // ★★★ 수정된 Datepicker 초기화 ★★★
     $(document).ready(function(){
         $('.date-picker-input').datepicker({
             format: "yyyy-mm-dd",
             autoclose: true,
             language: "ko",
-            todayHighlight: true
+            todayHighlight: true,
+            orientation: "bottom auto",
+            container: 'body'
         });
-        // 기본 날짜 설정 (예: 오늘부터 일주일 전)
+
+        // ★★★ 날짜 객체 분리해서 수정 ★★★
         const today = new Date();
+        const startDateObj = new Date(today); // 새로운 객체 생성
+        startDateObj.setDate(today.getDate() - 6);
+
+        const startDate = startDateObj.toISOString().split('T')[0];
         const endDate = today.toISOString().split('T')[0];
-        today.setDate(today.getDate() - 6); // 7일 전
-        const startDate = today.toISOString().split('T')[0];
-        $('#startDate').datepicker('update', startDate);
-        $('#endDate').datepicker('update', endDate);
+
+        console.log('설정할 날짜:', { startDate, endDate });
+
+        // Datepicker가 완전히 로드된 후 날짜 설정
+        setTimeout(() => {
+            $('#startDate').datepicker('update', startDate);
+            $('#endDate').datepicker('update', endDate);
+
+            console.log('startDate 설정 확인:', $('#startDate').val());
+            console.log('endDate 설정 확인:', $('#endDate').val());
+        }, 100);
+
+        // 날짜 변경 이벤트 리스너
+        $('#startDate, #endDate').on('changeDate', function(e) {
+            console.log('날짜 변경:', e.target.id, e.date);
+            updateDateRangeDisplay();
+        });
     });
+
+    // 날짜 범위 표시 업데이트
+    function updateDateRangeDisplay() {
+        const startDate = $('#startDate').val();
+        const endDate = $('#endDate').val();
+
+        if (startDate && endDate) {
+            const rangeText = `${startDate} ~ ${endDate}`;
+            $('#chartDateRange').text(`(${rangeText})`);
+            console.log('날짜 범위 업데이트:', rangeText);
+        }
+    }
+
+    // 디버깅 함수
+    window.debugDatePicker = function() {
+        console.log('=== DatePicker 디버깅 ===');
+        console.log('startDate 값:', $('#startDate').val());
+        console.log('endDate 값:', $('#endDate').val());
+        console.log('jQuery 버전:', $.fn.jquery);
+        console.log('Bootstrap Datepicker 로드됨:', typeof $.fn.datepicker !== 'undefined');
+    };
 </script>
 </body>
 </html>
