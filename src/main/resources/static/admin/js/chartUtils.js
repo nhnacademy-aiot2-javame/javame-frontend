@@ -18,12 +18,13 @@ export function createAreaChart(canvasId, labels, data, title = 'Area Chart') {
         return null;
     }
 
-    // 기존 차트가 있다면 destroy()로 제거
-    if (Chart.getChart(canvasId)) {
-        Chart.getChart(canvasId).destroy();
+    // 기존 차트 인스턴스가 있으면 제거
+    if (window[canvasId + '_chart']) {
+        window[canvasId + '_chart'].destroy();
     }
 
-    return new Chart(ctx, {
+    // 차트 생성 후 window에 인스턴스 보관
+    const chart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: labels,
@@ -58,7 +59,12 @@ export function createAreaChart(canvasId, labels, data, title = 'Area Chart') {
             }
         }
     });
+
+    window[canvasId + '_chart'] = chart; // <- 여기만 추가
+
+    return chart;
 }
+
 /**
  * 막대 차트를 생성합니다.
  * @param {string} canvasId 캔버스 요소의 ID
@@ -73,11 +79,12 @@ export function createBarChart(canvasId, labels, data, title = 'Bar Chart') {
         return null;
     }
 
-    if (Chart.getChart(canvasId)) {
-        Chart.getChart(canvasId).destroy();
+    // 기존 차트 인스턴스 제거 (window에 보관)
+    if (window[canvasId + '_chart']) {
+        window[canvasId + '_chart'].destroy();
     }
 
-    return new Chart(ctx, {
+    const chart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: labels,
@@ -104,6 +111,9 @@ export function createBarChart(canvasId, labels, data, title = 'Bar Chart') {
             }
         }
     });
+
+    window[canvasId + '_chart'] = chart;
+    return chart;
 }
 
 /**
@@ -115,27 +125,25 @@ export function createBarChart(canvasId, labels, data, title = 'Bar Chart') {
  */
 export function createPieChart(canvasId, labels, data, title = 'Pie Chart') {
     const ctx = document.getElementById(canvasId);
-    if (!ctx) {
-        console.error(`캔버스 ID ${canvasId}를 찾을 수 없습니다.`);
-        return null;
-    }
+    if (!ctx) return null;
 
-    if (Chart.getChart(canvasId)) {
-        Chart.getChart(canvasId).destroy();
-    }
+    // 기존 차트 제거
+    if (window[canvasId + '_chart']) window[canvasId + '_chart'].destroy();
 
+    // 컬러 팔레트
     const backgroundColors = [
-        'rgba(255, 99, 132, 0.8)',
-        'rgba(54, 162, 235, 0.8)',
-        'rgba(255, 205, 86, 0.8)',
-        'rgba(75, 192, 192, 0.8)',
-        'rgba(153, 102, 255, 0.8)',
-        'rgba(255, 159, 64, 0.8)',
-        'rgba(199, 199, 199, 0.8)',
-        'rgba(83, 102, 255, 0.8)'
+        'rgba(255, 99, 132, 0.8)',  'rgba(54, 162, 235, 0.8)',  'rgba(255, 205, 86, 0.8)',  'rgba(75, 192, 192, 0.8)',
+        'rgba(153, 102, 255, 0.8)', 'rgba(255, 159, 64, 0.8)',  'rgba(199, 199, 199, 0.8)', 'rgba(83, 102, 255, 0.8)',
+        'rgba(105, 255, 132, 0.8)', 'rgba(200, 100, 250, 0.8)', 'rgba(80, 200, 120, 0.8)',  'rgba(240, 180, 60, 0.8)',
+        'rgba(160, 230, 240, 0.8)', 'rgba(255, 80, 180, 0.8)',  'rgba(50, 60, 220, 0.8)',   'rgba(210, 210, 50, 0.8)',
+        'rgba(90, 120, 200, 0.8)',  'rgba(0, 175, 255, 0.8)',   'rgba(255, 0, 120, 0.8)',   'rgba(10, 130, 50, 0.8)'
     ];
 
-    return new Chart(ctx, {
+    // hidden 인덱스 트래킹
+    let hiddenIndexes = [];
+
+    // 파이차트 Chart.js 인스턴스
+    const chart = new Chart(ctx, {
         type: 'pie',
         data: {
             labels: labels,
@@ -150,18 +158,57 @@ export function createPieChart(canvasId, labels, data, title = 'Pie Chart') {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: { padding: 20 }
-                },
-                title: {
-                    display: !!title,
-                    text: title,
-                    font: { size: 16 }
-                }
+                legend: { display: false },
+                title: { display: !!title, text: title, font: { size: 18 } }
             }
         }
     });
+
+    // 커스텀 legend 직접 구현
+    const legendContainer = document.getElementById('pieChartLegend');
+    if (legendContainer) {
+        legendContainer.style.maxHeight = "160px";
+        legendContainer.style.overflowY = "auto";
+        legendContainer.style.marginTop = "8px";
+
+        // legend 아이템 그리기 함수 (토글 반영)
+        function renderLegend() {
+            legendContainer.innerHTML = labels.map((label, i) => {
+                const hidden = hiddenIndexes.includes(i);
+                return `
+                    <div class="pie-legend-item" data-index="${i}"
+                        style="display:flex;align-items:center;cursor:pointer;opacity:${hidden ? 0.5 : 1};margin-bottom:4px;">
+                        <span style="display:inline-block;width:14px;height:14px;border-radius:3px;
+                            background:${backgroundColors[i % backgroundColors.length]};
+                            margin-right:8px;border:1px solid #999;
+                            ${hidden ? 'filter:grayscale(70%);' : ''}
+                        "></span>
+                        <span style="font-size:14px;">${label} (${data[i]})</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        renderLegend();
+
+        // 이벤트 위임: 클릭시 해당 파이 슬라이스 show/hide
+        legendContainer.onclick = (e) => {
+            let item = e.target.closest('.pie-legend-item');
+            if (!item) return;
+            const idx = parseInt(item.getAttribute('data-index'));
+            if (hiddenIndexes.includes(idx)) {
+                hiddenIndexes = hiddenIndexes.filter(i => i !== idx);
+            } else {
+                hiddenIndexes.push(idx);
+            }
+            chart.toggleDataVisibility(idx);
+            chart.update();
+            renderLegend();
+        };
+    }
+
+    window[canvasId + '_chart'] = chart;
+    return chart;
 }
 
 /**

@@ -5,7 +5,7 @@ import {
 async function fetchMemberInfo() {
 
         // fetchWithAuth를 사용하여 API 호출, await를 사용하여 응답 대기
-        const result = await fetchWithAuth("http://localhost:10279/api/v1/members/me", "method : 'GET");
+        const result = await fetchWithAuth("/members/me", "method : 'GET");
         // JSON 형식으로 응답을 파싱
         const data = await result.json();
 

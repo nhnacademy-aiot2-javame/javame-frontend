@@ -1,5 +1,6 @@
 import {
-    fetchWithAuth
+    fetchWithAuth,
+    fetchWithAuthPut
 } from '../../index/js/auth.js'
 
 window.addEventListener('DOMContentLoaded', function (){
@@ -12,13 +13,10 @@ window.addEventListener('DOMContentLoaded', function (){
 const pendigTable = function (){
     'use strict';
 
-    //todo1 api 주소 나중에 배포할때 바꾸기
-    const SERVER_URL = "http://localhost:10279";
-
     this.loadPending = async function(){
 
         const num = document.querySelector('#page_num').value;
-        const url = SERVER_URL+`/api/v1/members/companies/companyDomain?isPending=true&page=${num}`;
+        const url = `/members/companies/companyDomain?isPending=true&page=${num}`;
 
         const result = await fetchWithAuth(url,"method : 'GET");
         const json = await result.json();
@@ -43,15 +41,9 @@ const pendigTable = function (){
                         const email = json.memberEmail;
                         if(!confirm(`${email}님의 권한을 주시겠습니까?????`)) return;
                         const memberNo = json.memberNo;
-                        const url = SERVER_URL + `/api/v1/members/role/${memberNo}?role=ROLE_USER`
-                        const option = {
-                            method : 'PUT',
-                            headers : {
-                                'Content-Type' : 'application/json',
-                            }
-                        }
+                        const url = `/members/role/${memberNo}?role=ROLE_USER`;
 
-                        fetch(url, option)
+                        fetchWithAuthPut(url)
                             .then(response => {
                                 if(!response.ok) {
                                     alert("서버 오류 발생");
@@ -68,17 +60,9 @@ const pendigTable = function (){
                         const email = json.memberEmail;
                         if(!confirm(`${email}님을 삭제하시겠습니까?????`)) return;
                         const memberNo = json.memberNo;
-                        const url = SERVER_URL + `/api/v1/members/${memberNo}`
-                        const option = {
-                            method : 'DELETE',
-                            headers : {
-                                'Content-Type' : 'application/json',
-                                'X-USER-ROLE' : 'ROLE_ADMIN',
-                                'X-USER-EMAIL' : 'osh@naver.com'
-                            }
-                        }
+                        const url = SERVER_URL + `/members/${memberNo}`
 
-                        fetch(url, option)
+                        fetchWithAuthPut(url)
                             .then(response => {
                                 if(!response.ok) {
                                     alert("서버 오류 발생");

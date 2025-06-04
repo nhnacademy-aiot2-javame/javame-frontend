@@ -5,7 +5,9 @@
 const TOKEN_KEY = 'accessToken';
 const REFRESH_KEY = 'refreshToken';
 const USE_MOCK_LOGIN = false;
+const CICD_URL = 'https://javame.live/api/v1';
 
+window.logout = logout;
 /**
  * 로그인 요청 → 토큰 받아서 저장 + 사용자 정보 반환
  */
@@ -39,12 +41,13 @@ export async function login(memberEmail, memberPassword) {
             }, 500);
         });
     } else {
-        const response = await fetch('http://localhost:10279/api/v1/auth/login', {
+        const response = await fetch('https://javame.live/api/v1/auth/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ memberEmail, memberPassword }),
+            credentials: 'include'
         });
 
         if (!response.ok) {
@@ -84,7 +87,7 @@ export function logout() {
     sessionStorage.removeItem(TOKEN_KEY);
     sessionStorage.removeItem(REFRESH_KEY);
     sessionStorage.removeItem('user');
-    location.href = '/auth/login.html';
+    location.href = '/auth/login';
 }
 
 export function getAccessToken() {
@@ -121,7 +124,7 @@ export async function refreshAccessToken() {
         throw new Error('Refresh token is missing');
     }
 
-    const response = await fetch('http://localhost:10279/api/v1/auth/refresh', {
+    const response = await fetch('https://javame.live/api/v1/auth/refresh', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -141,11 +144,12 @@ export async function refreshAccessToken() {
 
 export async function fetchWithAuth(url, options) {
     let token = sessionStorage.getItem(TOKEN_KEY);
-    const response = await fetch(url, {
+    const final_url = CICD_URL + url;
+    const response = await fetch(final_url, {
         options,
         headers: {
-            Authorization: `Bearer ${token}`,
-        },
+            Authorization: `Bearer ${token}`
+        }
     });
 
     if (response.status === 401) { // 액세스 토큰 만료
@@ -154,10 +158,10 @@ export async function fetchWithAuth(url, options) {
             token = await refreshAccessToken();
             // 새로운 토큰을 사용해 다시 요청
             return fetch(url, {
-                ...options,
+                options,
                 headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+                    'Refresh-Token': `Bearer ${token}`,
+                }
             });
         } catch (error) {
             console.error('리프레시 토큰 갱신 실패', error);
@@ -167,6 +171,7 @@ export async function fetchWithAuth(url, options) {
 
     return response;
 }
+
 
 export async function fetchWithAuthBody(url, options) {
     let token = sessionStorage.getItem(TOKEN_KEY);
@@ -201,6 +206,44 @@ export async function fetchWithAuthBody(url, options) {
             window.location.href = "/auth/login.html";
         }
     }
+  return response;
+}
+
+export async function fetchWithAuthPut(url, data) {
+    let token = sessionStorage.getItem(TOKEN_KEY);
+    const final_url = CICD_URL + url;
+    const option = {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            Authorization: `Bearer ${token}`
+        }
+    };
+    if(data){
+        option.body = JSON.stringify(data);
+    }
+    const response = await fetch(final_url, option);
+
+    if (response.status === 401) { // 액세스 토큰 만료
+        // 리프레시 토큰을 사용해 새로운 액세스 토큰을 받음
+        try {
+            const refreshToken = await refreshAccessToken();
+            const refreshOption = {
+                method: 'PUT',
+                headers: {
+                    'Refresh-Token': refreshToken
+                }
+            }
+            return await fetch(url, refreshOption);
+        } catch (error) {
+            console.error('리프레시 토큰 갱신 실패', error);
+            window.location.href = "/auth/login.html"; // 로그인 페이지로 리다이렉트
+
+        }
+    }
 
     return response;
+
 }
+
