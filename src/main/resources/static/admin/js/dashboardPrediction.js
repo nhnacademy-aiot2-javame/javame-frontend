@@ -1,7 +1,7 @@
 // admin/js/dashboardPrediction.js (수정된 버전)
 
 import { createMixedLineChart, createMultiLineChart } from './chartUtils.js';
-import {fetchWithAuth} from "../../index/js/auth";
+import {fetchWithAuth} from '/index/js/auth.js';
 
 const chartInstances = {};
 
