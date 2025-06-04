@@ -1,5 +1,5 @@
 import {
-    fetchWithAuth
+        fetchWithAuth, fetchWithAuthBody
 } from '../../index/js/auth.js'
 
 async function fetchMemberInfo() {
@@ -8,7 +8,6 @@ async function fetchMemberInfo() {
         const result = await fetchWithAuth("http://localhost:10279/api/v1/members/me", "method : 'GET");
         // JSON 형식으로 응답을 파싱
         const data = await result.json();
-        console.log("data: " + JSON.stringify(data));
 
         // 각 요소에 데이터를 삽입
         document.getElementById('mypage-email').innerText = data.memberEmail;
@@ -18,5 +17,35 @@ async function fetchMemberInfo() {
 
 }
 
+async function fetchPassword(currentPassword, newPassword) {
+        console.log("---fetchPassword start---");
+
+        const data = {
+                'currentPassword': currentPassword,
+                'newPassword': newPassword
+        };
+
+        const response = await fetchWithAuthBody('http://localhost:10279/api/v1/auth/update/password', data);
+
+        if (response.ok) {
+                alert("비밀번호가 성공적으로 변경되었습니다.");
+        } else {
+                const error = await response.text();
+                console.log("오류 발생: " + error);
+                alert("오류 발생: " + error);
+        }
+}
 // 페이지가 로드될 때 fetchMemberInfo 함수 호출
-document.addEventListener('DOMContentLoaded', fetchMemberInfo);
+document.addEventListener('DOMContentLoaded', () => {
+        fetchMemberInfo();
+
+        const form = document.querySelector('form');
+        form.addEventListener('submit', async function(e) {
+                e.preventDefault(); // 폼 제출 기본 동작 방지
+
+                const currentPassword = form.currentPassword.value;
+                const newPassword = form.newPassword.value;
+
+                await fetchPassword(currentPassword, newPassword);
+        });
+});

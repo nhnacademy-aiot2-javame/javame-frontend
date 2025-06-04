@@ -135,6 +135,7 @@ export async function refreshAccessToken() {
 
     const data = await response.json();
     sessionStorage.setItem(TOKEN_KEY, data.accessToken);
+    sessionStorage.setItem(REFRESH_KEY, data.refreshToken);
     return data.accessToken;
 }
 
@@ -161,6 +162,43 @@ export async function fetchWithAuth(url, options) {
         } catch (error) {
             console.error('리프레시 토큰 갱신 실패', error);
             window.location.href = "/auth/login.html"; // 로그인 페이지로 리다이렉트
+        }
+    }
+
+    return response;
+}
+
+export async function fetchWithAuthBody(url, options) {
+    let token = sessionStorage.getItem(TOKEN_KEY);
+
+    // headers 병합
+    const mergedOptions = {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(options)
+    };
+
+    let response = await fetch(url, mergedOptions);
+
+    if (response.status === 401) {
+        try {
+            token = await refreshAccessToken();
+
+            const retryOptions = {
+                ...options,
+                headers: {
+                    ...(options.headers || {}),
+                    Authorization: `Bearer ${token}`,
+                },
+            };
+
+            return fetch(url, retryOptions);
+        } catch (error) {
+            console.error('리프레시 토큰 갱신 실패', error);
+            window.location.href = "/auth/login.html";
         }
     }
 
