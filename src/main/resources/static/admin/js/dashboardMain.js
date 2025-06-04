@@ -1,16 +1,27 @@
 // dashboardMain.js
+import {
+    getServiceCount,
+    getSensorCount,
+    getServerCount,
+    getOutboundTraffic,
+    getDashboardStats
+} from './iotSensorApi.js';
 
 import {
     createGaugeChart
 } from './chartUtils.js';
 
+import {
+    fetchWithAuth
+} from '/index/js/auth.js';
+
 // 차트 인스턴스 관리 객체
 const chartInstances = {};
 
-// ★★★ 동적 companyDomain (하드코딩 제거) ★★★
+// 동적 companyDomain
 let COMPANY_DOMAIN = null;
 
-// ★★★ WebSocket 관리 객체 ★★★
+// ★★★ WebSocket 관리 객체 (기존 코드 그대로 유지) ★★★
 class DashboardWebSocket {
     constructor() {
         this.socket = null;
@@ -20,29 +31,18 @@ class DashboardWebSocket {
         this.subscriptions = new Map();
         this.isConnected = false;
         this.companyDomain = null;
-        this.lastDataReceived = new Map(); // ★★★ 마지막 수신 데이터 저장 ★★★
-        this.refreshTimer = null; // ★★★ 10초 타이머 ★★★
+        this.lastDataReceived = new Map();
+        this.refreshTimer = null;
     }
 
     connect() {
         try {
             const possibleTokenKeys = [
-                'jwtToken', 'accessToken', 'token', 'authToken',
-                'JWT_TOKEN', 'ACCESS_TOKEN', 'TOKEN'
+                'accessToken'
             ];
 
             let token = null;
 
-            // localStorage에서 토큰 찾기
-            for (const key of possibleTokenKeys) {
-                token = localStorage.getItem(key);
-                if (token) {
-                    console.log(`토큰 발견 (localStorage.${key}):`, token.substring(0, 20) + '...');
-                    break;
-                }
-            }
-
-            // sessionStorage에서 토큰 찾기
             if (!token) {
                 for (const key of possibleTokenKeys) {
                     token = sessionStorage.getItem(key);
@@ -58,8 +58,7 @@ class DashboardWebSocket {
                 return;
             }
 
-            // WebSocket 연결
-            this.socket = new WebSocket(`ws://localhost:10279/ws/environment?token=${token}`);
+            this.socket = new WebSocket(`ws://localhost:10279/api/v1/ws/environment?token=${token}`);
 
             this.socket.onopen = () => {
                 console.log('Dashboard WebSocket 연결 성공');
@@ -137,7 +136,6 @@ class DashboardWebSocket {
         }
     }
 
-    // ★★★ 구독 로직 (인터벌 10초) ★★★
     subscribe(measurement, gatewayId) {
         const subscriptionKey = `${measurement}:${gatewayId}`;
         this.subscriptions.set(subscriptionKey, { measurement, gatewayId });
@@ -151,17 +149,11 @@ class DashboardWebSocket {
             action: 'subscribe',
             measurement: measurement,
             gatewayId: gatewayId,
-            interval: 10 // ★★★ 10초 간격 ★★★
+            interval: 10
         };
 
         this.socket.send(JSON.stringify(subscribeMessage));
         console.log(`구독 요청: ${measurement} (${gatewayId}) - 10초 간격`);
-    }
-
-    resubscribeAll() {
-        this.subscriptions.forEach(({ measurement, gatewayId }) => {
-            this.subscribe(measurement, gatewayId);
-        });
     }
 
     handleMessage(data) {
@@ -171,7 +163,20 @@ class DashboardWebSocket {
             case 'connection':
                 this.companyDomain = data.companyDomain;
                 COMPANY_DOMAIN = data.companyDomain;
+
+                const cleanDomain = data.companyDomain.replace('.com', '');
+                const serverTitle = `${cleanDomain}.com`;
+
                 console.log(`WebSocket 연결 확인 - 회사: ${this.companyDomain}`);
+
+                const mainTitle = document.getElementById('totalDomain');
+                if (mainTitle) {
+                    mainTitle.textContent = `${serverTitle}`;
+                }
+
+                setTimeout(() => {
+                    updateServiceAndSensorCount(); // ★★★ 트래픽 포함 업데이트 ★★★
+                }, 1500);
 
                 setTimeout(() => {
                     this.startSubscriptions();
@@ -203,16 +208,13 @@ class DashboardWebSocket {
         });
     }
 
-    // ★★★ 10초마다 모든 차트 애니메이션 새로고침 타이머 ★★★
     startRefreshTimer(firstDelay = 3000, intervalDelay = 10000) {
-        this.stopRefreshTimer(); // 기존 타이머 정리
+        this.stopRefreshTimer();
 
-        // 첫 번째 새로고침
         setTimeout(() => {
             console.log(`🚀 첫 번째 새로고침: ${firstDelay/1000}초 후 모든 게이지 애니메이션 시작`);
             this.refreshAllGaugesWithAnimation();
 
-            // 이후 정기 새로고침
             this.refreshTimer = setInterval(() => {
                 console.log(`🔄 정기 새로고침: ${intervalDelay/1000}초 타이머 - 모든 게이지 애니메이션`);
                 this.refreshAllGaugesWithAnimation();
@@ -233,14 +235,12 @@ class DashboardWebSocket {
         }
     }
 
-    // ★★★ 모든 게이지를 애니메이션과 함께 새로고침 ★★★
     refreshAllGaugesWithAnimation() {
         Object.values(DASHBOARD_CONFIG).forEach(metricConfig => {
             if (metricConfig.gauge) {
                 const { measurement, gatewayId } = metricConfig.gauge.apiParams;
                 const dataKey = `${measurement}:${gatewayId}`;
 
-                // 마지막 수신 데이터가 있으면 사용, 없으면 기본값
                 const lastData = this.lastDataReceived.get(dataKey);
                 if (lastData) {
                     console.log(`🔄 애니메이션 새로고침: ${metricConfig.gauge.title} = ${lastData.textDisplay}`);
@@ -253,7 +253,6 @@ class DashboardWebSocket {
         });
     }
 
-    // ★★★ 실시간 데이터 처리 (데이터만 저장, 즉시 업데이트 안함) ★★★
     handleRealtimeData(data) {
         if (!data.data || data.data.length === 0) {
             console.warn(`실시간 데이터가 비어있습니다: ${data.measurement} (${data.gatewayId})`);
@@ -266,7 +265,6 @@ class DashboardWebSocket {
 
         console.log(`📥 실시간 데이터 수신: ${measurement} (${gatewayId}) = ${value}`);
 
-        // ★★★ 데이터만 저장하고 즉시 업데이트하지 않음 ★★★
         const metricKey = this.findMetricKey(measurement, gatewayId);
         if (metricKey) {
             const gaugeConfig = DASHBOARD_CONFIG[metricKey].gauge;
@@ -279,19 +277,15 @@ class DashboardWebSocket {
         }
     }
 
-    // ★★★ 애니메이션과 함께 게이지 업데이트 ★★★
     updateGaugeWithAnimation(gaugeConfig, gaugeDisplayValue, textDisplay) {
         const canvasId = gaugeConfig.canvasId;
 
-        // 텍스트 업데이트
         updateTextContent(gaugeConfig.valueTextId, textDisplay);
 
-        // ★★★ 차트 완전 재생성 (애니메이션 포함) ★★★
         if (chartInstances[canvasId]) {
             chartInstances[canvasId].destroy();
         }
 
-        // 새로운 차트 생성 (애니메이션 활성화)
         chartInstances[canvasId] = createGaugeChart(
             canvasId,
             gaugeDisplayValue,
@@ -349,7 +343,7 @@ class DashboardWebSocket {
 // ★★★ 전역 WebSocket 인스턴스 ★★★
 const dashboardWS = new DashboardWebSocket();
 
-// ★★★ DASHBOARD_CONFIG ★★★
+// ★★★ DASHBOARD_CONFIG (기존 그대로) ★★★
 const DASHBOARD_CONFIG = {
     cpu: {
         gauge: {
@@ -379,11 +373,11 @@ const DASHBOARD_CONFIG = {
             unit: '%'
         },
     },
-    disk: {
+    power: {
         gauge: {
             canvasId: 'gauge3',
             valueTextId: 'gauge3-value',
-            title: '역률 평균',
+            title: '평균 역률',
             apiParams: {
                 origin: 'server_data',
                 location: 'power_meter',
@@ -406,6 +400,10 @@ const DASHBOARD_CONFIG = {
             },
             unit: '°C'
         },
+    },
+    watchAlarm: {
+        apiUrl: '/warnify/list/companyDomain?page=1&size=100',
+        updateInterval: 60000
     }
 };
 
@@ -414,7 +412,7 @@ function checkAuthStatus() {
         return false;
     }
 
-    const possibleTokenKeys = ['jwtToken', 'accessToken', 'token'];
+    const possibleTokenKeys = ['accessToken'];
     let hasToken = false;
 
     for (const key of possibleTokenKeys) {
@@ -423,13 +421,11 @@ function checkAuthStatus() {
             break;
         }
     }
-
     if (!hasToken) {
         console.warn('인증 토큰이 없습니다. 로그인 페이지로 이동합니다.');
-        window.location.href = '/auth/login.html';
+        window.location.href = '/auth/login';
         return false;
     }
-
     return true;
 }
 
@@ -443,7 +439,12 @@ window.addEventListener('DOMContentLoaded', () => {
     console.log("인증 확인 완료. WebSocket 실시간 모니터링 시작...");
     initializeAllCharts();
 
-    // WebSocket 연결
+    loadWatchAlarmData();
+
+    setInterval(() => {
+        loadWatchAlarmData();
+    }, DASHBOARD_CONFIG.watchAlarm.updateInterval);
+
     dashboardWS.connect();
 });
 
@@ -451,9 +452,6 @@ window.addEventListener('beforeunload', () => {
     dashboardWS.disconnect();
 });
 
-/**
- * 모든 차트의 틀을 초기화
- */
 function initializeAllCharts() {
     Object.values(DASHBOARD_CONFIG).forEach(metricConfig => {
         if (metricConfig.gauge) {
@@ -476,7 +474,102 @@ function updateTextContent(elementId, text) {
     }
 }
 
-// ★★★ 디버깅 함수들 ★★★
+async function loadWatchAlarmData() {
+    try {
+        const result = await fetchWithAuth(DASHBOARD_CONFIG.watchAlarm.apiUrl);
+        const json = await result.json();
+
+        const statusCounts = json.content.reduce((acc, item) => {
+            const status = item.resolve || '데이터부족';
+            acc[status] = (acc[status] || 0) + 1;
+            return acc;
+        }, {});
+
+        updateWatchAlarmCard({
+            resolved: statusCounts['해결'] || 0,
+            unresolved: statusCounts['미해결'] || 0,
+            noData: statusCounts['데이터부족'] || 0
+        });
+
+        console.log('Watch Alarm 데이터 업데이트 완료:', statusCounts);
+
+    } catch (error) {
+        console.error('Watch Alarm 데이터 로드 실패:', error);
+
+        updateWatchAlarmCard({
+            resolved: 0,
+            unresolved: 0,
+            noData: 1
+        });
+    }
+}
+
+function updateWatchAlarmCard(counts) {
+    const elements = {
+        resolved: document.getElementById('alarm안정Count'),
+        unresolved: document.getElementById('alarm발생Count'),
+        noData: document.getElementById('alarm데이터부족Count')
+    };
+
+    if (elements.resolved) {
+        elements.resolved.textContent = counts.resolved;
+        elements.resolved.classList.toggle('text-success', counts.resolved > 0);
+    }
+
+    if (elements.unresolved) {
+        elements.unresolved.textContent = counts.unresolved;
+        elements.unresolved.classList.toggle('text-danger', counts.unresolved > 0);
+    }
+
+    if (elements.noData) {
+        elements.noData.textContent = counts.noData;
+        elements.noData.classList.toggle('text-warning', counts.noData > 0);
+    }
+}
+
+async function updateServiceAndSensorCount() {
+    try {
+        console.log('서비스/센서/서버/트래픽 개수 업데이트 시작...');
+
+        const [serviceCount, sensorCount, serverCount, trafficData] = await Promise.all([
+            getServiceCount(),
+            getSensorCount(),
+            getServerCount(),
+            getOutboundTraffic()
+        ]);
+
+        const serviceElement = document.getElementById('totalServicesCount');
+        const sensorElement = document.getElementById('totalSensorsCount');
+        const serverElement = document.getElementById('totalServersCount');
+        const trafficElement = document.getElementById('outboundTrafficValue');
+
+        if (serviceElement) {
+            serviceElement.textContent = serviceCount;
+            console.log('✅ 서비스 개수 업데이트: ' + serviceCount);
+        }
+
+        if (sensorElement) {
+            sensorElement.textContent = sensorCount;
+            console.log('✅ 센서 개수 업데이트: ' + sensorCount);
+        }
+
+        if (serverElement) {
+            serverElement.textContent = serverCount;
+            console.log('✅ 서버 개수 업데이트: ' + serverCount);
+        }
+
+        // ★★★ 트래픽 업데이트 추가 ★★★
+        if (trafficElement) {
+            trafficElement.textContent = trafficData.formattedValue || '0.0 MB';
+            console.log('✅ 아웃바운드 트래픽 업데이트: ' + trafficData.formattedValue);
+        }
+
+    } catch (error) {
+        console.error('서비스/센서/서버/트래픽 개수 업데이트 실패:', error);
+    }
+}
+
+// ★★★ 디버깅 함수들 (기존 그대로) ★★★
 window.refreshDashboard = function() {
     console.log('대시보드 수동 새로고침...');
     dashboardWS.disconnect();
@@ -505,7 +598,6 @@ window.testWebSocket = function() {
     }
 };
 
-// ★★★ 수동 새로고침 테스트 함수 ★★★
 window.testRefresh = function() {
     console.log('🔄 수동 새로고침 테스트 시작...');
     dashboardWS.refreshAllGaugesWithAnimation();

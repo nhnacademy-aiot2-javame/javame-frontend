@@ -4,7 +4,6 @@ import {
 
 const API_BASE_URL = '/environment/companyDomain';
 
-let eventSource = null;
 let ws = null;
 
 export async function getTree() {
@@ -45,7 +44,7 @@ export function startSensorDataWebSocket(params, onData) {
 
     const { companyDomain, origin, ...rest } = params;
     const token = sessionStorage.getItem("accessToken") || ""; // 또는 auth에서 토큰 가져오기
-    const wsUrl = `wss://javame.live/api/v1/ws/environment?token=${token}`;
+    const wsUrl = 'ws://localhost:10279/ws/environment?token=' + token;
 
     console.log("WebSocket 연결 시 토큰:", token); // 이 줄이 반드시 먼저 나와야 함
     console.log("WebSocket 연결할 URL:", wsUrl);
@@ -101,16 +100,9 @@ export function closeSensorDataWebSocket() {
 
 // ★★★ 통합 평균 데이터 조회 함수 (1h/24h/1w 지원) ★★★
 export async function getAverageData(origin, measurement, filters, timeRange = '1h') {
-    const companyDomain = filters.companyDomain;
-
-    if (!companyDomain) {
-        console.error('getAverageData: companyDomain이 필요합니다.');
-        return {};
-    }
-
     const params = new URLSearchParams();
     Object.entries(filters).forEach(([key, value]) => {
-        if (key !== 'companyDomain') {
+        if (key !== 'companyDomain') { // companyDomain은 게이트웨이에서 처리
             params.append(key, value);
         }
     });
@@ -118,15 +110,29 @@ export async function getAverageData(origin, measurement, filters, timeRange = '
     params.append("origin", origin);
     params.append("measurement", measurement);
 
-    // ★★★ 수정된 URL 경로 ★★★
-    const url = `${API_BASE_URL}/companyDomain/${companyDomain}/average/${timeRange}?${params.toString()}`;
+    let endpoint;
+    switch(timeRange) {
+        case '1h':
+            endpoint = '/1h';
+            break;
+        case '24h':
+            endpoint = '/24h';
+            break;
+        case '1w':
+            endpoint = '/1w';
+            break;
+        default:
+            endpoint = '/average/' + timeRange;
+    }
 
-    console.log(`getAverageData 호출 (${timeRange}):`, url);
+    // ★★★ companyDomain 제거 - 게이트웨이 필터에서 자동 처리 ★★★
+    const url = API_BASE_URL + endpoint + '?' + params.toString();
 
+    console.log('getAverageData 호출 (' + timeRange + '):', url);
     try {
         const res = await fetchWithAuth(url);
         if (!res.ok) {
-            console.error(`getAverageData(${timeRange}) 실패`, res.status, await res.text());
+            console.error('getAverageData(' + timeRange + ') 실패', res.status, await res.text());
             return {
                 timeSeriesAverage: [],
                 overallAverage: 0.0,
@@ -136,7 +142,7 @@ export async function getAverageData(origin, measurement, filters, timeRange = '
         }
         return await res.json();
     } catch (error) {
-        console.error(`getAverageData(${timeRange}) 오류:`, error);
+        console.error('getAverageData(' + timeRange + ') 오류:', error);
         return {
             timeSeriesAverage: [],
             overallAverage: 0.0,
@@ -148,13 +154,6 @@ export async function getAverageData(origin, measurement, filters, timeRange = '
 
 // ★★★ 1시간 평균 데이터 (기존 호환성 유지) ★★★
 export async function getHourlyAverages(origin, measurement, filters) {
-    const companyDomain = filters.companyDomain;
-
-    if (!companyDomain) {
-        console.error('getHourlyAverages: companyDomain이 필요합니다.');
-        return {};
-    }
-
     const params = new URLSearchParams();
     Object.entries(filters).forEach(([key, value]) => {
         if (key !== 'companyDomain') {
@@ -165,8 +164,7 @@ export async function getHourlyAverages(origin, measurement, filters) {
     params.append("origin", origin);
     params.append("measurement", measurement);
 
-    // ★★★ 수정된 URL 경로 ★★★
-    const url = `${API_BASE_URL}/companyDomain/${companyDomain}/1h?${params.toString()}`;
+    const url = API_BASE_URL + '/1h?' + params.toString();
 
     console.log('getHourlyAverages 호출:', url);
 
@@ -206,59 +204,94 @@ export async function getPieChartData(origin) {
     return await res.json();
 }
 
-
-/**
- * 특정 센서의 현재(최신) 값을 가져옵니다.
- * 백엔드 API가 '/{companyDomain}/current?origin=...&location=...&measurement=...' 형태의 엔드포인트를 제공한다고 가정합니다.
- * @param {string} companyDomain 회사 도메인
- * @param {string} origin 데이터 출처
- * @param {string} location 위치 (예: 'cpu', 'memory', '입구')
- * @param {string} measurement 측정 항목 (예: 'usage_user', 'used_percent', 'temperature')
- * @param {string} [field] (옵션) 값을 가져올 특정 필드명 (백엔드 API가 요구하는 경우)
- * @returns {Promise<Object|null>} { value: 숫자, time: "타임스탬프" } 형태의 객체 또는 오류 시 null
- */
-export async function getCurrentSensorValue(companyDomain, origin, location, measurement, field = null) {
-    // 쿼리 파라미터 구성
-    const queryParams = new URLSearchParams({
-        origin: origin,
-        location: location,
-        _measurement: measurement // 백엔드 컨트롤러가 @RequestParam("_measurement")로 받는다면 _measurement 사용
-        // 또는 @RequestParam("measurement")라면 measurement 사용
-    });
-
-    if (field) {
-        queryParams.append('_field', field); // 백엔드 컨트롤러가 @RequestParam("_field")로 받는다면 _field 사용
-        // 또는 @RequestParam("field")라면 field 사용
-    }
-
-    const url = `${API_BASE_URL}/${companyDomain}/current?${queryParams.toString()}`;
-    console.log(`Fetching current value from: ${url}`);
-
+// ★★★ 서비스 개수 조회 (companyDomain + gatewayId 기준) ★★★
+export async function getServiceCount() {
     try {
-        const res = await fetchWithAuth(url); // ★★★ fetchWithAuth 사용 ★★★
+        const res = await fetchWithAuth(API_BASE_URL + '/services/count');
         if (!res.ok) {
-            console.error(`Failed to fetch current value for ${measurement}. Status: ${res.status}`, await res.text());
-            return null;
+            console.warn('서비스 개수 조회 실패: ' + res.status);
+            return 0;
+        }
+        const data = await res.json();
+        return data.count || 0;
+    } catch (error) {
+        console.error('서비스 개수 조회 오류:', error);
+        return 0;
+    }
+}
+
+export async function getSensorCount() {
+    try {
+        const res = await fetchWithAuth(API_BASE_URL + '/sensors/count');
+        if (!res.ok) {
+            console.warn('센서 개수 조회 실패: ' + res.status);
+            return 0;
+        }
+        const data = await res.json();
+        return data.count || 0;
+    } catch (error) {
+        console.error('센서 개수 조회 오류:', error);
+        return 0;
+    }
+}
+
+export async function getServerCount() {
+    try {
+        const res = await fetchWithAuth(API_BASE_URL + '/servers/count');
+        if (!res.ok) {
+            console.warn('센서 개수 조회 실패: ' + res.status);
+            return 0;
+        }
+        const data = await res.json();
+        return data.count || 0;
+    } catch (error) {
+        console.error('센서 개수 조회 오류:', error);
+        return 0;
+    }
+}
+
+export async function getOutboundTraffic() {
+    try {
+        const res = await fetchWithAuth(API_BASE_URL + '/traffic/outbound');
+        if (!res.ok) {
+            console.warn('아웃바운드 트래픽 조회 실패: ' + res.status);
+            return { formattedValue: '0.0 MB', success: false };
+        }
+        const data = await res.json();
+        return data.traffic || { formattedValue: '0.0 MB', success: false };
+    } catch (error) {
+        console.error('아웃바운드 트래픽 조회 오류:', error);
+        return { formattedValue: '0.0 MB', success: false };
+    }
+}
+
+// ★★★ 통합 통계 조회 함수 (새로 추가) ★★★
+export async function getDashboardStats() {
+    try {
+        const res = await fetchWithAuth(API_BASE_URL + '/stats');
+        if (!res.ok) {
+            console.warn('통합 통계 조회 실패: ' + res.status);
+            return {
+                serviceCount: 0,
+                serverCount: 0,
+                sensorCount: 0,
+                outboundTraffic: { formattedValue: '0.0 MB' },
+                inboundTraffic: { formattedValue: '0.0 MB' },
+                success: false
+            };
         }
         const data = await res.json();
         return data;
     } catch (error) {
-        console.error(`Error fetching current value for ${measurement}:`, error);
-        return null;
-    }
-}
-
-
-/**
- * 현재 활성화된 센서 데이터 스트림(EventSource) 연결을 명시적으로 닫습니다.
- */
-export function closeSensorDataStream() {
-    if (eventSource) {
-        console.log("Explicitly closing EventSource connection.");
-        eventSource.close();
-        eventSource = null; // 참조 제거하여 상태 반영
-    } else {
-        // console.log("No active EventSource connection to close.");
+        console.error('통합 통계 조회 오류:', error);
+        return {
+            serviceCount: 0,
+            serverCount: 0,
+            sensorCount: 0,
+            outboundTraffic: { formattedValue: '0.0 MB' },
+            inboundTraffic: { formattedValue: '0.0 MB' },
+            success: false
+        };
     }
 }
 
