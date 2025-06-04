@@ -14,3 +14,16 @@ Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QGphdmFtZS5jb20iLCJyb
 
 http://localhost:10279/api/v1/environment/companyDomain/time-series-stream?origin=server_data&building=gyeongnam_campus&location=power_meter&deviceId=192.168.71.74&place=server_room&gatewayId=modbus&measurement=current_amps&_measurement=current_amps
 
+###
+POST http://localhost:10279/api/v1/rule/servers
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhQG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX09XTkVSIiwiaWF0IjoxNzQ5MDMzMDU4LCJleHAiOjE3NDkwMzY2NTh9.ncxVoaaVsN6Whuk6TOVfRJtlr94Z9x5EQXVXpnEJVj4trQi_HN4XFn8K73NQUHGk9PX2rblj2YlurGldR4EaHg
+Content-Type: application/json
+Accept: application/json
+
+{
+  "companyDomain": "javame.com",
+  "iphost": "192.168.71.741"
+}
+
+###
+GET http://localhost:10274/rule/servers/iphost/192.168.71.74
