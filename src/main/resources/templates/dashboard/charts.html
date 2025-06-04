@@ -48,6 +48,16 @@
                 <strong>필터 선택</strong>
               </div>
               <div class="card-body" style="max-height: 80vh; overflow-y: auto;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                  <sl-select id="rangeSelect" value="5" style="width: 100px;">
+                    <sl-option value="1">1분</sl-option>
+                    <sl-option value="3">3분</sl-option>
+                    <sl-option value="5">5분</sl-option>
+                    <sl-option value="10">10분</sl-option>
+                    <sl-option value="15">15분</sl-option>
+                    <sl-option value="30">30분</sl-option>
+                  </sl-select>
+                </div>
                 <!-- Shoelace 트리 -->
                 <sl-tree id="filterTree" class="custom-icons">
                   <!-- JavaScript 에서 <sl-tree-item>을 동적으로 렌더링 -->

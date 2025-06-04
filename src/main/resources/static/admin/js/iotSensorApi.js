@@ -191,9 +191,12 @@ export async function getWeeklyAverages(origin, measurement, filters) {
     return getAverageData(origin, measurement, filters, '1w');
 }
 
-// ★★★ 차트 데이터 조회 함수들 ★★★
-export async function getChartDataForSensor(origin, sensor) {
-    const res = await fetchWithAuth(`${API_BASE_URL}/chart/type/${sensor}?origin=${encodeURIComponent(origin)}`);
+export async function getChartDataForSensor(origin, sensor, rangeMinutes = 5) {
+    const params = new URLSearchParams({
+        origin,
+        rangeMinutes
+    }).toString();
+    const res = await fetchWithAuth(`${API_BASE_URL}/chart/type/${sensor}?${params}`);
     if (!res.ok) return { labels: [], values: [] };
     return await res.json();
 }
