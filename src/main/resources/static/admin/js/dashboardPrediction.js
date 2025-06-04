@@ -1,6 +1,7 @@
 // admin/js/dashboardPrediction.js (수정된 버전)
 
 import { createMixedLineChart, createMultiLineChart } from './chartUtils.js';
+import {fetchWithAuth} from "../../index/js/auth";
 
 const chartInstances = {};
 
@@ -158,7 +159,7 @@ async function drawMonthlyWattsPredictionChart() {
         return;
     }
 
-    const response = await fetch('https://javame.live/api/forecast/monthly');
+    const response = await fetchWithAuth(`/forecast/monthly`,"method : 'GET");
     if (!response.ok) {
         throw new Error(`서버 오류: ${response.status}`);
     }
