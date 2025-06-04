@@ -8,6 +8,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/rules")
 public class RuleController {
 
+    @GetMapping("/sensorRegister")
+    public String getSensorRegister() {
+        return "rule/sensorRegister";
+    }
+
+    @GetMapping("/serverRegister")
+    public String getServerRegister() {
+        return "rule/serverRegister";
+    }
+
     @GetMapping("/sensorList")
     public String getSensorList() {
         return "rule/sensor";

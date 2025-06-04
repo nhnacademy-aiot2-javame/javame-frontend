@@ -33,7 +33,7 @@
             <h4 class="mt-4">비밀번호 변경</h4>
             <form>
                 <div class="mb-3">
-                    <input type="password" name="oldPassword" class="form-control" placeholder="현재 비밀번호" required>
+                    <input type="password" name="currentPassword" class="form-control" placeholder="현재 비밀번호" required>
                 </div>
                 <div class="mb-3">
                     <input type="password" name="newPassword" class="form-control" placeholder="새 비밀번호" required>
@@ -43,7 +43,7 @@
 
             <div class="mt-4">
                 <a href="/" class="btn btn-secondary">메인으로</a>
-                <a href="/auth/logout" class="btn btn-danger">로그아웃</a>
+                <a href="/auth/login" class="btn btn-danger" onclick="logout()">로그아웃</a>
             </div>
         </main>
     </div>
@@ -55,6 +55,7 @@
 <!-- 공통 JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 <script src="/admin/js/scripts.js"></script>
+<script th:type="module" src="/index/js/auth.js"></script>
 <script type="module" src="/admin/js/mypage.js"></script>
 </body>
 </html>
