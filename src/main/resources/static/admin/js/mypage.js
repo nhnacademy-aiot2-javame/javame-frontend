@@ -5,7 +5,7 @@ import {
 async function fetchMemberInfo() {
 
         // fetchWithAuth를 사용하여 API 호출, await를 사용하여 응답 대기
-        const result = await fetchWithAuth("http://localhost:10279/api/v1/members/me", "method : 'GET");
+        const result = await fetchWithAuth("https://javame.live/api/v1/members/me", "method : 'GET");
         if (!result.ok) {
                 console.error(`Error ${result.status} - ${result.statusText}`);
                 // 예: 로그인 페이지로 이동
