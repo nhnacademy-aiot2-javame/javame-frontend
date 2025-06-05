@@ -54,12 +54,15 @@ const memberTable = function (){
 
                     }
                 });
+                console.log(json);
 
                 td1.innerText = json.memberEmail;
                 td2.innerText = json.roleId;
                 td3.innerText = json.registerAt;
                 td4.innerText = json.lastLoginAt;
-                td5.appendChild(deleteBtn);
+                if(json.roleId !== 'ROLE_OWNER' && json.roleId !== 'ROLE_ADMIN'){
+                    td5.appendChild(deleteBtn);
+                }
 
                 tr.appendChild(td1);
                 tr.appendChild(td2);
