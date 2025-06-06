@@ -53,6 +53,7 @@ window.addEventListener('DOMContentLoaded', () => {
  * 모든 예측 차트를 그립니다 (HTML 구조에 맞춤)
  */
 async function drawAllPredictionCharts() {
+    const context = await getCurrentContext();
     // HTML에 실제 존재하는 차트들만 그리기
     await drawCpuPredictionChart(context);
     await drawMemoryPredictionChart(context);
