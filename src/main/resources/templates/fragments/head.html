@@ -3,6 +3,7 @@
      xmlns:th="http://www.thymeleaf.org"
      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+        <script th:type="module" src="/index/js/auth.js"></script>
         <!-- Navbar Brand -->
         <a class="navbar-brand ps-3" href="/environment/dashboard">NHN Academy 센서 관리</a>
         <!-- Sidebar Toggle -->
@@ -33,6 +34,7 @@
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     <li><a class="dropdown-item" href=/members/settings>설정</a></li>
                     <li><a class="dropdown-item" href=/members/mypage>마이페이지</a></li>
+
                     <li><a class="dropdown-item" href="/auth/login" onclick="logout()">로그아웃</a></li>
                     <li><hr class="dropdown-divider" /></li>
 
