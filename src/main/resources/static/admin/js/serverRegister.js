@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded',async function (){
 
                                 const registerButton = document.createElement('button');
                                 registerButton.innerText = '등록하기';
-                                registerButton.classList.add('custom-register-btn');
+                                registerButton.classList.add('trendy-button');
                                 buttonTd.appendChild(registerButton);
 
                                 tr.appendChild(noTd);
