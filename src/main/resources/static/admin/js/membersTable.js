@@ -2,6 +2,8 @@ import {
     fetchWithAuth, fetchWithAuthPut
 } from '../../index/js/auth.js'
 
+const converter = valueConverter();
+
 window.addEventListener('DOMContentLoaded', function (){
 
     const member = new memberTable();
@@ -23,22 +25,26 @@ const memberTable = function (){
 
 
         if(tbody){
+            let i = 0;
             json.content.forEach(json =>{
                 const tr = document.createElement('tr');
+
+                const td0 = document.createElement('td');
                 const td1 = document.createElement('td');
                 const td2 = document.createElement('td');
                 const td3 = document.createElement('td');
                 const td4 = document.createElement('td');
                 const td5 = document.createElement('td');
 
+
                 const deleteBtn = document.createElement('button');
-                deleteBtn.innerText = '권한 없는곳으로!'
+                deleteBtn.innerText = '변경'
                 deleteBtn.classList.add('delete-btn');
                 deleteBtn.addEventListener('click', function (e){
                     if (e.target.classList.contains('delete-btn')){
                         const email = json.memberEmail;
 
-                        if(!confirm(`${email}님의 권한을 없에시겠습니까???`)) return;
+                        if(!confirm(`${email}님을 승인대기 상태로 변경 하시곘습니까?`)) return;
                         const memberNo = json.memberNo;
                         const url = `/members/role/${memberNo}?role=ROLE_PENDING`;
 
@@ -56,14 +62,16 @@ const memberTable = function (){
                 });
                 console.log(json);
 
+                td0.innerText = i;
                 td1.innerText = json.memberEmail;
-                td2.innerText = json.roleId;
-                td3.innerText = json.registerAt;
-                td4.innerText = json.lastLoginAt;
+                td2.innerText = converter.roleConverter(json.roleId);
+                td3.innerText = converter.timeConverterHM(json.registerAt);
+                td4.innerText = converter.timeConverterHM(json.lastLoginAt);
                 if(json.roleId !== 'ROLE_OWNER' && json.roleId !== 'ROLE_ADMIN'){
                     td5.appendChild(deleteBtn);
                 }
 
+                tr.appendChild(td0);
                 tr.appendChild(td1);
                 tr.appendChild(td2);
                 tr.appendChild(td3);
@@ -71,6 +79,7 @@ const memberTable = function (){
                 tr.appendChild(td5);
 
                 tbody.appendChild(tr);
+                i++;
             })
         }
 
