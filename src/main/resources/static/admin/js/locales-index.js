@@ -31,6 +31,11 @@ const messages = {
         m27: `✅ 서버 기기 연결`,
         m28: `✅ 기본 알림 기능`,
         m29: `등록하기`,
+        loginLogoutBtn: `로그인`,
+        registerDashboardBtn: `회원가입`,
+        m30: `개인정보 처리방침`,
+        m31: `이용약관`,
+        m32: `서비스 안내`,
 
 
 
@@ -52,7 +57,7 @@ const messages = {
         m10: `Implementation of core features(product search, shopping cart, payment system)
             <br>Development of product CRUD functionality through the admin page`,
         m11: `Spring Blog Project`,
-        m12: `Blog Service Development based on MSA(Microservice Architecture)`,
+        m12: `Blog Service Development based on<br>MSA(Microservice Architecture)`,
         m13: `AIoT-based Server Operation`,
         m14: `Janggon-Mun`,
         m15: `Jangwon-Seong`,
@@ -69,7 +74,13 @@ const messages = {
         m26: `✅ Sensor Data Access`,
         m27: `✅ Server Device Connection`,
         m28: `✅ Basic Alert System `,
-        m29: `Subscribe`
+        m29: `Subscribe`,
+        loginLogoutBtn: `Log in`,
+        registerDashboardBtn: `Sign up`,
+        m30: `Privacy Policy`,
+        m31: `Terms of Service`,
+        m32: `Service Guide`
+
 
 
     },
@@ -89,7 +100,6 @@ function setLanguage(lang) {
     document.getElementById('m8').innerText = t.m8;
     document.getElementById('m9').innerText = t.m9;
     document.getElementById('m11').innerText = t.m11;
-    document.getElementById('m12').innerText = t.m12;
     document.getElementById('m13').innerText = t.m13;
     document.getElementById('m14').innerText = t.m14;
     document.getElementById('m15').innerText = t.m15;
@@ -107,13 +117,18 @@ function setLanguage(lang) {
     document.getElementById('m27').innerText = t.m27;
     document.getElementById('m28').innerText = t.m28;
     document.getElementById('m29').innerText = t.m29;
-
+    document.getElementById('loginLogoutBtn').innerText = t.loginLogoutBtn;
+    document.getElementById('registerDashboardBtn').innerText = t.registerDashboardBtn;
+    document.getElementById('m30').innerText = t.m30;
+    document.getElementById('m31').innerText = t.m31;
+    document.getElementById('m32').innerText = t.m32;
 
 
 
     // <br> 포함된 경우는 innterHTML 사용
     document.getElementById('m1').innerHTML = t.m1;
     document.getElementById('m10').innerHTML = t.m10;
+    document.getElementById('m12').innerHTML = t.m12;
 
     localStorage.setItem('lang', lang);
 }
