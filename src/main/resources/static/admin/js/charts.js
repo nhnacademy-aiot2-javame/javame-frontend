@@ -1,6 +1,6 @@
 // charts.js (트리 기반 필터링 구조로 전면 리팩토링)
 import {
-    startSensorDataStream,
+    startSensorDataWebSocket,
     getChartDataForSensor,
     getPieChartData,
     getTree
@@ -69,38 +69,65 @@ function restartSseChart() {
     const measurement = currentChartFilter._measurement;
     if (!measurement) return console.warn('측정값 없음');
 
-    startSensorDataStream(currentChartFilter, (data) => {
-        const records = data[measurement] || [];
+    startSensorDataWebSocket(currentChartFilter, (records) => {
+        // records 자체가 WS로 받은 배열 (즉, obj.data임)
         loadAreaChart(records);
     });
 }
 
-function loadAreaChart(data) {
-    const labels = data.map(d => new Date(d.time).toLocaleTimeString());
-    const values = data.map(d => d.value);
+function loadAreaChart(dataArray) {
+    console.log('loadAreaChart data:', dataArray);
+    if (!Array.isArray(dataArray) || dataArray.length === 0) {
+        console.warn('areaChart용 데이터가 비어있음!');
+        // 차트 지우거나 에러 표시해도 됨
+        return;
+    }
+    // 라벨/값 추출
+    const labels = dataArray.map(d => d.time ? d.time.substring(11, 19) : '');
+    const values = dataArray.map(d => d.value);
 
-    if (window.areaChart) window.areaChart.destroy();
-    window.areaChart = createAreaChart('myAreaChart', labels, values, '실시간 센서 데이터');
+    createAreaChart("myAreaChart", labels, values, "CPU 사용률(%)");
 }
+
 
 async function loadBarChart() {
     const { companyDomain, origin, _measurement } = currentChartFilter;
     if (!origin || !_measurement) return;
 
-    const chartData = await getChartDataForSensor(origin, _measurement);
-    if (!chartData.labels?.length) return;
+    let chartData;
+    try {
+        chartData = await getChartDataForSensor(origin, _measurement);
+        console.log('loadBarChart data:', chartData);
+        console.log('loadBarChart 호출 - companyDomain:', companyDomain, 'origin:', origin, '_measurement:', _measurement);
+    } catch (e) {
+        console.error('getChartDataForSensor 예외:', e);
+        chartData = { labels: [], values: [] };
+    }
+
+    if (!chartData || !Array.isArray(chartData.labels) || !chartData.labels.length) {
+        console.warn('barChart용 데이터가 비어있음!');
+        return;
+    }
 
     if (window.barChart) window.barChart.destroy();
     window.barChart = createBarChart('myBarChart', chartData.labels, chartData.values, `${_measurement} 변화`);
 }
 
+
 async function loadPieChart() {
     const { companyDomain, origin } = currentChartFilter;
-    if (!origin) return;
+    console.log('loadPieChart 호출 - companyDomain:', companyDomain, 'origin:', origin);
 
     const pieData = await getPieChartData(origin);
-    if (!pieData.labels?.length) return;
+    console.log('loadPieChart data:', pieData);
+
+    if (!pieData.labels?.length) {
+        console.warn('pieChart용 데이터가 비어있음!');
+        return;
+    }
 
     if (window.pieChart) window.pieChart.destroy();
     window.pieChart = createPieChart('myPieChart', pieData.labels, pieData.values);
 }
+
+
