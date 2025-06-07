@@ -158,7 +158,7 @@ async function loadBarChart() {
     if (window.barChart) window.barChart.destroy();
     const title = currentChartFilter._measurementLabel || currentChartFilter._measurement || "측정값";
     updateLastUpdatedTime('areaChartCard');
-    window.barChart = createBarChart('myBarChart', chartData.labels, chartData.values, `${title} 변화`);
+    window.barChart = createBarChart('myBarChart', chartData.labels, chartData.data, `${title} 변화`);
 }
 
 
@@ -178,6 +178,6 @@ async function loadPieChart() {
     const title = currentChartFilter._measurementLabel || currentChartFilter._measurement || "측정값";
 
     if (window.pieChart) window.pieChart.destroy();
-    updateLastUpdatedTime('areaChartCard');
-    window.pieChart = createPieChart('myPieChart', pieData.labels, pieData.values, title);
+    updateLastUpdatedTime('pieChartCard');
+    window.pieChart = createPieChart('myPieChart', pieData.labels, pieData.data, title);
 }
