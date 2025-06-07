@@ -3,6 +3,10 @@ import {
     fetchWithAuthPost
 } from '../../index/js/auth.js';
 
+import {
+    translationMap
+} from '../../index/js/translationMap.js'
+
 document.addEventListener('DOMContentLoaded',async function (){
     // 도메인에 걸린 데이터들 조회
     const url='/environment/companyDomain/dropdown/deviceId';
@@ -61,10 +65,10 @@ document.addEventListener('DOMContentLoaded',async function (){
                                 const buttonTd = document.createElement('td');
 
                                 noTd.innerText = i;
-                                locationTd.innerText = location;
-                                deviceIdTd.innerText = num;
-                                gatewayTd.innerText = gatewayId;
-                                nameTd.innerText = measurement;
+                                locationTd.innerText = translationMap[location] || location;
+                                deviceIdTd.innerText = translationMap[num] || num;
+                                gatewayTd.innerText = translationMap[gatewayId] || gatewayId;
+                                nameTd.innerText = translationMap[measurement] || measurement;
 
                                 const inputMinThreshold = document.createElement('input');
                                 inputMinThreshold.type = 'text';
@@ -76,6 +80,7 @@ document.addEventListener('DOMContentLoaded',async function (){
 
                                 const registerButton = document.createElement('button');
                                 registerButton.innerText = '등록하기';
+                                registerButton.classList.add('custom-register-btn');
                                 buttonTd.appendChild(registerButton);
 
                                 tr.appendChild(noTd);
