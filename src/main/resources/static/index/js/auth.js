@@ -42,7 +42,7 @@ export async function login(memberEmail, memberPassword) {
             }, 500);
         });
     } else {
-        const response = await fetch(CICD_URL + '/api/v1/auth/login', {
+        const response = await fetch(CICD_URL + '/auth/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -123,7 +123,7 @@ export async function refreshAccessToken() {
         throw new Error('Refresh token is missing');
     }
 
-    const response = await fetch(CICD_URL + '/api/v1/auth/refresh', {
+    const response = await fetch(CICD_URL + '/auth/refresh', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
