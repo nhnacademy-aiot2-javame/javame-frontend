@@ -5,7 +5,7 @@
 const TOKEN_KEY = 'accessToken';
 const REFRESH_KEY = 'refreshToken';
 const USE_MOCK_LOGIN = false;
-const CICD_URL = 'https://javame.live/api/v1';
+const CICD_URL = 'http://localhost:10279/api/v1';
 
 window.logout = logout;
 /**
@@ -55,6 +55,7 @@ export async function login(memberEmail, memberPassword) {
         }
 
         // 헤더에서 토큰 받아오기
+        console.log("Authorization: " + response.headers.get('Authorization'));
         const authHeader = response.headers.get('Authorization');
         const refreshToken = response.headers.get('Refresh-Token');
 
