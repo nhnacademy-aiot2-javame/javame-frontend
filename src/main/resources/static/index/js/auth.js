@@ -5,7 +5,8 @@
 const TOKEN_KEY = 'accessToken';
 const REFRESH_KEY = 'refreshToken';
 const USE_MOCK_LOGIN = false;
-const CICD_URL = 'http://localhost:10279/api/v1';
+// const CICD_URL = 'https://javame.live/api/v1';
+
 
 window.logout = logout;
 /**
