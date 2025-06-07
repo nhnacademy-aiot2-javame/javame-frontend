@@ -36,6 +36,17 @@ const messages = {
         m30: `개인정보 처리방침`,
         m31: `이용약관`,
         m32: `서비스 안내`,
+        // m33: `메인으로`,
+        m34: `비밀번호 변경`,
+        m35: `로그아웃`,
+        // m36: `로그아웃`,
+        // m37: `설정`,
+        // m38: `마이페이지`,
+        // m39: `사용자 관리`,
+        // m40: `회사 정보 관리`,
+        // m41: `회원 허가`,
+        // m42: `메인으로`
+
 
 
 
@@ -51,11 +62,11 @@ const messages = {
         m4: `Introducing Our AIoT-powered Server Management Solution`,
         m5: `We provide various types of graphs.`,
         m6: `Our history`,
-        m7: `IoT Sensor Integration and Data Visualization`,
-        m8: `Collecting Climate Information Using Data from Node-RED`,
-        m9: `Shopping Mall Development Based on MVC Pattern Using Servlet and JSP`,
-        m10: `Implementation of core features(product search, shopping cart, payment system)
-            <br>Development of product CRUD functionality through the admin page`,
+        m7: `IoT Sensor Integration and<br>Data Visualization`,
+        m8: `Collecting Climate Information<br>Using Data from Node-RED`,
+        m9: `Shopping Mall Development Based on MVC Pattern<br>Using Servlet and JSP`,
+        m10: `Implementation of core features<br>(product search, shopping cart, payment system)
+            <br>Development of product CRUD functionality<br>through the admin page`,
         m11: `Spring Blog Project`,
         m12: `Blog Service Development based on<br>MSA(Microservice Architecture)`,
         m13: `AIoT-based Server Operation`,
@@ -79,7 +90,17 @@ const messages = {
         registerDashboardBtn: `Sign up`,
         m30: `Privacy Policy`,
         m31: `Terms of Service`,
-        m32: `Service Guide`
+        m32: `Service Guide`,
+        // m33: `Back to Main`,
+        // m34: `Change Password`,
+        // m35: `Log out`,
+        // m36: `Log out`,
+        // m37: `Setting`,
+        // m38: `My Page`,
+        // m39: `User Management`,
+        // m40: `Company Information Management`,
+        // m41: `User Approval`,
+        // m42: `Back to Main`
 
 
 
@@ -95,10 +116,9 @@ function setLanguage(lang) {
     document.getElementById('m3').innerText = t.m3;
     document.getElementById('m4').innerText = t.m4;
     document.getElementById('m5').innerText = t.m5;
-    document.getElementById('m6').innerText = t.m6;
-    document.getElementById('m7').innerText = t.m7;
-    document.getElementById('m8').innerText = t.m8;
-    document.getElementById('m9').innerText = t.m9;
+
+
+
     document.getElementById('m11').innerText = t.m11;
     document.getElementById('m13').innerText = t.m13;
     document.getElementById('m14').innerText = t.m14;
@@ -122,13 +142,25 @@ function setLanguage(lang) {
     document.getElementById('m30').innerText = t.m30;
     document.getElementById('m31').innerText = t.m31;
     document.getElementById('m32').innerText = t.m32;
-
+    // document.getElementById('m33').innerText = t.m33;
+    // document.getElementById('m34').innerText = t.m34;
+    // document.getElementById('m35').innerText = t.m35;
+    // document.getElementById('m36').innerText = t.m36;
+    // document.getElementById('m37').innerText = t.m37;
+    // document.getElementById('m38').innerText = t.m38;
+    // document.getElementById('m39').innerText = t.m39;
+    // document.getElementById('m40').innerText = t.m40;
+    // document.getElementById('m41').innerText = t.m41;
+    // document.getElementById('m42').innerText = t.m42;
 
 
     // <br> 포함된 경우는 innterHTML 사용
     document.getElementById('m1').innerHTML = t.m1;
     document.getElementById('m10').innerHTML = t.m10;
     document.getElementById('m12').innerHTML = t.m12;
+    document.getElementById('m8').innerHTML = t.m8;
+    document.getElementById('m7').innerHTML = t.m7;
+    document.getElementById('m9').innerHTML = t.m9;
 
     localStorage.setItem('lang', lang);
 }
