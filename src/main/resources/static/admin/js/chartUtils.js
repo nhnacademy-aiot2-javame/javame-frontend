@@ -38,7 +38,14 @@ export function createAreaChart(canvasId, labels, data, title = 'Area Chart', ra
                     ticks: {
                         autoSkip: true,
                         maxTicksLimit: 10,
-                        // major/minor tick 등 Chart.js 3.x에서만 지원
+                    }
+                },
+                y: {
+                    beginAtZero: false,  // ★ 수정: true → false
+                    ticks: {
+                        callback: function(value) {
+                            return value.toFixed(2);  // ★ 추가: 소수점 1자리로 표시
+                        }
                     }
                 }
             },
@@ -371,7 +378,7 @@ export function createComboBarLineChart(canvasId, barDataArray, lineDataArray, b
                     }
                 },
                 y: {
-                    beginAtZero: true,
+                    beginAtZero: false,
                     border: { display: false },
                     grid: {
                         color: 'rgba(0, 0, 0, 0.08)',
@@ -527,7 +534,7 @@ export function createMultiLineChart(canvasId, xAxisLabels, datasetsInput = [], 
                 type: 'linear',
                 display: true,
                 position: yAxisPosition,
-                beginAtZero: (ds.unit === 'percentage'),
+                beginAtZero: false,
                 border: { display: false },
                 grid: {
                     drawOnChartArea: (yAxisPosition === 'left' && yAxisPositionCounter.left === 1) ||
@@ -622,7 +629,7 @@ export function createMultiLineChart(canvasId, xAxisLabels, datasetsInput = [], 
                 ...(Object.keys(yAxesConfig).length > 0 ? yAxesConfig : {
                     y: {
                         display: true,
-                        beginAtZero: true,
+                        beginAtZero: false,
                         border: { display: false },
                         grid: {
                             color: 'rgba(0, 0, 0, 0.08)',
@@ -766,8 +773,8 @@ export function createMixedLineChart(canvasId, labels, data, title = "AI예측 �
     // 연결점 데이터 (현재 데이터의 마지막 점과 예측 데이터의 첫 점을 연결)
     const connectionData = Array(labels.length).fill(null);
     if (currentData.length > 0 && predictedData.length > 0) {
-        connectionData[splitIndex - 1] = currentData[currentData.length - 1]; // 현재 데이터 마지막 점
-        connectionData[splitIndex] = predictedData[0]; // 예측 데이터 첫 점
+        connectionData[splitIndex - 1] = currentData[currentData.length - 1];
+        connectionData[splitIndex] = predictedData[0];
     }
 
     return new Chart(ctx, {
@@ -778,47 +785,47 @@ export function createMixedLineChart(canvasId, labels, data, title = "AI예측 �
                 {
                     label: '현재 데이터',
                     data: fullCurrentData,
-                    borderColor: 'rgba(54, 162, 235, 1)',        // 파란색 (현재)
+                    borderColor: 'rgba(54, 162, 235, 1)',
                     backgroundColor: 'rgba(54, 162, 235, 0.1)',
                     borderWidth: 3,
                     tension: 0.3,
-                    pointRadius: 4,
+                    pointRadius: 3,
                     pointBackgroundColor: 'rgba(54, 162, 235, 1)',
                     pointBorderColor: '#ffffff',
                     pointBorderWidth: 2,
-                    pointHoverRadius: 6,
+                    pointHoverRadius: 5,
                     fill: false,
-                    spanGaps: false  // null 값 구간은 연결하지 않음
+                    spanGaps: false
                 },
                 {
-                    label: 'AI 예측 데이터',
+                    label: 'AI 예측 데이터 (24시간)',
                     data: fullPredictedData,
-                    borderColor: 'rgba(255, 99, 132, 1)',        // 빨간색 (예측)
+                    borderColor: 'rgba(255, 99, 132, 1)',
                     backgroundColor: 'rgba(255, 99, 132, 0.1)',
                     borderWidth: 3,
-                    borderDash: [5, 5],  // 점선으로 예측 데이터 구분
+                    borderDash: [5, 5],
                     tension: 0.3,
-                    pointRadius: 4,
+                    pointRadius: 3,
                     pointBackgroundColor: 'rgba(255, 99, 132, 1)',
                     pointBorderColor: '#ffffff',
                     pointBorderWidth: 2,
-                    pointHoverRadius: 6,
+                    pointHoverRadius: 5,
                     fill: false,
                     spanGaps: false
                 },
                 {
                     label: '연결선',
                     data: connectionData,
-                    borderColor: 'rgba(128, 128, 128, 0.5)',     // 회색 (연결선)
+                    borderColor: 'rgba(128, 128, 128, 0.5)',
                     backgroundColor: 'transparent',
                     borderWidth: 2,
-                    borderDash: [2, 2],  // 짧은 점선
+                    borderDash: [2, 2],
                     tension: 0,
-                    pointRadius: 0,      // 연결점은 표시하지 않음
+                    pointRadius: 0,
                     fill: false,
                     spanGaps: false,
                     legend: {
-                        display: false   // 범례에 표시하지 않음
+                        display: false
                     }
                 }
             ]
@@ -834,16 +841,20 @@ export function createMixedLineChart(canvasId, labels, data, title = "AI예측 �
                 x: {
                     grid: {
                         display: true,
-                        color: 'rgba(0, 0, 0, 0.1)'
+                        color: 'rgba(0, 0, 0, 0.05)'
                     },
                     border: { display: false },
                     ticks: {
-                        font: { size: 11, family: "'Malgun Gothic', sans-serif" },
-                        color: '#666666'
+                        font: { size: 10, family: "'Malgun Gothic', sans-serif" },
+                        color: '#666666',
+                        maxRotation: 45,
+                        minRotation: 45,
+                        autoSkip: true,
+                        maxTicksLimit: 24  // 30분 단위로 24개 = 12시간
                     }
                 },
                 y: {
-                    beginAtZero: true,
+                    beginAtZero: false,  // ★ 수정: true → false
                     border: { display: false },
                     grid: {
                         color: 'rgba(0, 0, 0, 0.1)',
@@ -852,7 +863,10 @@ export function createMixedLineChart(canvasId, labels, data, title = "AI예측 �
                     ticks: {
                         font: { size: 11, family: "'Malgun Gothic', sans-serif" },
                         color: '#666666',
-                        padding: 8
+                        padding: 8,
+                        callback: function(value) {  // ★ 추가: 퍼센트 표시
+                            return value.toFixed(1) + '%';
+                        }
                     }
                 }
             },
@@ -874,7 +888,6 @@ export function createMixedLineChart(canvasId, labels, data, title = "AI예측 �
                         boxWidth: 10,
                         boxHeight: 10,
                         filter: function(legendItem) {
-                            // '연결선'은 범례에서 숨김
                             return legendItem.text !== '연결선';
                         }
                     }
@@ -912,17 +925,33 @@ export function createMixedLineChart(canvasId, labels, data, title = "AI예측 �
                     boxWidth: 10,
                     boxHeight: 10,
                     callbacks: {
+                        title: function(tooltipItems) {
+                            if (tooltipItems.length > 0) {
+                                const label = tooltipItems[0].label;
+                                const index = tooltipItems[0].dataIndex;
+
+                                // 현재 시간 기준으로 표시
+                                if (index < splitIndex) {
+                                    return `${label} (과거 데이터)`;
+                                } else {
+                                    return `${label} (AI 예측)`;
+                                }
+                            }
+                            return '';
+                        },
                         label: function(context) {
                             if (context.dataset.label === '연결선') {
-                                return null; // 연결선은 툴팁에서 숨김
+                                return null;
                             }
-                            const value = new Intl.NumberFormat('ko-KR').format(context.parsed.y);
-                            return `${context.dataset.label}: ${value}`;
+                            const value = Number(context.parsed.y).toFixed(1);
+                            return `${context.dataset.label}: ${value}%`;
                         },
                         afterLabel: function(context) {
-                            // 예측 데이터에 대한 추가 정보 표시
-                            if (context.dataset.label === 'AI 예측 데이터') {
-                                return '(AI 예측값)';
+                            if (context.dataset.label === 'AI 예측 데이터 (24시간)' && context.parsed.y !== null) {
+                                const confidence = data.predictedData[context.dataIndex - splitIndex]?.confidenceScore;
+                                if (confidence) {
+                                    return `신뢰도: ${(confidence * 100).toFixed(1)}%`;
+                                }
                             }
                             return '';
                         }
