@@ -10,6 +10,25 @@
  * Copyright 2011-2022 Twitter, Inc.
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  */
+.trendy-button {
+  background: linear-gradient(135deg, #6a11cb, #2575fc);  /* 보라-블루 그라데이션 */
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.trendy-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+  filter: brightness(1.05);
+}
+
 .page-btn {
   all: unset; /* 기본 버튼 스타일 완전 제거 */
   cursor: pointer;
