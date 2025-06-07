@@ -10,7 +10,7 @@ async function getCurrentContext() {
     try {
         // 현재 사용자 정보에서 companyDomain 가져오기
         const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}');
-        const companyDomain = userInfo.companyDomain || 'javame.live';
+        const companyDomain = userInfo.companyDomain || 'javame';
 
         // 첫 번째 사용 가능한 서버의 deviceId 가져오기
         const treeResponse = await fetchWithAuth('/environment/companyDomain/tree');
@@ -27,10 +27,10 @@ async function getCurrentContext() {
             }
         }
 
-        return { companyDomain, deviceId: deviceId || 'server001' };
+        return { companyDomain, deviceId: deviceId || '192.168.71.74' };
     } catch (error) {
         console.error('컨텍스트 정보 가져오기 실패:', error);
-        return { companyDomain: 'javame.live', deviceId: 'server001' };
+        return { companyDomain: 'javame', deviceId: '192.168.71.74' };
     }
 }
 
@@ -70,7 +70,6 @@ async function drawAllPredictionCharts() {
         console.error('차트 그리기 중 오류 발생:', error);
     }
 }
-
 /**
  * CPU 예측 차트 (메인 차트)
  */
