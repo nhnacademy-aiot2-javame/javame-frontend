@@ -82,7 +82,7 @@ export async function login(memberEmail, memberPassword) {
     }
 }
 
-export function logout() {
+export async function logout() {
         const accessToken = sessionStorage.getItem(TOKEN_KEY);
 
     try {
@@ -99,10 +99,11 @@ export function logout() {
     } catch (error) {
         console.error("로그아웃 중 오류 발생", error);
     }
+    console.log("로그아웃 성공! 토큰 삭제 중...");
     sessionStorage.removeItem(TOKEN_KEY);
     sessionStorage.removeItem(REFRESH_KEY);
     sessionStorage.removeItem('user');
-    location.href = '/auth/login.html';
+    location.href = '/auth/login';
 }
 
 export function getAccessToken() {
@@ -190,8 +191,8 @@ export async function fetchWithAuth(url, options = {}) {
     }
     if (refreshRequired) {
         console.log("refresh로 다시 요청")
-        console.log('url: ' + url);
-        const refreshResponse = await fetch(url, {
+        console.log('final_url: ' + final_url);
+        const refreshResponse = await fetch(final_url, {
             ...options,
             headers: {
                 ...(options.headers || {}),
@@ -227,10 +228,10 @@ export async function fetchWithAuth(url, options = {}) {
 
         let new_accessToken = getAccessToken();
         console.log("new_accessToken: " + new_accessToken);
-        console.log("url : " + url);
+        console.log("final_url : " + final_url);
         console.log("options: " + options);
         // 다시 원래 요청
-        return await fetch(url, {
+        return await fetch(final_url, {
             ...options,
             headers: {
                 ...(options.headers || {}),
@@ -247,7 +248,7 @@ export async function fetchWithAuth(url, options = {}) {
             return;
         }
 
-        const tokenResponse = await fetch(url, {
+        const tokenResponse = await fetch(final_url, {
             ...options,
             headers: {
                 ...(options.headers || {}),
@@ -281,7 +282,7 @@ export async function fetchWithAuth(url, options = {}) {
         let new_accessToken = getAccessToken();
 
         // 다시 원래 요청
-        return await fetch(url, {
+        return await fetch(final_url, {
             ...options,
             headers: {
                 ...(options.headers || {}),
@@ -327,6 +328,70 @@ export async function fetchWithAuthPost(url, data){
         }
     }
 
+    return response;
+}
+
+export async function fetchWithAuthBody(url, bodyOptions) {
+    let token = sessionStorage.getItem(TOKEN_KEY);
+
+    const mergedOptions = {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(bodyOptions)
+    };
+
+    let response = await fetch(url, mergedOptions);
+
+    if (response.status === 401) {
+        const refreshRequired = response.headers.get('X-Refresh-Required') === 'true';
+        const reauthRequired = response.headers.get('X-Reauth-Required') === 'true';
+        const tokenRequired = response.headers.get('X-Token-Required') === 'true';
+
+        if (reauthRequired) {
+            window.location.href = "/auth/login";
+            return;
+        }
+
+        if (refreshRequired) {
+            const refreshToken = getRefreshToken();
+            if (!refreshToken) {
+                window.location.href = "/auth/login";
+                return;
+            }
+
+            const retryOptions = {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Refresh-Token': refreshToken,
+                },
+                body: JSON.stringify(bodyOptions)
+            };
+
+            return fetch(url, retryOptions);
+        }
+
+        if (tokenRequired) {
+            try {
+                token = await refreshAccessToken();
+                const retryOptions = {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(bodyOptions)
+                };
+                return fetch(url, retryOptions);
+            } catch (error) {
+                console.error("accessToken 갱신 실패", error);
+                window.location.href = "/auth/login";
+            }
+        }
+    }
     return response;
 }
 
