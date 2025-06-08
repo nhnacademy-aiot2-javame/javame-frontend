@@ -7,7 +7,6 @@ const REFRESH_KEY = 'refreshToken';
 const USE_MOCK_LOGIN = false;
 const CICD_URL = 'https://javame.live/api/v1';
 
-
 window.logout = logout;
 /**
  * 로그인 요청 → 토큰 받아서 저장 + 사용자 정보 반환
@@ -159,21 +158,21 @@ export async function refreshAccessToken() {
 export async function fetchWithAuth(url, options = {}) {
     let accessToken = getAccessToken();
     let refreshToken = getRefreshToken();
-    
+
     const final_url = CICD_URL + url;
 
     const response = await fetch(final_url, {
-        options,
+        ...options,
         headers: {
             ...(options.headers || {}),
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${accessToken}`,
         },
     });
-    
+
     if(response.status !== 401) {
         return response;
     }
-    
+
     console.log("[fetchWithAuth] 401 Unauthorized 발생!");
     console.log("X-Refresh-Required : ", response.headers.get('X-Refresh-Required'));
     console.log("X-Reauth-Required : ", response.headers.get('X-Reauth-Required'));
@@ -326,7 +325,6 @@ export async function fetchWithAuthPost(url, data){
             window.location.href = "/auth/login";
         }
     }
-
     return response;
 }
 
