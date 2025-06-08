@@ -82,7 +82,7 @@ export async function login(memberEmail, memberPassword) {
     }
 }
 
-export function logout() {
+export async function logout() {
         const accessToken = sessionStorage.getItem(TOKEN_KEY);
 
     try {
