@@ -89,7 +89,7 @@ class ServiceComparisonWebSocket {
         }
 
         try {
-            this.socket = new WebSocket(`ws://localhost:10279/ws/environment?token=${token}`);
+            this.socket = new WebSocket(`wss://javame.live/ws/environment?token=${token}`);
 
             this.socket.onopen = () => {
                 console.log('Service Comparison WebSocket 연결 성공');
