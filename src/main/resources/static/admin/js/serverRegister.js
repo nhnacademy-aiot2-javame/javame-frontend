@@ -1,151 +1,181 @@
-import {
-    fetchWithAuth,
-    fetchWithAuthPost
-} from '../../index/js/auth.js';
+import { fetchWithAuth } from '../../index/js/auth.js';
 
-document.addEventListener('DOMContentLoaded', async function () {
-    // 도메인에 걸린 데이터들 조회 (deviceId)
-    const url = '/environment/companyDomain/dropdown/deviceId';
-    const serverResponse = await fetchWithAuth(url);
-    const datas = await serverResponse.json(); // [{ label, value }, ...]
+// 트리 전체 데이터를 받아놓는 용도지만,
+// 이제 value 변환 불필요! (한글 label만 씀)
+let labelValueTreeData = null;
 
-    const tbody = document.querySelector("#serverContent");
-    if (tbody) {
-        let i = 1;
-        datas.forEach(data => {
-            const serverContentTr = document.createElement('tr');
-            const serverNo = document.createElement('td');
-            const serverId = document.createElement('td');
+// charts.js에서 트리 데이터 받아옴 (호환성 위해 유지)
+export function setTreeDataForLabelValueMap(treeData) {
+    labelValueTreeData = treeData;
+}
 
-            serverNo.innerText = i;
-            serverId.innerText = data.label; // 표시는 label(한글)
-            serverContentTr.dataset.deviceId = data.value; // 영문값 보관
+const thresholdDataName = document.getElementById('thresholdDataName');
+const thresholdPrevValue = document.getElementById('thresholdPrevValue');
+const minInput = document.getElementById('minThresholdInput');
+const maxInput = document.getElementById('maxThresholdInput');
+const registerBtn = document.getElementById('registerThresholdBtn');
+const updateBtn = document.getElementById('updateThresholdBtn');
+const deleteBtn = document.getElementById('deleteThresholdBtn');
 
-            serverContentTr.appendChild(serverNo);
-            serverContentTr.appendChild(serverId);
-            tbody.appendChild(serverContentTr);
-            i++;
+// 등록폼 상태
+let selected = {
+    deviceId: null,
+    location: null,    // == 한글 label
+    gateway: null,     // == 한글 label
+    measurement: null, // == 한글 label
+    companyDomain: null,
+    serverNo: null,
+    serverDataNo: null
+};
 
-            serverContentTr.addEventListener('click', async function () {
-                const datalistTbody = document.querySelector('#serverDataContent');
-                datalistTbody.innerHTML = '';
-                if (datalistTbody) {
-                    let i = 1;
-                    document.querySelector("#sensorDataTable").setAttribute('style', 'display: table');
-                    const num = this.dataset.deviceId; // 영문값 사용!
+// 임계값 조회 및 데이터명/입력값 UI 반영 (트리 등에서 선택 시 호출)
+export async function onDataSelect(deviceId, location, gatewayId, measurement, labelKor, companyDomain) {
+    selected.deviceId = deviceId;
+    selected.location = location;
+    selected.gateway = gatewayId;
+    selected.measurement = measurement;
+    selected.companyDomain = companyDomain;
+    thresholdDataName.innerText = labelKor && labelKor.trim() ? labelKor : '(데이터명 없음)';
+    minInput.value = '';
+    maxInput.value = '';
+    registerBtn.disabled = true;
+    thresholdPrevValue.innerText = '';
 
-                    // 1. location
-                    const locationUrl = `/environment/companyDomain/dropdown/location?deviceId=${num}`;
-                    const locationResponse = await fetchWithAuth(locationUrl)
-                    const locations = await locationResponse.json(); // [{ label, value }]
+    // 서버 리스트 fetch
+    const url = '/rule/servers/cp/companyDomain';
+    const serverListRes = await fetchWithAuth(url);
+    if (!serverListRes.ok) {
+        alert('서버 리스트 조회 실패');
+        updateBtnState();
+        return;
+    }
+    const serverList = await serverListRes.json();
+    const matchedServer = serverList.find(row => row.iphost === deviceId);
 
-                    for (const locationObj of locations) {
-                        const locationLabel = locationObj.label; // 한글
-                        const locationValue = locationObj.value; // 영문
+    if (!matchedServer) {
+        alert('등록된 임계치가 없습니다.');
+        updateBtnState();
+        return;
+    }
+    selected.serverNo = matchedServer.serverNo;
 
-                        // 2. gatewayId
-                        const gatewayIdUrl = `/environment/companyDomain/dropdown/gatewayId?deviceId=${num}&location=${locationValue}`;
-                        const gatewayIdResponse = await fetchWithAuth(gatewayIdUrl);
-                        const gatewayIds = await gatewayIdResponse.json(); // [{ label, value }]
+    // 임계값 리스트 fetch
+    const listRes = await fetchWithAuth(`/rule/server-datas/by-server-no/${selected.serverNo}`);
+    let match = null;
+    if (listRes.ok) {
+        const serverDataList = await listRes.json();
+        match = serverDataList.find(d =>
+            d.serverDataLocation === selected.location &&
+            d.serverDataGateway === selected.gateway &&
+            d.serverDataName === selected.measurement
+        );
+    }
+    if (match) {
+        minInput.value = match.minThreshold ?? '';
+        maxInput.value = match.maxThreshold ?? '';
+        selected.serverDataNo = match.serverDataNo;
+        thresholdPrevValue.innerText = `저장된 최소값: ${match.minThreshold ?? '-'}, 최대값: ${match.maxThreshold ?? '-'}`;
+    } else {
+        minInput.value = '';
+        maxInput.value = '';
+        selected.serverDataNo = null;
+        thresholdPrevValue.innerText = '저장된 값 없음';
+    }
+    registerBtn.disabled = false;
+    updateBtnState();
+}
 
-                        for (const gatewayObj of gatewayIds) {
-                            const gatewayLabel = gatewayObj.label;
-                            const gatewayValue = gatewayObj.value;
+// 등록 버튼
+registerBtn.addEventListener('click', async function () {
+    if (!selected.serverNo) {
+        alert('서버 정보가 없습니다.');
+        return;
+    }
+    // label(한글) 그대로 저장!
+    const data = {
+        serverDataLocation: selected.location,
+        serverDataGateway: selected.gateway,
+        serverDataName: selected.measurement,
+        minThreshold: minInput.value,
+        maxThreshold: maxInput.value
+    };
+    const url = `/rule/server-datas?serverNo=${selected.serverNo}`;
+    const options = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    };
+    console.log('=== 임계값 등록 요청 ===', url, options);
+    const res = await fetchWithAuth(url, options);
 
-                            // 3. measurement
-                            const measurementUrl = `/environment/companyDomain/dropdown/_measurement?deviceId=${num}&location=${locationValue}&gatewayId=${gatewayValue}`;
-                            const measurementResponse = await fetchWithAuth(measurementUrl);
-                            const measurements = await measurementResponse.json(); // [{ label, value }]
-
-                            for (const measurementObj of measurements) {
-                                const measurementLabel = measurementObj.label;
-                                const measurementValue = measurementObj.value;
-
-                                const tr = document.createElement('tr');
-
-                                const noTd = document.createElement('td');
-                                const locationTd = document.createElement('td');
-                                const deviceIdTd = document.createElement('td');
-                                const gatewayTd = document.createElement('td');
-                                const nameTd = document.createElement('td');
-                                const minThresholdTd = document.createElement('td');
-                                const maxThresholdTd = document.createElement('td');
-                                const buttonTd = document.createElement('td');
-
-                                noTd.innerText = i;
-                                locationTd.innerText = locationLabel; // 한글 표시
-                                deviceIdTd.innerText = num;
-                                gatewayTd.innerText = gatewayLabel; // 한글 표시
-                                nameTd.innerText = measurementLabel; // 한글 표시
-
-                                const inputMinThreshold = document.createElement('input');
-                                inputMinThreshold.type = 'text';
-                                minThresholdTd.appendChild(inputMinThreshold);
-
-                                const inputMaxThreshold = document.createElement('input');
-                                inputMaxThreshold.type = 'text';
-                                maxThresholdTd.appendChild(inputMaxThreshold);
-
-                                const registerButton = document.createElement('button');
-                                registerButton.innerText = '등록하기';
-                                buttonTd.appendChild(registerButton);
-
-                                tr.appendChild(noTd);
-                                tr.appendChild(locationTd);
-                                tr.appendChild(deviceIdTd);
-                                tr.appendChild(gatewayTd);
-                                tr.appendChild(nameTd);
-                                tr.appendChild(minThresholdTd);
-                                tr.appendChild(maxThresholdTd);
-                                tr.appendChild(buttonTd);
-
-                                datalistTbody.appendChild(tr);
-
-                                // 등록 버튼 클릭
-                                registerButton.addEventListener('click', async function () {
-                                    const isConfirmed = confirm("저장 하시겠습니까???");
-                                    if (isConfirmed) {
-                                        const registerUrl = '/rule/servers';
-                                        // 여기서도 deviceId(영문)를 사용!
-                                        const iphostNum = num;
-                                        const data = {
-                                            companyDomain: 'javame.com',
-                                            iphost: iphostNum
-                                        };
-                                        const registerServerResponse = await fetchWithAuthPost(registerUrl, data);
-                                        if (!registerServerResponse.ok) {
-                                            // 흠....
-                                        }
-                                        const serverResponseUrl = `/rule/servers/companyDomain/iphost/${iphostNum}`;
-                                        const serverResponseResponse = await fetchWithAuth(serverResponseUrl);
-                                        const serverResponse = await serverResponseResponse.json();
-
-                                        const serverDataJson = {
-                                            serverNo: serverResponse.serverNo,
-                                            serverDataLocation: locationValue, // 영문값
-                                            serverDataGateway: gatewayValue, // 영문값
-                                            serverDataName: measurementValue, // 영문값
-                                            minThreshold: inputMinThreshold.value,
-                                            maxThreshold: inputMaxThreshold.value
-                                        };
-                                        const serverDataRegisterUrl = `/rule/server-datas?serverNo=${serverResponse.serverNo}`;
-                                        const serverDataResponse = await fetchWithAuthPost(serverDataRegisterUrl, serverDataJson);
-                                        console.log(serverDataResponse);
-                                        if (serverDataResponse.ok) {
-                                            alert("저장 성공!!!");
-                                        } else if (serverDataResponse.status == 400) {
-                                            alert("저장 실패!!! 이미 존재하는 데이터 입니다.");
-                                        } else {
-                                            alert("저장 실패... 관리자에게 문의하세요.");
-                                        }
-                                    }
-                                });
-                                i++;
-                            }
-                        }
-                    }
-                }
-            });
-        });
+    if (res.ok) {
+        alert('임계치 등록 완료!');
+        await onDataSelect(selected.deviceId, selected.location, selected.gateway, selected.measurement, thresholdDataName.innerText, selected.companyDomain);
+    } else {
+        alert('저장 실패... 관리자에게 문의하세요.');
     }
 });
+
+// 수정 버튼
+updateBtn.addEventListener('click', async function () {
+    if (!selected.serverDataNo) {
+        alert('수정할 임계치 데이터가 없습니다.');
+        return;
+    }
+    const data = {
+        serverDataLocation: selected.location,
+        serverDataGateway: selected.gateway,
+        serverDataName: selected.measurement,
+        minThreshold: minInput.value,
+        maxThreshold: maxInput.value
+    };
+    const url = `/rule/server-datas/${selected.serverDataNo}`;
+    const options = {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    };
+    console.log('=== 임계값 수정 요청 ===', url, options);
+    const res = await fetchWithAuth(url, options);
+
+    if (res.ok) {
+        alert('임계치 수정 완료!');
+        await onDataSelect(selected.deviceId, selected.location, selected.gateway, selected.measurement, thresholdDataName.innerText, selected.companyDomain);
+    } else {
+        alert('수정 실패... 관리자에게 문의하세요.');
+    }
+});
+
+// 삭제 버튼
+deleteBtn.addEventListener('click', async function () {
+    if (!selected.serverDataNo) {
+        alert('삭제할 임계치 데이터가 없습니다.');
+        return;
+    }
+    const url = `/rule/server-datas/${selected.serverDataNo}`;
+    const options = { method: 'DELETE' };
+    if (!confirm('정말 삭제하시겠습니까?')) return;
+    const res = await fetchWithAuth(url, options);
+    if (res.ok) {
+        alert('임계치 삭제 완료!');
+        minInput.value = '';
+        maxInput.value = '';
+        thresholdPrevValue.innerText = '저장된 값 없음';
+        selected.serverDataNo = null;
+        updateBtnState();
+    } else {
+        alert('삭제 실패... 관리자에게 문의하세요.');
+    }
+});
+
+function updateBtnState() {
+    if (selected.serverDataNo) {
+        registerBtn.disabled = true;
+        updateBtn.disabled = false;
+        deleteBtn.disabled = false;
+    } else {
+        registerBtn.disabled = false;
+        updateBtn.disabled = true;
+        deleteBtn.disabled = true;
+    }
+}

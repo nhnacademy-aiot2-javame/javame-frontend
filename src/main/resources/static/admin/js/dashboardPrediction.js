@@ -23,12 +23,12 @@ window.addEventListener('DOMContentLoaded', () => {
 /**
  * 모든 예측 차트를 그립니다 (HTML 구조에 맞춤)
  */
-function drawAllPredictionCharts() {
+async function drawAllPredictionCharts() {
     // HTML에 실제 존재하는 차트들만 그리기
     drawMainPredictionChart();      // mainPredictionMixedChart
     drawMemoryPredictionChart();    // memoryPredictionChart
     drawDiskPredictionChart();      // cpuPredictionChart (실제로는 디스크)
-    drawMonthlyWattsPredictionChart();     // ★★★ 전력량 차트 ★★★
+    await drawMonthlyWattsPredictionChart();     // ★★★ 전력량 차트 ★★★
     drawAccuracyChart();           // multiMetricComparisonChart
 }
 
