@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="서버 및 데이터 등록" />
     <meta name="author" content="NHN Academy" />
-    <title><<도메인>> 서버및 데이터 등록</title>
+    <title>NHN Academy IoT 서버및 데이터 등록</title>
     <link href="/admin/css/styles.css" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     <script type="module" src="/admin/js/serverRegister.js"></script>
@@ -41,31 +41,39 @@
 
         <main class="container-fluid px-4 mt-4">
             <h1 class="mb-4">서버 및 데이터 등록</h1>
-            <p>도메인명: javame</p>
 
-            <h2>서버 리스트</h2>
+            <h2 style="text-align: center;">서버 리스트</h2>
             <table id="severTable" border="1">
                 <thead>
                 <tr>
-                    <th>Sensor No</th>
-                    <th>Sensor Id</th>
+                    <th>서버 번호</th>
+                    <th>서버 아이디</th>
+<!--                    <th>Sensor No</th>-->
+<!--                    <th>Sensor Id</th>-->
                 </tr>
                 </thead>
                 <tbody id="serverContent"></tbody>
             </table>
             <br>
-            <h2>서버 데이터 리스트</h2>
+            <h2 style="text-align: center;">서버 데이터 리스트</h2>
             <table id="sensorDataTable" style="display: none;">
                 <thead>
                 <tr>
-                    <th>Data No</th>
-                    <th>Location</th>
-                    <th>DeviceId</th>
-                    <th>Gateway</th>
-                    <th>Name</th>
-                    <th>MinThreshold</th>
-                    <th>MaxThreshold</th>
-                    <th>Register</th>
+                    <th>데이터 번호</th>
+                    <th>위치</th>
+                    <th>게이트웨이</th>
+                    <th>데이터 이름</th>
+                    <th>최소 임계값</th>
+                    <th>최대 임계값</th>
+                    <th>등록 시간</th>
+<!--                    <th>Data No</th>-->
+<!--                    <th>Location</th>-->
+<!--                    <th>DeviceId</th>-->
+<!--                    <th>Gateway</th>-->
+<!--                    <th>Name</th>-->
+<!--                    <th>MinThreshold</th>-->
+<!--                    <th>MaxThreshold</th>-->
+<!--                    <th>Register</th>-->
                 </tr>
                 </thead>
                 <tbody id = "serverDataContent" ></tbody>
