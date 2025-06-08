@@ -166,7 +166,7 @@ export async function fetchWithAuth(url, options = {}) {
         options,
         headers: {
             ...(options.headers || {}),
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${accessToken}`,
         },
     });
     
