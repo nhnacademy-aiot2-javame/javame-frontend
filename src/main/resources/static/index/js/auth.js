@@ -5,7 +5,7 @@
 const TOKEN_KEY = 'accessToken';
 const REFRESH_KEY = 'refreshToken';
 const USE_MOCK_LOGIN = false;
-const CICD_URL = 'http://localhost:10279/api/v1';
+const CICD_URL = 'https://javame.live/api/v1';
 
 window.logout = logout;
 /**
@@ -41,7 +41,7 @@ export async function login(memberEmail, memberPassword) {
             }, 500);
         });
     } else {
-        const response = await fetch('http://localhost:10279/api/v1/auth/login', {
+        const response = await fetch(CICD_URL + '/auth/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -54,7 +54,7 @@ export async function login(memberEmail, memberPassword) {
             throw new Error('로그인 실패');
         }
 
-        // 헤더에서 토큰 받아오기
+        // 헤더에서 토큰 가져오기
         const authHeader = response.headers.get('Authorization');
         const refreshToken = response.headers.get('Refresh-Token');
 
@@ -80,7 +80,24 @@ export async function login(memberEmail, memberPassword) {
     }
 }
 
-export function logout() {
+export async function logout() {
+        const accessToken = sessionStorage.getItem(TOKEN_KEY);
+
+    try {
+        const response = await fetch("https://javame.live/api/v1/auth/logout", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${accessToken}`
+            },
+        });
+
+        if (!response.ok) {
+            console.warn("서버 로그아웃 실패", response.status);
+        }
+    } catch (error) {
+        console.error("로그아웃 중 오류 발생", error);
+    }
+    console.log("로그아웃 성공! 토큰 삭제 중...");
     sessionStorage.removeItem(TOKEN_KEY);
     sessionStorage.removeItem(REFRESH_KEY);
     sessionStorage.removeItem('user');
@@ -121,7 +138,7 @@ export async function refreshAccessToken() {
         throw new Error('Refresh token is missing');
     }
 
-    const response = await fetch('http://localhost:10279/api/v1/auth/refresh', {
+    const response = await fetch(CICD_URL + '/auth/refresh', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -139,8 +156,11 @@ export async function refreshAccessToken() {
 }
 
 export async function fetchWithAuth(url, options = {}) {
-    let token = sessionStorage.getItem(TOKEN_KEY);
+    let accessToken = getAccessToken();
+    let refreshToken = getRefreshToken();
+
     const final_url = CICD_URL + url;
+
     const response = await fetch(final_url, {
         ...options,
         headers: {
@@ -149,54 +169,160 @@ export async function fetchWithAuth(url, options = {}) {
         },
     });
 
-    if (response.status === 401) {
-        console.log("X-Refresh-Required : ", response.headers.get('X-Refresh-Required'));
-        console.log("X-Reauth-Required : ", response.headers.get('X-Reauth-Required'));
-        console.log("X-Token-Required : ", response.headers.get('X-Token-Required'));
+    if(response.status !== 401) {
+        return response;
+    }
 
-        const refreshRequired = response.headers.get('X-Refresh-Required') === 'true';
-        const reauthRequired = response.headers.get('X-Reauth-Required') === 'true';
-        const tokenRequired = response.headers.get('X-Token-Required') === 'true';
+    console.log("[fetchWithAuth] 401 Unauthorized 발생!");
+    console.log("X-Refresh-Required : ", response.headers.get('X-Refresh-Required'));
+    console.log("X-Reauth-Required : ", response.headers.get('X-Reauth-Required'));
+    console.log("X-Token-Required : ", response.headers.get('X-Token-Required'));
 
-        if (reauthRequired) {
+    const refreshRequired = response.headers.get('X-Refresh-Required')?.trim() === 'true';
+    const reauthRequired = response.headers.get('X-Reauth-Required')?.trim() === 'true';
+    const tokenRequired = response.headers.get('X-Token-Required')?.trim() === 'true';
+
+    if (reauthRequired) {
+        console.log("실패")
+        window.location.href = "/auth/login";
+        return;
+    }
+    if (refreshRequired) {
+        console.log("refresh로 다시 요청")
+        console.log('final_url: ' + final_url);
+        const refreshResponse = await fetch(final_url, {
+            ...options,
+            headers: {
+                ...(options.headers || {}),
+                "X-Refresh-Token" : refreshToken
+            },
+        });
+
+        for (const [key, value] of refreshResponse.headers.entries()) {
+            console.log(`${key}: ${value}`);
+        }
+
+        if (!refreshResponse.ok) {
+            console.log("refresh로 다시 요청 실패")
             window.location.href = "/auth/login";
             return;
         }
 
-        if (refreshRequired) {
-            const refreshToken = getRefreshToken();
-            if (!refreshToken) {
-                window.location.href = "/auth/login";
-                return;
-            }
+        console.log("refreshResponse headers: " + refreshResponse.headers.get("Authorization"));
+        const accessTokenHeader = refreshResponse.headers.get("Authorization"); // "Bearer xxx..."
+        const refreshTokenHeader = refreshResponse.headers.get("X-Refresh-Token");
 
-            const retryResponse = await fetch(final_url, {
-                ...options,
-                headers: {
-                    ...(options.headers || {}),
-                    'X-Refresh-Token': refreshToken,
-                },
-            });
+        console.log(" --- 기존 토큰 제거 ---");
+        sessionStorage.removeItem(TOKEN_KEY);
+        sessionStorage.removeItem(REFRESH_KEY);
+        sessionStorage.removeItem('user');
 
-            return retryResponse;
+        if (accessTokenHeader && accessTokenHeader.startsWith("Bearer ")) {
+            const accessToken = accessTokenHeader.substring(7); // "Bearer " 제거
+            console.log(" --- 새 토큰 저장 ---");
+            sessionStorage.setItem(TOKEN_KEY, accessToken);
+            sessionStorage.setItem(REFRESH_KEY, refreshTokenHeader);
         }
 
-        if (tokenRequired) {
-            try {
-                token = await refreshAccessToken();
-                const retryResponse = await fetch(final_url, {
-                    ...options,
-                    headers: {
-                        ...(options.headers || {}),
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
+        let new_accessToken = getAccessToken();
+        console.log("new_accessToken: " + new_accessToken);
+        console.log("final_url : " + final_url);
+        console.log("options: " + options);
+        // 다시 원래 요청
+        return await fetch(final_url, {
+            ...options,
+            headers: {
+                ...(options.headers || {}),
+                Authorization: `Bearer ${new_accessToken}`,
+            },
+        });
+    }
 
-                return retryResponse;
-            } catch (error) {
-                console.error("accessToken 갱신 실패", error);
-                window.location.href = "/auth/login";
+    if (tokenRequired) {
+        if (!accessToken || !refreshToken) {
+            console.log("tokenRequired accessToken and refreshToken is null");
+            window.location.href = "/auth/login";
+            console.log("tokenRequired accessToken and refreshToken is null href");
+            return;
+        }
+
+        const tokenResponse = await fetch(final_url, {
+            ...options,
+            headers: {
+                ...(options.headers || {}),
+                Authorization: `Bearer ${accessToken}`,
+                "X-Refresh-Token" : refreshToken
+            },
+        });
+
+        if (!tokenResponse.ok) {
+            console.log("tokenResponse is 401");
+            window.location.href = "/auth/login";
+            console.log("tokenResponse is 401 href");
+            return;
+        }
+
+        const accessTokenHeader = tokenResponse.headers.get("Authorization"); // "Bearer xxx..."
+        const refreshTokenHeader = tokenResponse.headers.get("X-Refresh-Token");
+
+        console.log(" --- TokenResponse 기존 토큰 제거 ---");
+        sessionStorage.removeItem(TOKEN_KEY);
+        sessionStorage.removeItem(REFRESH_KEY);
+        sessionStorage.removeItem('user');
+
+        if (accessTokenHeader && accessTokenHeader.startsWith("Bearer ")) {
+            const accessToken = accessTokenHeader.substring(7); // "Bearer " 제거
+            console.log(" --- 새 토큰 저장 ---");
+            sessionStorage.setItem(TOKEN_KEY, accessToken);
+            sessionStorage.setItem(REFRESH_KEY, refreshTokenHeader);
+        }
+
+        let new_accessToken = getAccessToken();
+
+        // 다시 원래 요청
+        return await fetch(final_url, {
+            ...options,
+            headers: {
+                ...(options.headers || {}),
+                Authorization: `Bearer ${new_accessToken}`,
+            },
+        });
+
+    }
+
+    return response;
+}
+
+export async function fetchWithAuthPost(url, data){
+    let token = sessionStorage.getItem(TOKEN_KEY);
+    const final_url = CICD_URL + url;
+    const option = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            Authorization: `Bearer ${token}`
+        }
+    };
+    if(data){
+        option.body = JSON.stringify(data);
+    }
+    const response = await fetch(final_url, option);
+
+    if (response.status === 401) { // 액세스 토큰 만료
+        // 리프레시 토큰을 사용해 새로운 액세스 토큰을 받음
+        try {
+            const refreshToken = await refreshAccessToken();
+            const refreshOption = {
+                method: 'PUT',
+                headers: {
+                    'Refresh-Token': refreshToken
+                }
             }
+            return await fetch(url, refreshOption);
+        } catch (error) {
+            console.error('리프레시 토큰 갱신 실패', error);
+            window.location.href = "/auth/login";
         }
     }
     return response;
@@ -263,42 +389,6 @@ export async function fetchWithAuthBody(url, bodyOptions) {
             }
         }
     }
-    return response;
-}
-
-export async function fetchWithAuthPost(url, data){
-    let token = sessionStorage.getItem(TOKEN_KEY);
-    const final_url = CICD_URL + url;
-    const option = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            Authorization: `Bearer ${token}`
-        }
-    };
-    if(data){
-        option.body = JSON.stringify(data);
-    }
-    const response = await fetch(final_url, option);
-
-    if (response.status === 401) { // 액세스 토큰 만료
-        // 리프레시 토큰을 사용해 새로운 액세스 토큰을 받음
-        try {
-            const refreshToken = await refreshAccessToken();
-            const refreshOption = {
-                method: 'PUT',
-                headers: {
-                    'Refresh-Token': refreshToken
-                }
-            }
-            return await fetch(url, refreshOption);
-        } catch (error) {
-            console.error('리프레시 토큰 갱신 실패', error);
-            window.location.href = "/auth/login";
-        }
-    }
-
     return response;
 }
 
