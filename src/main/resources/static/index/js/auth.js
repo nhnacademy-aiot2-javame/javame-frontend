@@ -55,8 +55,7 @@ export async function login(memberEmail, memberPassword) {
             throw new Error('로그인 실패');
         }
 
-        // 헤더에서 토큰 받아오기
-        console.log("Authorization: " + response.headers.get('Authorization'));
+        // 헤더에서 토큰 가져오기
         const authHeader = response.headers.get('Authorization');
         const refreshToken = response.headers.get('Refresh-Token');
 
