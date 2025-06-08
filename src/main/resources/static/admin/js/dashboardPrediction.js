@@ -383,15 +383,48 @@ async function drawMonthlyWattsPredictionChart() {
     }
 
     try {
-        const response = await fetchWithAuth('/environment/forecast/monthly', { method: 'GET' });
+        console.log('[전력량 차트] API 호출 시작...');
+
+        const response = await fetchWithAuth('/forecast/monthly', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        console.log('[전력량 차트] 응답 상태:', response.status);
+        console.log('[전력량 차트] 응답 헤더:', response.headers);
+
         if (!response.ok) {
-            throw new Error(`서버 오류: ${response.status}`);
+            const errorText = await response.text();
+            console.error('[전력량 차트] 에러 응답 내용:', errorText);
+            throw new Error(`서버 오류: ${response.status} - ${errorText}`);
         }
 
-        const data = await response.json();
+        const responseText = await response.text();
+        console.log('[전력량 차트] 원본 응답:', responseText);
+
+        let data;
+        try {
+            data = JSON.parse(responseText);
+        } catch (parseError) {
+            console.error('[전력량 차트] JSON 파싱 에러:', parseError);
+            console.error('[전력량 차트] 파싱 실패한 텍스트:', responseText);
+            throw new Error('응답 데이터 파싱 실패');
+        }
+
+        console.log('[전력량 차트] 파싱된 데이터:', data);
+
+        // 데이터 구조 확인
+        if (!data.hasOwnProperty('actual_kWh') || !data.hasOwnProperty('predicted_kWh')) {
+            console.error('[전력량 차트] 예상된 데이터 구조가 아님:', Object.keys(data));
+            throw new Error('데이터 구조 오류');
+        }
+
         const used = data.actual_kWh;
         const predicted = data.predicted_kWh;
 
+        console.log('[전력량 차트] 실제 사용량:', used, '예측 사용량:', predicted);
         if (chartInstances[canvasId]) {
             chartInstances[canvasId].destroy();
         }
@@ -466,7 +499,9 @@ async function drawMonthlyWattsPredictionChart() {
 
         console.log("✅ 월간 예측 차트 성공");
     } catch (err) {
-        console.error("❌ 차트 로딩 실패:", err);
+        console.error("❌ 전력량 차트 로딩 실패:", err);
+        console.error('[전력량 차트] 에러 스택:', err.stack);
+
     }
 }
 
