@@ -51,7 +51,7 @@ class ServiceWebSocket {
         }
 
         try {
-            this.socket = new WebSocket(`ws://localhost:10279/api/v1/ws/environment?token=${token}`);
+            this.socket = new WebSocket(`wss://javame.live/api/v1/ws/environment?token=${token}`);
 
             this.socket.onopen = () => {
                 console.log('WebSocket 연결 성공');
