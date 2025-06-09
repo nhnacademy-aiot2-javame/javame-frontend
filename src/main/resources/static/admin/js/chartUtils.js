@@ -584,7 +584,275 @@ export function createComboBarLineChart(canvasId, barDataArray, lineDataArray, b
     });
 }
 
+/**
+ * 멀티 라인 차트
+ * @param canvasId
+ * @param xAxisLabels
+ * @param datasetsInput
+ * @param chartTitle
+ * @returns {Chart|null}
+ */
+export function createMultiLineChart(canvasId, xAxisLabels, datasetsInput = [], chartTitle = '') {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) {
+        console.error(`캔버스 ID ${canvasId}를 찾을 수 없습니다.`);
+        return null;
+    }
 
+    if (Chart.getChart(canvasId)) {
+        Chart.getChart(canvasId).destroy();
+    }
+
+    const jenniferColors = [
+        '#4682B4',
+        '#DC3545',
+        '#28A745',
+        '#FFC107',
+        '#6F42C1',
+        '#FD7E14',
+        '#20C997',
+        '#E83E8C',
+        '#6C757D',
+        '#17A2B8',
+        '#343A40',
+        '#007BFF'
+    ];
+
+    const yAxesConfig = {};
+    const processedDatasets = [];
+    let yAxisPositionCounter = { left: 0, right: 0 };
+
+    const validDatasetsInput = Array.isArray(datasetsInput) ? datasetsInput : [];
+
+    validDatasetsInput.forEach((ds, index) => {
+        const color = ds.borderColor || jenniferColors[index % jenniferColors.length];
+
+        let yAxisID;
+        let yAxisTitle;
+        let yAxisPosition = 'left';
+
+        if (ds.unit === 'percentage') {
+            yAxisID = 'yPercentage';
+            yAxisTitle = '퍼센트 (%)';
+            yAxisPosition = 'left';
+        } else if (ds.unit === 'celsius') {
+            yAxisID = 'yCelsius';
+            yAxisTitle = '온도 (°C)';
+            yAxisPosition = 'right';
+        } else if (ds.unit === 'bytes') {
+            yAxisID = 'yBytes';
+            yAxisTitle = '바이트 (B)';
+            yAxisPosition = 'right';
+        } else {
+            const otherUnitIndex = Object.keys(yAxesConfig).filter(k => k.startsWith('yOther')).length;
+            yAxisID = `yOther${otherUnitIndex}`;
+            yAxisTitle = `${ds.label || '데이터'} (${ds.unit || ''})`;
+            yAxisPosition = (Object.values(yAxesConfig).filter(axis => axis.position === 'left').length <=
+                Object.values(yAxesConfig).filter(axis => axis.position === 'right').length) ? 'left' : 'right';
+        }
+
+        if (!yAxesConfig[yAxisID]) {
+            if (yAxisPosition === 'left') yAxisPositionCounter.left++;
+            else yAxisPositionCounter.right++;
+
+            yAxesConfig[yAxisID] = {
+                type: 'linear',
+                display: true,
+                position: yAxisPosition,
+                beginAtZero: false,
+                border: { display: false },
+                grid: {
+                    drawOnChartArea: (yAxisPosition === 'left' && yAxisPositionCounter.left === 1) ||
+                        (yAxisPosition === 'right' && yAxisPositionCounter.right === 1),
+                    color: 'rgba(0, 0, 0, 0.08)',
+                    lineWidth: 1,
+                    drawBorder: false
+                },
+                title: {
+                    display: true,
+                    text: yAxisTitle,
+                    font: {
+                        size: 11,
+                        family: "'Malgun Gothic', sans-serif",
+                        weight: 'normal'
+                    },
+                    color: '#666666'
+                },
+                ticks: {
+                    font: {
+                        size: 10,
+                        family: "'Malgun Gothic', sans-serif"
+                    },
+                    color: '#666666',
+                    padding: 6,
+                    callback: function(value) {
+                        if (ds.unit === 'bytes') {
+                            if (value >= 1073741824) {
+                                return (value / 1073741824).toFixed(1) + 'GB';
+                            } else if (value >= 1048576) {
+                                return (value / 1048576).toFixed(1) + 'MB';
+                            } else if (value >= 1024) {
+                                return (value / 1024).toFixed(1) + 'KB';
+                            }
+                            return value + 'B';
+                        } else if (ds.unit === 'percentage') {
+                            return value + '%';
+                        }
+                        return value;
+                    }
+                }
+            };
+        }
+
+        processedDatasets.push({
+            label: ds.label || `Dataset ${index + 1}`,
+            data: ds.data || [],
+            borderColor: color,
+            backgroundColor: color + '15',
+            fill: ds.fill !== undefined ? ds.fill : false,
+            tension: 0.2,
+            borderWidth: 2,
+            pointRadius: 2,
+            pointBackgroundColor: color,
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 1,
+            pointHoverRadius: 4,
+            pointHoverBorderWidth: 2,
+            yAxisID: yAxisID
+        });
+    });
+
+    return new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: xAxisLabels,
+            datasets: processedDatasets
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false,
+                        drawBorder: false
+                    },
+                    border: { display: false },
+                    ticks: {
+                        font: {
+                            size: 10,
+                            family: "'Malgun Gothic', sans-serif"
+                        },
+                        color: '#666666',
+                        maxTicksLimit: 12
+                    }
+                },
+                ...(Object.keys(yAxesConfig).length > 0 ? yAxesConfig : {
+                    y: {
+                        display: true,
+                        beginAtZero: false,
+                        border: { display: false },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.08)',
+                            drawBorder: false
+                        }
+                    }
+                })
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    align: 'start',
+                    labels: {
+                        font: {
+                            size: 10,
+                            family: "'Malgun Gothic', sans-serif"
+                        },
+                        color: '#333333',
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                        padding: 12,
+                        boxWidth: 8,
+                        boxHeight: 8
+                    }
+                },
+                title: {
+                    display: !!chartTitle,
+                    text: chartTitle,
+                    font: {
+                        size: 14,
+                        family: "'Malgun Gothic', sans-serif",
+                        weight: 'bold'
+                    },
+                    color: '#333333',
+                    padding: { bottom: 20 }
+                },
+                tooltip: {
+                    enabled: true,
+                    backgroundColor: 'rgba(51, 51, 51, 0.95)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#ffffff',
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    borderWidth: 1,
+                    cornerRadius: 4,
+                    padding: 10,
+                    titleFont: {
+                        size: 11,
+                        family: "'Malgun Gothic', sans-serif",
+                        weight: 'bold'
+                    },
+                    bodyFont: {
+                        size: 10,
+                        family: "'Malgun Gothic', sans-serif"
+                    },
+                    displayColors: true,
+                    boxWidth: 8,
+                    boxHeight: 8,
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                const originalDataset = validDatasetsInput.find(ds => ds.label === context.dataset.label);
+                                const unit = originalDataset?.unit || '';
+
+                                let formattedValue = new Intl.NumberFormat('ko-KR').format(context.parsed.y);
+
+                                if (unit === 'bytes') {
+                                    const bytes = context.parsed.y;
+                                    if (bytes >= 1073741824) {
+                                        formattedValue = (bytes / 1073741824).toFixed(2) + ' GB';
+                                    } else if (bytes >= 1048576) {
+                                        formattedValue = (bytes / 1048576).toFixed(2) + ' MB';
+                                    } else if (bytes >= 1024) {
+                                        formattedValue = (bytes / 1024).toFixed(2) + ' KB';
+                                    } else {
+                                        formattedValue = bytes + ' B';
+                                    }
+                                } else if (unit) {
+                                    formattedValue += ` ${unit}`;
+                                }
+
+                                label += formattedValue;
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            animation: {
+                duration: 500,
+                easing: 'easeOutQuad'
+            }
+        }
+    });
+}
 
 /**
  * 서비스별 성능 비교 멀티라인 차트
