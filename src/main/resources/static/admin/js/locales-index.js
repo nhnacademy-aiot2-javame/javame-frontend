@@ -1,4 +1,4 @@
-const messages = {
+export const messages = {
     ko: {
         m1: `실시간 장애 예방, 자동화 대응, 환경 통합 감시 
             <br> 대시보드 기반의 시각화 및 예측 운영`,
@@ -31,8 +31,12 @@ const messages = {
         m27: `✅ 서버 기기 연결`,
         m28: `✅ 기본 알림 기능`,
         m29: `등록하기`,
-        loginLogoutBtn: `로그인`,
-        registerDashboardBtn: `회원가입`,
+        // loginLogoutBtn: `로그인`,
+        // registerDashboardBtn: `회원가입`,
+        login: `로그인`,
+        logout: `로그아웃`,
+        dashboard: `대시보드`,
+        signup: `회원가입`,
         m30: `개인정보 처리방침`,
         m31: `이용약관`,
         m32: `서비스 안내`,
@@ -86,8 +90,12 @@ const messages = {
         m27: `✅ Server Device Connection`,
         m28: `✅ Basic Alert System `,
         m29: `Subscribe`,
-        loginLogoutBtn: `Log in`,
+        // loginLogoutBtn: `Log in`,
         registerDashboardBtn: `Sign up`,
+        login: "login",
+        logout: "logout",
+        dashboard: "dashboard",
+        signup: "signup",
         m30: `Privacy Policy`,
         m31: `Terms of Service`,
         m32: `Service Guide`,
@@ -107,8 +115,11 @@ const messages = {
     },
 };
 
+export function getCurrentLang() {
+    return localStorage.getItem('lang') || 'ko';
+}
 
-function setLanguage(lang) {
+export function setLanguage(lang) {
     const t = messages[lang];
 
     // 일반 텍스트는 innterText
