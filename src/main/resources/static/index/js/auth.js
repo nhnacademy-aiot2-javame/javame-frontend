@@ -56,7 +56,7 @@ export async function login(memberEmail, memberPassword) {
 
         // 헤더에서 토큰 받아오기
         const authHeader = response.headers.get('Authorization');
-        const refreshToken = response.headers.get('Refresh-Token');
+        const refreshToken = response.headers.get('X-Refresh-Token');
 
         if (!authHeader) {
             throw new Error('Authorization 헤더가 없습니다.');

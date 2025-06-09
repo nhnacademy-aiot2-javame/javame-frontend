@@ -44,7 +44,7 @@ async function fetchPassword(currentPassword, newPassword) {
                 'newPassword': newPassword
         };
 
-        const response = await fetchWithAuthBody('https://javame.live/api/v1/auth/update/password', data);
+        const response = await fetchWithAuthBody('http://localhost:10279/api/v1/auth/update/password', data);
 
         if (response.ok) {
                 alert("비밀번호가 성공적으로 변경되었습니다.");
