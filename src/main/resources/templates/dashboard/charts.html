@@ -10,6 +10,98 @@
   <link href="/admin/css/styles.css" rel="stylesheet" />
   <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css" />
+
+  <style>
+    /* ★★★ 통일된 카드 디자인 ★★★ */
+    .card {
+      border: none;
+      border-radius: 1rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+      overflow: hidden;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, #ffffff 0%, #f1f3f4 100%);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      padding: 1.25rem 1.5rem;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    .card-body {
+      background: #ffffff;
+    }
+
+    .card-footer {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+      border-radius: 0 0 0.5rem 0.5rem;
+      padding: 1rem 1.25rem;
+      backdrop-filter: blur(10px);
+    }
+
+    /* ★★★ 트리 영역 특별 스타일 ★★★ */
+    .col-md-3 .card {
+      position: relative;
+    }
+
+    .col-md-3 .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0.3) 100%);
+    }
+
+    .col-md-3 .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 35px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Shoelace 커스텀 트리 아이콘 설정 */
+    .custom-icons sl-tree-item.selected::part(base) {
+      background-color: #007bff;
+      color: white;
+      border-radius: 4px;
+    }
+
+    /* ★★★ 차트 카드 특별 스타일 ★★★ */
+    #areaChartCard {
+      margin-bottom: 2rem;
+    }
+
+    #barChartCard,
+    #pieChartCard {
+      height: auto;
+    }
+
+    /* ★★★ 파이 차트 레전드 영역 ★★★ */
+    .custom-legend {
+      background: rgba(248, 249, 250, 0.5);
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    /* ★★★ 반응형 대응 ★★★ */
+    @media (max-width: 768px) {
+      .card {
+        margin-bottom: 1rem;
+      }
+
+      .card:hover {
+        transform: translateY(-2px);
+      }
+    }
+  </style>
+
   <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace-autoloader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script type="module" src="/admin/js/charts.js"></script>
