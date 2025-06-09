@@ -39,15 +39,31 @@ const messages = {
         // m33: `메인으로`,
         m34: `비밀번호 변경`,
         m35: `로그아웃`,
-        // m36: `로그아웃`,
-        // m37: `설정`,
-        // m38: `마이페이지`,
-        // m39: `사용자 관리`,
-        // m40: `회사 정보 관리`,
-        // m41: `회원 허가`,
-        // m42: `메인으로`,
+        // head.html
+        m36: `로그아웃`,
+        m37: `설정`,
+        m38: `마이페이지`,
+        m39: `사용자 관리`,
+        m40: `회사 정보 관리`,
+        m41: `회원 허가`,
+        m42: `메인으로`,
+        // sensor.html
         m43: `센서 조회`,
-        m44: `센서 리스트`
+        m44: `센서 리스트`,
+        m45: `센서 번호`,
+        m46: `센서 아이디`,
+        m47: `회사 도메인`,
+        m48: `등록 시간`,
+        m49: `센서 데이터 리스트`,
+        m50: `데이터 번호`,
+        m51: `위치`,
+        m52: `게이트웨이`,
+        m53: `데이터 이름`,
+        m54: `최소 임계값`,
+        m55: `최대 임계값`,
+        m56: `등록 시간`,
+
+
 
 
 
@@ -93,18 +109,32 @@ const messages = {
         m30: `Privacy Policy`,
         m31: `Terms of Service`,
         m32: `Service Guide`,
-        // m33: `Back to Main`,
-        // m34: `Change Password`,
-        // m35: `Log out`,
-        // m36: `Log out`,
-        // m37: `Setting`,
-        // m38: `My Page`,
-        // m39: `User Management`,
-        // m40: `Company Information Management`,
-        // m41: `User Approval`,
-        // m42: `Back to Main`
-        m43: `센서 조회`,
-        m44: `센서 리스트`
+        // head.html
+        m33: `Back to Main`,
+        m34: `Change Password`,
+        m35: `Log out`,
+        m36: `Log out`,
+        m37: `Setting`,
+        m38: `My Page`,
+        m39: `User Management`,
+        m40: `Company Information Management`,
+        m41: `User Approval`,
+        m42: `Back to Main`,
+        // sensor.html
+        m43: `View Sensors`,
+        m44: `Sensor List`,
+        m45: `Sensor No.`,
+        m46: `Sensor Id`,
+        m47: `Company Domain`,
+        m48: `Created At`,
+        m49: `Sensor Data List`,
+        m50: `Data No.`,
+        m51: `Location`,
+        m52: `Gateway`,
+        m53: `Data Name`,
+        m54: `Min Threshold`,
+        m55: `Max Threshold`,
+        m56: `Created At`,
 
 
 
@@ -120,47 +150,25 @@ function setLanguage(lang) {
         if(el) el.innerText = text;
     }
 
-    setText(`m2`, t.m2);
-    setText(`m3`, t.m3);
-    setText(`m4`, t.m4);
-    setText(`m5`, t.m5);
-    setText(`m6`, t.m6);
+    // 반복 처리할 ID 리스트
+    const ids = [
+        'm1', 'm2', 'm3', 'm4', 'm5', 'm6',
+        'm11','m13','m14','m15','m16','m17',
+        'm18', 'm19','m20','m21','m22','m23',
+        'm24','m25','m26','m27','m28','m29',
+        'loginLogoutBtn','registerDashboardBtn',
+        'm30','m31','m32','m33','m34','m35',
+        'm36','m37','m38','m39','m40','m41','m42',
+        'm43','m44','m45','m46','m47','m48',
+        'm49','m50','m51','m52','m53','m54',
+        'm55','m56'
 
+    ];
 
+    ids.forEach(id => {
+        setText(id, t[id])
+    });
 
-    document.getElementById('m11').innerText = t.m11;
-    document.getElementById('m13').innerText = t.m13;
-    document.getElementById('m14').innerText = t.m14;
-    document.getElementById('m15').innerText = t.m15;
-    document.getElementById('m16').innerText = t.m16;
-    document.getElementById('m17').innerText = t.m17;
-    document.getElementById('m18').innerText = t.m18;
-    document.getElementById('m19').innerText = t.m19;
-    document.getElementById('m20').innerText = t.m20;
-    document.getElementById('m21').innerText = t.m21;
-    document.getElementById('m22').innerText = t.m22;
-    document.getElementById('m23').innerText = t.m23;
-    document.getElementById('m24').innerText = t.m24;
-    document.getElementById('m25').innerText = t.m25;
-    document.getElementById('m26').innerText = t.m26;
-    document.getElementById('m27').innerText = t.m27;
-    document.getElementById('m28').innerText = t.m28;
-    document.getElementById('m29').innerText = t.m29;
-    document.getElementById('loginLogoutBtn').innerText = t.loginLogoutBtn;
-    document.getElementById('registerDashboardBtn').innerText = t.registerDashboardBtn;
-    document.getElementById('m30').innerText = t.m30;
-    document.getElementById('m31').innerText = t.m31;
-    document.getElementById('m32').innerText = t.m32;
-    // document.getElementById('m33').innerText = t.m33;
-    // document.getElementById('m34').innerText = t.m34;
-    // document.getElementById('m35').innerText = t.m35;
-    // document.getElementById('m36').innerText = t.m36;
-    // document.getElementById('m37').innerText = t.m37;
-    // document.getElementById('m38').innerText = t.m38;
-    // document.getElementById('m39').innerText = t.m39;
-    // document.getElementById('m40').innerText = t.m40;
-    // document.getElementById('m41').innerText = t.m41;
-    // document.getElementById('m42').innerText = t.m42;
 
 
     // <br> 포함된 경우는 innterHTML 사용
