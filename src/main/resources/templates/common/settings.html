@@ -15,44 +15,45 @@
     <div th:replace="~{fragments/sidebar :: sidebar}"></div>
     <div id="layoutSidenav_content">
         <main class="container-fluid px-4 mt-4">
-            <h1 class="mb-4">설정</h1>
+            <h1 id="m72" class="mb-4">설정</h1>
 
             <!-- 알림 설정 -->
             <div class="card mb-4">
-                <div class="card-header"><i class="fas fa-bell me-1"></i> 알림 설정</div>
+                <div id="m73" class="card-header"><i class="fas fa-bell me-1"></i> 알림 설정</div>
                 <div class="card-body">
                     <form method="post" th:action="@{/settings/notifications}">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="emailNoti" id="emailNoti" checked>
-                            <label class="form-check-label" for="emailNoti">이메일 알림 받기</label>
+                            <label id="m74" class="form-check-label" for="emailNoti">이메일 알림 받기</label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="appNoti" id="appNoti">
-                            <label class="form-check-label" for="appNoti">앱 알림 받기</label>
+                            <label id="m75" class="form-check-label" for="appNoti">앱 알림 받기</label>
                         </div>
-                        <button type="submit" class="btn btn-primary mt-2">저장</button>
+                        <button id="m76" type="submit" class="btn btn-primary mt-2">저장</button>
                     </form>
                 </div>
             </div>
 
             <!-- 테마 설정 -->
             <div class="card mb-4">
-                <div class="card-header"><i class="fas fa-adjust me-1"></i> 테마 설정</div>
+                <div id="m77" class="card-header"><i class="fas fa-adjust me-1"></i> 테마 설정</div>
                 <div class="card-body">
                     <select class="form-select w-25" id="themeSelect">
-                        <option value="light">라이트 모드</option>
-                        <option value="dark">다크 모드</option>
+                        <option id="m78" value="light">라이트 모드</option>
+                        <option id="m79" value="dark">다크 모드</option>
                     </select>
                 </div>
             </div>
 
             <!-- 회원 탈퇴 -->
             <div class="card mb-4">
-                <div class="card-header text-danger"><i class="fas fa-user-slash me-1"></i> 회원 탈퇴</div>
+                <div id="m80" class="card-header text-danger"><i class="fas fa-user-slash me-1"></i> 회원 탈퇴</div>
                 <div class="card-body">
-                    <p>계정을 삭제하면 복구할 수 없습니다. 계속하시겠습니까?</p>
+                    <p id="m81">계정을 삭제하면 복구할 수 없습니다. 계속하시겠습니까?</p>
                     <form method="post" th:action="@{/members/delete}" onsubmit="return confirm('정말 탈퇴하시겠습니까?');">
-                        <button class="btn btn-danger">회원 탈퇴</button>
+                        <p id="m82">정말 탈퇴하시겠습니까?</p>
+                        <button id="m83" class="btn btn-danger">회원 탈퇴</button>
                     </form>
                 </div>
             </div>
@@ -65,6 +66,9 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/admin/js/scripts.js"></script>
+
+<!--언어 전환용 JS-->
+<script src="/admin/js/locales-index.js"></script>
 
 </body>
 </html>

@@ -76,7 +76,7 @@
 <body>
 
 <div class="login-card">
-    <h2>회사를 선택하세요</h2>
+    <h2 id="m71">회사를 선택하세요</h2>
     <form th:action="@{/admin/selectCompany}" method="post">
         <select id="companySelect" name="companyId" class="form-control" required>
             <option value="" disabled selected>회사를 선택해주세요</option>
@@ -94,6 +94,7 @@
         &larr; 홈으로 돌아가기
     </a>
 </div>
-
+<!--언어 전환용 JS-->
+<script src="/admin/js/locales-index.js"></script>
 </body>
 </html>
