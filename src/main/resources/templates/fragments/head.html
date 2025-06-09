@@ -32,12 +32,7 @@
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" id="alarmDropDown" href="#" role="button"
                    data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-bell"></i></a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                    <li><a id="m37" class="dropdown-item" href=/members/settings>설정</a></li>
-                    <li><a id="m38" class="dropdown-item" href=/members/mypage>마이페이지</a></li>
-                    <li><a id="m36" class="dropdown-item" href="#" onclick="logout(); return false;">로그아웃</a></li>
-                    <li><hr class="dropdown-divider" /></li>
-                    <li><a id="warnifyList" class="dropdown-item" href="/">경고목록으로</a></li>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown" id = "alarmUlTag">
                 </ul>
             </li>
 
@@ -58,7 +53,6 @@
                     <li sec:authorize="hasAnyAuthority('OWNER')">
                         <a id="m39" class="dropdown-item" href="/members/member-list">사용자 관리</a>
                         <a id="m40" class="dropdown-item" href="/companies/settings">회사 정보 관리</a>
-                        <a id="m41" class="dropdown-item" href="/members/permission">회원 허가</a>
                     </li>
 
                     <li><a id="m42" class="dropdown-item" href="/">메인으로</a></li>
