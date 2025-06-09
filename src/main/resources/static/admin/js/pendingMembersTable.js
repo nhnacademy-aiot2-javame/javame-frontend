@@ -35,8 +35,10 @@ const pendigTable = function (){
                 const deleteBtn = document.createElement('button');
                 approveBtn.innerText = '승인';
                 approveBtn.classList.add('approve-btn');
+                approveBtn.classList.add('trendy-button');
                 deleteBtn.innerText = '삭제';
                 deleteBtn.classList.add('delete-btn');
+                deleteBtn.classList.add('trendy-button');
                 approveBtn.addEventListener('click', function (e) {
                     if (e.target.classList.contains('approve-btn')) {
                         const email = json.memberEmail;
