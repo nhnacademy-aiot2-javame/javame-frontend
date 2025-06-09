@@ -71,6 +71,12 @@ const memberTable = function (){
                     td5.appendChild(deleteBtn);
                 }
 
+                td1.style.textAlign = 'center';
+                td2.style.textAlign = 'center';
+                td3.style.textAlign = 'center';
+                td4.style.textAlign = 'center';
+                td5.style.textAlign = 'center';
+
                 tr.appendChild(td1);
                 tr.appendChild(td2);
                 tr.appendChild(td3);
@@ -202,6 +208,12 @@ const pendigTable = function (){
 
                 td1.innerText = json.memberEmail;
                 td2.innerText = converter.timeConverterHM(json.registerAt);
+
+                td3.style.display = 'flex';
+                td3.style.gap = '8px';
+                td3.style.justifyContent = 'center';
+
+
                 td3.appendChild(approveBtn);
                 td3.appendChild(deleteBtn);
 

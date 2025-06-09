@@ -18,58 +18,61 @@
 <div id="layoutSidenav">
   <div th:replace="~{fragments/sidebar :: sidebar}"></div>
   <div id="layoutSidenav_content">
-    <main>
-      <input type="hidden" id="page_num" th:value="${pageNum}">
-      <div class="container-fluid px-5">
-        <div class="card mb-4 mt-sm-5">
-          <div class="card-header">
-            <i class="fas fa-table me-1"></i>
-            회원 관리
-          </div>
-          <div class="card-body">
-            <table id="membersTable" class="table table-bordered">
-              <thead>
-              <tr>
-                <th style="width: 25%;">이메일</th> <!-- 이메일은 상대적으로 길기 때문에 넓게 -->
-                <th style="width: 10%;">권한</th> <!-- 관리자, 사용자 등 간단한 텍스트 -->
-                <th style="width: 20%;">가입일자</th> <!-- 날짜는 보통 YYYY-MM-DD HH:mm:ss -->
-                <th style="width: 20%;">최근 로그인 일자</th> <!-- 날짜와 동일 -->
-                <th style="width: 20%;">승인대기</th> <!-- 버튼 또는 텍스트가 들어갈 수 있어 약간 넓게 -->
-              </tr>
-              </thead>
+    <main class="py-4 px-4">
 
-              <tbody>
-              </tbody>
-            </table>
-            <div id="pageButton" class="text-center"></div>
+      <!-- 회원 관리 섹션 -->
+      <div class="container-fluid mb-5">
+        <div class="card shadow-sm rounded-4">
+          <div class="card-header bg-primary text-white">
+            <i class="fas fa-users me-2"></i> 회원 관리
           </div>
-        </div>
-      </div>
-      <input type="hidden" id="page_num" th:value="${pageNum}">
-      <div class="container-fluid px-5">
-        <div class="card mb-4 mt-sm-5">
-          <div class="card-header">
-            <i class="fas fa-table me-1"></i>
-            승인 대기 중인 회원
-          </div>
-          <div class="card-body">
-            <table id="pendingMembersTable" class="table table-bordered">
-              <thead>
+          <div class="card-body table-responsive">
+            <table id="membersTable" class="table table-bordered table-hover align-middle">
+              <thead class="table-light text-center">
               <tr>
-                <th style="width: 30%">이메일</th>
-                <th style="width: 10%">가입일자</th>
-                <th style="width: 10%">승인 여부</th>
+                <th style="width: 25%;">이메일</th>
+                <th style="width: 10%;">권한</th>
+                <th style="width: 20%;">가입일자</th>
+                <th style="width: 20%;">최근 로그인</th>
+                <th style="width: 20%;">승인대기</th>
               </tr>
               </thead>
               <tbody>
+              <!-- 데이터가 JS로 삽입됨 -->
               </tbody>
             </table>
-            <div id="pendingPageButton" class="text-center"></div>
+            <div id="pageButton" class="text-center mt-3"></div>
           </div>
         </div>
       </div>
 
+      <!-- 승인 대기 중인 회원 섹션 -->
+      <div class="container-fluid">
+        <div class="card shadow-sm rounded-4">
+          <div class="card-header bg-warning text-dark">
+            <i class="fas fa-user-clock me-2"></i> 승인 대기 중인 회원
+          </div>
+          <div class="card-body table-responsive">
+            <table id="pendingMembersTable" class="table table-bordered table-hover align-middle">
+              <thead class="table-light text-center">
+              <tr>
+                <th style="width: 30%;">이메일</th>
+                <th style="width: 20%;">가입일자</th>
+                <th style="width: 20%;">승인 여부</th>
+              </tr>
+              </thead>
+              <tbody>
+              <!-- 데이터가 JS로 삽입됨 -->
+              </tbody>
+            </table>
+            <div id="pendingPageButton" class="text-center mt-3"></div>
+          </div>
+        </div>
+      </div>
+
+      <input type="hidden" id="page_num" th:value="${pageNum}" />
     </main>
+
     <div th:replace="~{fragments/footer :: footer}"></div>
   </div>
 </div>

@@ -1,8 +1,9 @@
 import {
-    fetchWithAuth
+    fetchWithAuth, fetchWithAuthBody
 } from '../../index/js/auth.js'
 
 let currentPage = document.querySelector('#page_num').value;
+const converter = valueConverter();
 
 window.addEventListener('DOMContentLoaded', function () {
     const warnify = new WarnifyTable();
@@ -32,14 +33,40 @@ const WarnifyTable = function () {
                 const td1 = document.createElement('td');
                 const td2 = document.createElement('td');
                 const td3 = document.createElement('td');
+                const td4 = document.createElement('td');
 
-                td1.innerText = item.warnDate;
+                const updateButton = document.createElement('button');
+                updateButton.innerText = '변경';
+
+                td1.innerText = converter.timeConverterHM(item.warnDate);
                 td2.innerText = item.warnInfo;
                 td3.innerText = item.resolve;
+                td4.appendChild(updateButton);
 
                 tr.appendChild(td1);
                 tr.appendChild(td2);
                 tr.appendChild(td3);
+                tr.appendChild(td4);
+
+                updateButton.addEventListener('click', async function () {
+                    let updateURL = `/warnify/resolve/${item.warnifyId}?resolve=true`;
+                    if(item.resolve === '해결'){
+                        updateURL = `/warnify/resolve/${item.warnifyId}?resolve=false`;
+                    }else if(item.resolve === '미해결'){
+                        updateURL = `/warnify/resolve/${item.warnifyId}?resolve=true`;
+                    }
+                    const isConfirmed = confirm("경고를 변경 하시겠습니까?");
+                    if(isConfirmed){
+                        const updateResponse = await fetchWithAuthBody(updateURL);
+                        if(updateResponse.ok){
+                            alert("변경하였습니다.");
+                            window.location.href=`/environment/warnify?page=${currentPage}`;
+                        }else {
+                            alert("변경 실패 입니다.");
+                        }
+                    }
+
+                });
 
                 tr.style.backgroundColor = (item.resolve === '해결') ? '#d4edda' :
                     (item.resolve === '미해결') ? '#f8d7da' :
