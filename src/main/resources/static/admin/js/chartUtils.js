@@ -174,6 +174,7 @@ export function createPieChart(canvasId, labels, data, title = 'Pie Chart') {
 
     // 커스텀 legend 직접 구현
     const legendContainer = document.getElementById('pieChartLegend');
+    const deselectAllBtn = document.getElementById('pieLegendDeselectAllBtn');
     if (legendContainer) {
         legendContainer.style.maxHeight = "160px";
         legendContainer.style.overflowY = "auto";
@@ -199,7 +200,6 @@ export function createPieChart(canvasId, labels, data, title = 'Pie Chart') {
 
         renderLegend();
 
-        // 이벤트 위임: 클릭시 해당 파이 슬라이스 show/hide
         legendContainer.onclick = (e) => {
             let item = e.target.closest('.pie-legend-item');
             if (!item) return;
@@ -213,6 +213,26 @@ export function createPieChart(canvasId, labels, data, title = 'Pie Chart') {
             chart.update();
             renderLegend();
         };
+
+        // === 전체 해제 버튼 이벤트 ===
+        const deselectAllBtn = document.getElementById('pieLegendDeselectAllBtn');
+        if (deselectAllBtn) {
+            deselectAllBtn.onclick = () => {
+                // 트리에서 선택된 값(파이차트 제목)에 해당하는 인덱스만 남기고 나머지 모두 hidden
+                const remainIdx = labels.findIndex(label => label === title);
+                hiddenIndexes = labels.map((_, idx) => idx).filter(idx => idx !== remainIdx);
+
+                labels.forEach((_, idx) => {
+                    if (idx === remainIdx) {
+                        chart.show(idx);
+                    } else {
+                        chart.hide(idx);
+                    }
+                });
+                chart.update();
+                renderLegend();
+            };
+        }
     }
 
     window[canvasId + '_chart'] = chart;

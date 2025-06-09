@@ -26,6 +26,7 @@ let currentChartFilter = {
 let globalTreeData = null;
 
 window.addEventListener('DOMContentLoaded', async () => {
+    setAreaChartTitle("");
     globalTreeData = await getTree(currentChartFilter.companyDomain);
     renderSlTree(document.getElementById('filterTree'), globalTreeData);
     setTreeDataForLabelValueMap(globalTreeData); // serverRegister.js에도 동일 트리 넘김!
@@ -73,6 +74,7 @@ function createSlTreeItem(node) {
         if (node.tag === 'measurement' || node.tag === '_measurement') {
             currentChartFilter._measurement = node.value;
             currentChartFilter._measurementLabel = node.label;
+            setAreaChartTitle(node.label);
             restartSseChart();
             await loadBarChart();
             await loadPieChart();
@@ -112,6 +114,7 @@ function restartSseChart() {
 
 function updateLastUpdatedTime(cardId) {
     const footer = document.querySelector(`#${cardId} .card-footer`);
+    console.log('[DEBUG] updateLastUpdatedTime', cardId, footer);
     if (!footer) return;
     const now = new Date();
     const isToday = now.toDateString() === new Date().toDateString();
@@ -185,4 +188,75 @@ async function loadPieChart() {
     if (window.pieChart) window.pieChart.destroy();
     updateLastUpdatedTime('pieChartCard');
     window.pieChart = createPieChart('myPieChart', pieData.labels, pieData.data, title);
+}
+
+/**
+ * 주어진 센서 데이터 레코드로 테이블 본문(tbody)을 렌더링합니다.
+ * @param {Array<object>} records - 테이블에 표시할 센서 데이터 객체 배열
+ */
+function renderTable(records) {
+    const tbody = document.querySelector('#datatablesSimple tbody');
+    if (!tbody) return;
+
+    tbody.replaceChildren();
+
+    if (!records || records.length === 0) {
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 5;
+        td.className = 'text-center';
+        td.textContent = '표시할 데이터가 없습니다.';
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+        return;
+    }
+
+    const fragment = document.createDocumentFragment();
+    records.forEach(r => {
+        const tags = r.tags || {};
+        const location = tags.location || '-';
+        const gatewayId = tags.gatewayId || '-';
+        const measurement = tags._measurement || '-';
+        const value = r.value ?? '-';
+        const time = r.time ? new Date(r.time).toLocaleString() : '-';
+
+        const tr = document.createElement('tr');
+        [location, gatewayId, measurement, value, time].forEach(cellData => {
+            const td = document.createElement('td');
+            td.textContent = cellData;
+            tr.appendChild(td);
+        });
+        fragment.appendChild(tr);
+    });
+    tbody.appendChild(fragment);
+}
+
+
+// --- 사이드바 접기/펼치기 제어 로직 ---
+const sidebar = document.getElementById('sidebar');
+const chartArea = document.getElementById('chartArea');
+const hideSidebarBtn = document.getElementById('hideSidebarBtn');
+const showSidebarBtn = document.getElementById('showSidebarBtn');
+
+hideSidebarBtn.addEventListener('click', () => {
+    sidebar.style.display = 'none';
+    showSidebarBtn.style.display = 'flex';
+    chartArea.style.marginLeft = '48px';
+});
+showSidebarBtn.addEventListener('click', () => {
+    sidebar.style.display = '';
+    showSidebarBtn.style.display = 'none';
+    chartArea.style.marginLeft = '';
+});
+
+function setAreaChartTitle(label) {
+    // label이 없으면 기본값
+    const title = document.getElementById('areaChartTitle');
+    if (!title) return;
+    // 아이콘 포함, 뒤에 동적으로 라벨 붙임
+    if (label) {
+        title.innerHTML = `<i class="fas fa-chart-area me-1"></i>실시간 데이터 - <span style="color:#1776dc;">${label}</span>`;
+    } else {
+        title.innerHTML = `<i class="fas fa-chart-area me-1"></i>실시간 데이터`;
+    }
 }
