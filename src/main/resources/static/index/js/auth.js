@@ -5,7 +5,7 @@
 const TOKEN_KEY = 'accessToken';
 const REFRESH_KEY = 'refreshToken';
 const USE_MOCK_LOGIN = false;
-const CICD_URL = 'http://localhost:10279/api/v1';
+const CICD_URL = 'https://javame.live/api/v1';
 
 window.logout = logout;
 /**
@@ -84,7 +84,7 @@ export async function logout() {
         const accessToken = sessionStorage.getItem(TOKEN_KEY);
 
     try {
-        const response = await fetch("http://localhost:10279/api/v1/auth/logout", {
+        const response = await fetch("https://javame.live/api/v1/auth/logout", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${accessToken}`
