@@ -20,9 +20,19 @@ async function fetchMemberInfo() {
 
         // 각 요소에 데이터를 삽입
         document.getElementById('mypage-email').innerText = data.memberEmail;
-        document.getElementById('mypage-no').innerText = data.memberNo;
-        document.getElementById('mypage-role').innerText = data.roleId;
-        document.getElementById('mypage-company').innerText = data.companyDomain;
+        document.getElementById('mypage-no').innerText = "No." + data.memberNo;
+        if(data.roleId == "ROLE_OWNER"){
+                document.getElementById('mypage-role').innerText = "오너";
+        }
+        if(data.roleId == "ROLE_USER") {
+                document.getElementById('mypage-role').innerText = "유저";
+        }
+        if(data.roleId == "ROLE_ADMIN") {
+                document.getElementById('mypage-role').innerText = "관리자";
+        }
+
+        const domainName = data.companyDomain.replace(/(\.co\.kr|\.or\.kr|\.go\.kr|\.ac\.kr|\.com|\.net|\.org|\.io|\.ai|\.dev|\.kr|\.jp|\.cn|\.uk|\.us)$/i, '');
+        document.getElementById('mypage-company').innerText = domainName;
 
 }
 
@@ -34,7 +44,7 @@ async function fetchPassword(currentPassword, newPassword) {
                 'newPassword': newPassword
         };
 
-        const response = await fetchWithAuthBody('http://localhost:10279/api/v1/auth/update/password', data);
+        const response = await fetchWithAuthBody('https://javame.live/api/v1/auth/update/password', data);
 
         if (response.ok) {
                 alert("비밀번호가 성공적으로 변경되었습니다.");

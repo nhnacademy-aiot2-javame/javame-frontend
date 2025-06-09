@@ -44,7 +44,7 @@ export function startSensorDataWebSocket(params, onData) {
 
     const { companyDomain, origin, ...rest } = params;
     const token = sessionStorage.getItem("accessToken") || ""; // 또는 auth에서 토큰 가져오기
-    const wsUrl = `wss://javame.live/api/v1/ws/environment?token=${token}`;
+    const wsUrl = `wss://localhost:10279/api/v1/ws/environment?token=${token}`;
 
     console.log("WebSocket 연결 시 토큰:", token); // 이 줄이 반드시 먼저 나와야 함
     console.log("WebSocket 연결할 URL:", wsUrl);
