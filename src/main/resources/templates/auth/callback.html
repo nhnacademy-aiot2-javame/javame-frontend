@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>OAuth2 처리 중...</title>
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+</head>
+<body>
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const email = urlParams.get("email");
+
+    const OAUTH_PASSWORD = "OAUTH2_DEFAULT_PASSWORD";
+
+    // 로그인 요청
+    fetch("https://javame.live/auth/login", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            memberEmail: email,
+            memberPassword: OAUTH_PASSWORD
+        }),
+        credentials: "include"
+    })
+        .then(response => {
+            const authHeader = response.headers.get("Authorization");
+            const refreshToken = response.headers.get("X-Refresh-Token");
+
+            if (!authHeader) {
+                throw new Error("Authorization 헤더가 없습니다.");
+            }
+
+            const accessToken = authHeader.split(" ")[1];
+            const decoded = jwt_decode(accessToken);
+
+            sessionStorage.setItem("accessToken", accessToken);
+            sessionStorage.setItem("refreshToken", refreshToken);
+            sessionStorage.setItem("user", JSON.stringify({
+                memberEmail: decoded.sub,
+                role: decoded.role,
+                isLoggedIn: true
+            }));
+
+            // 메인 페이지로 이동
+            window.location.href = "/";
+        })
+        .catch(err => {
+            alert("OAuth2 로그인 실패: " + err.message);
+            window.location.href = "/auth/login";
+        });
+</script>
+</body>
+</html>
