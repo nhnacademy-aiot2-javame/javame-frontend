@@ -6,7 +6,7 @@ const messages = {
         m3: `IoT 센서를 통해 온도, 습도, 전력 등 서버룸 환경을 모니터링`,
         m4: `AIoT 기반 서버 운영 솔루션 소개`,
         m5: `다양한 형태의 그래프를 제공합니다.`,
-        m6: `프로젝트 정리`,
+        m6: `우리가 걸어온 길`,
         m7: `IoT 센서 연동 및 데이터 시각화`,
         m8: `노드레드를 통해 받은 데이터를 활용한 기후 정보 수집`,
         m9: `Servlet과 JSP를 활용한 MVC 패턴 기반 쇼핑몰 개발`,
@@ -116,7 +116,7 @@ function setLanguage(lang) {
     document.getElementById('m3').innerText = t.m3;
     document.getElementById('m4').innerText = t.m4;
     document.getElementById('m5').innerText = t.m5;
-
+    document.getElementById('m6').innerText = t.m6;
 
 
     document.getElementById('m11').innerText = t.m11;
