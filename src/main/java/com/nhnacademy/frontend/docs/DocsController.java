@@ -10,16 +10,16 @@ public class DocsController {
 
     @GetMapping("/privacy-policy")
     public  String privacyPolicy(){
-        return "/docs/privacy-policy";
+        return "docs/privacy-policy";
     }
 
     @GetMapping("/terms-of-service")
     public String termsofServicePage() {
-        return "/docs/terms-of-service";
+        return "docs/terms-of-service";
     }
 
     @GetMapping("/service-guide")
     public String serviceGuidePage() {
-        return "/docs/service-guide";
+        return "docs/service-guide";
     }
 }
