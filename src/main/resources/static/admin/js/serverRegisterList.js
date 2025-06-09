@@ -15,15 +15,15 @@ document.addEventListener('DOMContentLoaded',async function (){
 
     const tbody = document.querySelector("#serverContent");
     if(tbody) {
-
         let i = 1;
         datas.forEach(data => {
+
             const serverContentTr = document.createElement('tr');
             const serverNo = document.createElement('td');
             const serverId = document.createElement('td');
 
             serverNo.innerText = i;
-            serverId.innerText = data;
+            serverId.innerText = data.label;
 
             serverContentTr.appendChild(serverNo);
             serverContentTr.appendChild(serverId);
@@ -43,12 +43,12 @@ document.addEventListener('DOMContentLoaded',async function (){
                     const locations = await locationResponse.json();
 
                     for(const location of locations){
-                        const gatewayIdUrl = `/environment/companyDomain/dropdown/gatewayId?deviceId=${num}&location=${location}`;
+                        const gatewayIdUrl = `/environment/companyDomain/dropdown/gatewayId?deviceId=${num}&location=${location.value}`;
                         const gatewayIdResponse = await fetchWithAuth(gatewayIdUrl);
                         const gatewayIds = await gatewayIdResponse.json();
 
                         for(const gatewayId of gatewayIds){
-                            const measurementUrl = `/environment/companyDomain/dropdown/_measurement?deviceId=${num}&location=${location}&gatewayId=${gatewayId}`;
+                            const measurementUrl = `/environment/companyDomain/dropdown/_measurement?deviceId=${num}&location=${location.value}&gatewayId=${gatewayId.value}`;
                             const measurementResponse = await fetchWithAuth(measurementUrl);
                             const measurements = await measurementResponse.json();
 
@@ -63,12 +63,12 @@ document.addEventListener('DOMContentLoaded',async function (){
                                 const minThresholdTd = document.createElement('td');
                                 const maxThresholdTd = document.createElement('td');
                                 const buttonTd = document.createElement('td');
-
+                                console.log(num.label);
                                 noTd.innerText = i;
-                                locationTd.innerText = translationMap[location] || location;
-                                deviceIdTd.innerText = translationMap[num] || num;
-                                gatewayTd.innerText = translationMap[gatewayId] || gatewayId;
-                                nameTd.innerText = translationMap[measurement] || measurement;
+                                locationTd.innerText = location.label;
+                                deviceIdTd.innerText = num;
+                                gatewayTd.innerText = gatewayId.label;
+                                nameTd.innerText = measurement.label;
 
                                 const inputMinThreshold = document.createElement('input');
                                 inputMinThreshold.type = 'text';
@@ -84,8 +84,8 @@ document.addEventListener('DOMContentLoaded',async function (){
                                 buttonTd.appendChild(registerButton);
 
                                 tr.appendChild(noTd);
-                                tr.appendChild(locationTd);
                                 tr.appendChild(deviceIdTd);
+                                tr.appendChild(locationTd);
                                 tr.appendChild(gatewayTd);
                                 tr.appendChild(nameTd);
                                 tr.appendChild(minThresholdTd);
