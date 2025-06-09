@@ -1,8 +1,9 @@
 import {
-    fetchWithAuth
+    fetchWithAuth, fetchWithAuthBody
 } from '../../index/js/auth.js'
 
 let currentPage = document.querySelector('#page_num').value;
+const converter = valueConverter();
 
 window.addEventListener('DOMContentLoaded', function () {
     const warnify = new WarnifyTable();
@@ -32,18 +33,52 @@ const WarnifyTable = function () {
                 const td1 = document.createElement('td');
                 const td2 = document.createElement('td');
                 const td3 = document.createElement('td');
+                const td4 = document.createElement('td');
 
-                td1.innerText = item.warnDate;
+                const updateButton = document.createElement('button');
+                updateButton.innerText = '변경';
+
+                td1.innerText = converter.timeConverterHM(item.warnDate);
                 td2.innerText = item.warnInfo;
-                td3.innerText = item.resolve;
+                td4.appendChild(updateButton);
+
+                if (item.resolve === '해결') {
+                    td3.innerHTML = `<span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>해결</span>`;
+                } else if (item.resolve === '미해결') {
+                    td3.innerHTML = `<span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i>미해결</span>`;
+                } else if (item.resolve === '데이터부족') {
+                    td3.innerHTML = `<span class="text-warning"><i class="bi bi-exclamation-triangle-fill me-1"></i>데이터부족</span>`;
+                } else {
+                    td3.textContent = item.resolve || ''; // 예외 처리
+                }
+
 
                 tr.appendChild(td1);
                 tr.appendChild(td2);
                 tr.appendChild(td3);
+                tr.appendChild(td4);
 
-                tr.style.backgroundColor = (item.resolve === '해결') ? '#d4edda' :
-                    (item.resolve === '미해결') ? '#f8d7da' :
-                        (item.resolve === '데이터부족') ? '#fff3cd' : '';
+                updateButton.classList.add('update-btn');
+                updateButton.classList.add('trendy-button');
+                updateButton.addEventListener('click', async function () {
+                    let updateURL = `/warnify/resolve/${item.warnifyId}?resolve=true`;
+                    if(item.resolve === '해결'){
+                        updateURL = `/warnify/resolve/${item.warnifyId}?resolve=false`;
+                    }else if(item.resolve === '미해결'){
+                        updateURL = `/warnify/resolve/${item.warnifyId}?resolve=true`;
+                    }
+                    const isConfirmed = confirm("경고를 변경 하시겠습니까?");
+                    if(isConfirmed){
+                        const updateResponse = await fetchWithAuthBody(updateURL);
+                        if(updateResponse.ok){
+                            alert("변경하였습니다.");
+                            window.location.href=`/environment/warnify?page=${currentPage}`;
+                        }else {
+                            alert("변경 실패 입니다.");
+                        }
+                    }
+
+                });
 
                 tbody.appendChild(tr);
             });

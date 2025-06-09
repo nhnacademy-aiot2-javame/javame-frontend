@@ -10,17 +10,73 @@
  * Copyright 2011-2022 Twitter, Inc.
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  */
+
+/* 버튼 공통 스타일 */
 .trendy-button {
-  background: linear-gradient(135deg, #6a11cb, #2575fc);  /* 보라-블루 그라데이션 */
-  color: white;
-  padding: 10px 20px;
+  padding: 6px 14px;
+  font-size: 0.875rem;
   border: none;
   border-radius: 12px;
-  font-size: 15px;
-  font-weight: 500;
+  background-color: rgba(92, 108, 200, 0.87);
+  color: white;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  margin: 0 4px;
+}
+
+.trendy-button:hover {
+  background-color: rgba(92, 108, 200, 0.87);
+  transform: translateY(-2px);
+}
+
+.update-btn {
+  background-color: #4e73df;
+}
+.update-btn:hover {
+  background-color: #4e73df;
+}
+
+/* 승인 / 삭제용 버튼 색상 구분 */
+.approve-btn {
+  background-color: #54b375;
+}
+.approve-btn:hover {
+  background-color: #54b375;
+}
+
+.delete-btn {
+  background-color: #d0554c;
+}
+.delete-btn:hover {
+  background-color: #d0554c;
+}
+
+/* 테이블 행 hover 효과 */
+.table-hover tbody tr:hover {
+  background-color: #f0f8ff;
+  cursor: pointer;
+}
+
+/* 페이지 버튼 스타일 */
+.page-btn {
+  background-color: #f8f9fc;
+  color: #4e73df;
+  border: 1px solid #ddd;
+  padding: 6px 12px;
+  margin: 0 2px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.page-btn:hover {
+  background-color: #dbe9ff;
+}
+
+.active-page {
+  background-color: #4e73df;
+  color: white;
+  font-weight: bold;
+  pointer-events: none;
 }
 
 .trendy-button:hover {
@@ -3501,6 +3557,20 @@ textarea.form-control-lg {
   overflow: hidden;
   border-top: 1px solid var(--bs-dropdown-divider-bg);
   opacity: 1;
+}
+
+.dropdown-label {
+  display: block;
+  width: 100%;
+  padding: var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x);
+  clear: both;
+  font-weight: 400;
+  color: var(--bs-dropdown-link-color);
+  text-align: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+  background-color: transparent;
+  border: 0;
 }
 
 .dropdown-item {

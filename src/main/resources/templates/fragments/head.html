@@ -28,6 +28,14 @@
 <!--                    <i class="fa-solid fa-bell"></i>-->
 <!--                </button>-->
 <!--            </li>-->
+            <!-- 경고알람 받는곳 -->
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" id="alarmDropDown" href="#" role="button"
+                   data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-bell"></i></a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown" id = "alarmUlTag">
+                </ul>
+            </li>
+
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button"
                    data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
@@ -45,7 +53,6 @@
                     <li sec:authorize="hasAnyAuthority('OWNER')">
                         <a id="m39" class="dropdown-item" href="/members/member-list">사용자 관리</a>
                         <a id="m40" class="dropdown-item" href="/companies/settings">회사 정보 관리</a>
-                        <a id="m41" class="dropdown-item" href="/members/permission">회원 허가</a>
                     </li>
 
                     <li><a id="m42" class="dropdown-item" href="/">메인으로</a></li>
