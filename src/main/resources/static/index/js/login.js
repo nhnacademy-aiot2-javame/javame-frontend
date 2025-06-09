@@ -14,6 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 const user = await login(memberEmail, memberPassword);
+                if(user.role === 'ROLE_PENDING'){
+                    alert('권한이 없습니다.');
+                    return;
+                }
                 alert('로그인 성공!');
                 updateNavBar();
 

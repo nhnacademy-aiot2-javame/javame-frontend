@@ -1,4 +1,4 @@
-// charts.js (트리 기반 필터링 구조로 전면 리팩토링)
+// charts.js (트리 기반 필터링 구조 + 임계값 카드 데이터명 동기화)
 import {
     startSensorDataWebSocket,
     getChartDataForSensor,
@@ -12,11 +12,28 @@ import {
     createPieChart
 } from './chartUtils.js';
 
-let currentChartFilter = { companyDomain: 'javame' };
+import { onDataSelect, setTreeDataForLabelValueMap } from './serverRegister.js';
+
+const pathParts = window.location.pathname.split('/');
+console.log(pathParts);
+const companyDomain = pathParts[0];
+let currentChartFilter = {
+    companyDomain: companyDomain,
+    rangeMinutes: 5
+};
+
+// === 트리 전체 데이터를 전역 보관 ===
+let globalTreeData = null;
 
 window.addEventListener('DOMContentLoaded', async () => {
-    const tree = await getTree(currentChartFilter.companyDomain);
-    renderSlTree(document.getElementById('filterTree'), tree);
+    globalTreeData = await getTree(currentChartFilter.companyDomain);
+    renderSlTree(document.getElementById('filterTree'), globalTreeData);
+    setTreeDataForLabelValueMap(globalTreeData); // serverRegister.js에도 동일 트리 넘김!
+
+    document.getElementById('rangeSelect').addEventListener('sl-change', (e) => {
+        currentChartFilter.rangeMinutes = Number(e.target.value);
+        refreshChartsWithFilter();
+    });
 
     document.getElementById('applyChartFilter')?.addEventListener('click', async () => {
         restartSseChart();
@@ -25,14 +42,17 @@ window.addEventListener('DOMContentLoaded', async () => {
     });
 });
 
-// 재귀 렌더링 함수
+async function refreshChartsWithFilter() {
+    restartSseChart();
+    await loadBarChart();
+    await loadPieChart();
+}
+
 function renderSlTree(container, node) {
     if (!node?.children?.length) return;
-
-    // 각 하위 노드 렌더링
     node.children.forEach(child => {
         const item = createSlTreeItem(child);
-        container.appendChild(item);  // 반드시 <sl-tree> 또는 <sl-tree-item> 하위에 추가
+        container.appendChild(item);
     });
 }
 
@@ -44,18 +64,35 @@ function createSlTreeItem(node) {
 
     item.addEventListener('click', async (e) => {
         currentChartFilter[node.tag] = node.value;
-        console.log('현재 필터:', currentChartFilter);
+        // 한글 label도 최신화 (등록/수정시 UI에 보이게)
+        if (node.tag === 'location') currentChartFilter.location = node.label;
+        if (node.tag === 'gateway') currentChartFilter.gatewayId = node.label;
+        if (node.tag === 'deviceId') currentChartFilter.deviceId = node.value;
 
-        if (node.tag === 'measurement') {
+        // 데이터(최하위 measurement) 클릭 시 임계값 카드 데이터명도 갱신
+        if (node.tag === 'measurement' || node.tag === '_measurement') {
             currentChartFilter._measurement = node.value;
+            currentChartFilter._measurementLabel = node.label;
             restartSseChart();
             await loadBarChart();
             await loadPieChart();
+
+            await onDataSelect(
+                currentChartFilter.deviceId,
+                currentChartFilter.location,
+                currentChartFilter.gatewayId,
+                node.label,
+                node.label,
+                currentChartFilter.companyDomain
+            );
+        }
+        e.stopPropagation();
+        if (item.children.length > 0) {
+            item.expanded = !item.expanded;
         }
     });
 
-    // 자식 노드 렌더링
-    node.children?.forEach(child => {
+    (node.children || []).forEach(child => {
         const childItem = createSlTreeItem(child);
         childItem.setAttribute('slot', 'children');
         item.appendChild(childItem);
@@ -64,31 +101,47 @@ function createSlTreeItem(node) {
     return item;
 }
 
-
 function restartSseChart() {
     const measurement = currentChartFilter._measurement;
     if (!measurement) return console.warn('측정값 없음');
 
     startSensorDataWebSocket(currentChartFilter, (records) => {
-        // records 자체가 WS로 받은 배열 (즉, obj.data임)
         loadAreaChart(records);
     });
+}
+
+function updateLastUpdatedTime(cardId) {
+    const footer = document.querySelector(`#${cardId} .card-footer`);
+    if (!footer) return;
+    const now = new Date();
+    const isToday = now.toDateString() === new Date().toDateString();
+    let timeStr;
+    if (isToday) {
+        timeStr = `오늘 ${now.toLocaleTimeString('ko-KR', { hour12: false })}`;
+    } else {
+        timeStr = now.toLocaleString('ko-KR', { hour12: false });
+    }
+    footer.textContent = `마지막 업데이트: ${timeStr}`;
 }
 
 function loadAreaChart(dataArray) {
     console.log('loadAreaChart data:', dataArray);
     if (!Array.isArray(dataArray) || dataArray.length === 0) {
         console.warn('areaChart용 데이터가 비어있음!');
-        // 차트 지우거나 에러 표시해도 됨
         return;
     }
-    // 라벨/값 추출
-    const labels = dataArray.map(d => d.time ? d.time.substring(11, 19) : '');
+    const labels = dataArray.map(d => {
+        if (!d.time) return '';
+        const date = new Date(d.time);
+        return date.toLocaleTimeString('ko-KR', { hour12: false });
+    });
+
     const values = dataArray.map(d => d.value);
 
-    createAreaChart("myAreaChart", labels, values, "CPU 사용률(%)");
+    const title = currentChartFilter._measurementLabel || currentChartFilter._measurement || "측정값";
+    updateLastUpdatedTime('areaChartCard');
+    createAreaChart("myAreaChart", labels, values, title);
 }
-
 
 async function loadBarChart() {
     const { companyDomain, origin, _measurement } = currentChartFilter;
@@ -110,12 +163,13 @@ async function loadBarChart() {
     }
 
     if (window.barChart) window.barChart.destroy();
-    window.barChart = createBarChart('myBarChart', chartData.labels, chartData.values, `${_measurement} 변화`);
+    const title = currentChartFilter._measurementLabel || currentChartFilter._measurement || "측정값";
+    updateLastUpdatedTime('areaChartCard');
+    window.barChart = createBarChart('myBarChart', chartData.labels, chartData.data, `${title} 변화`);
 }
 
-
 async function loadPieChart() {
-    const { companyDomain, origin } = currentChartFilter;
+    const { companyDomain, origin, _measurement, _measurementLabel } = currentChartFilter;
     console.log('loadPieChart 호출 - companyDomain:', companyDomain, 'origin:', origin);
 
     const pieData = await getPieChartData(origin);
@@ -126,8 +180,9 @@ async function loadPieChart() {
         return;
     }
 
+    const title = currentChartFilter._measurementLabel || currentChartFilter._measurement || "측정값";
+
     if (window.pieChart) window.pieChart.destroy();
-    window.pieChart = createPieChart('myPieChart', pieData.labels, pieData.values);
+    updateLastUpdatedTime('pieChartCard');
+    window.pieChart = createPieChart('myPieChart', pieData.labels, pieData.data, title);
 }
-
-

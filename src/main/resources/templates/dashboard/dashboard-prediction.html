@@ -19,7 +19,7 @@
 
         .main-chart-container {
             position: relative;
-            height: 500px;
+            height: 400px;
             width: 100%;
         }
 
@@ -303,8 +303,16 @@
                     <div class="col-lg-6">
                         <div class="card chart-card mb-4">
                             <div class="card-header">
-                                <i class="fas fa-memory me-2 text-warning"></i>
-                                메모리 사용량 주간 예측
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="fas fa-memory me-2 text-warning"></i>
+                                        메모리 사용률 예측 분석
+                                    </div>
+                                    <div>
+                                        <span class="badge bg-primary">현재 데이터</span>
+                                        <span class="badge bg-danger">AI 예측</span>
+                                    </div>
+                                </div>
                             </div>
                             <div class="card-body">
                                 <div class="chart-container">
@@ -324,8 +332,16 @@
                     <div class="col-lg-6">
                         <div class="card chart-card mb-4">
                             <div class="card-header">
-                                <i class="fas fa-hdd me-2 text-info"></i>
-                                디스크 사용량 예측
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="fas fa-memory me-2 text-warning"></i>
+                                        디스크 사용률 예측 분석
+                                    </div>
+                                    <div>
+                                        <span class="badge bg-primary">현재 데이터</span>
+                                        <span class="badge bg-danger">AI 예측</span>
+                                    </div>
+                                </div>
                             </div>
                             <div class="card-body">
                                 <div class="chart-container">
@@ -343,7 +359,7 @@
                 </div>
 
                 <!-- 전력량 예측 차트 -->
-                <div class="card chart-card mb-4">
+                <div class="card chart-card mb-3">
                     <div class="card-header">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
@@ -358,7 +374,7 @@
                     </div>
                     <div class="card-body">
                         <div class="main-chart-container">
-                            <canvas id="wattsPredictionMixedChart"></canvas>
+                            <canvas id="monthlyWattsPredictionChart" width="800" height="150"></canvas>
                         </div>
                     </div>
                     <div class="card-footer text-muted">

@@ -43,11 +43,7 @@ public class DashboardController {
     }
 
     @GetMapping("/members")
-    public String memberMange(@RequestParam(value = "page", required = false)Long pageNum, Model model) {
-        if(Objects.isNull(pageNum)){
-            return "redirect:/environment/members?page=1";
-        }
-        model.addAttribute("pageNum", pageNum);
+    public String memberMange(@RequestParam(value = "page", required = false, defaultValue = "1")Long pageNum, Model model) {
         return "dashboard/members";
     }
 
@@ -63,7 +59,6 @@ public class DashboardController {
     @GetMapping("/dashboard-detail")
     public String dashboardDetail(){
         return "dashboard/dashboard-detail";
-
     }
 
     @GetMapping("/dashboard-integration")

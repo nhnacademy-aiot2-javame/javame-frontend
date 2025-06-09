@@ -44,7 +44,7 @@ export function startSensorDataWebSocket(params, onData) {
 
     const { companyDomain, origin, ...rest } = params;
     const token = sessionStorage.getItem("accessToken") || ""; // 또는 auth에서 토큰 가져오기
-    const wsUrl = 'ws://localhost:10279/api/v1/ws/environment?token=' + token;
+    const wsUrl = `wss://javame.live/api/v1/ws/environment?token=${token}`;
 
     console.log("WebSocket 연결 시 토큰:", token); // 이 줄이 반드시 먼저 나와야 함
     console.log("WebSocket 연결할 URL:", wsUrl);
@@ -206,9 +206,12 @@ export async function getWeeklyAverages(origin, measurement, filters) {
     return getAverageData(origin, measurement, filters, '1w');
 }
 
-// ★★★ 차트 데이터 조회 함수들 ★★★
-export async function getChartDataForSensor(origin, sensor) {
-    const res = await fetchWithAuth(`${API_BASE_URL}/chart/type/${sensor}?origin=${encodeURIComponent(origin)}`);
+export async function getChartDataForSensor(origin, sensor, rangeMinutes = 5) {
+    const params = new URLSearchParams({
+        origin,
+        rangeMinutes
+    }).toString();
+    const res = await fetchWithAuth(`${API_BASE_URL}/chart/type/${sensor}?${params}`);
     if (!res.ok) return { labels: [], values: [] };
     return await res.json();
 }

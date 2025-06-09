@@ -10,6 +10,7 @@
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
     <!-- Font Awesome icons (free version)-->
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+
     <!-- Google fonts-->
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
     <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
@@ -25,6 +26,8 @@
             Menu
             <i class="fas fa-bars ms-1"></i>
         </button>
+        <button id="btn-ko">한국어</button>
+        <button id="btn-en">English</button>
         <div class="collapse navbar-collapse" id="navbarResponsive">
             <ul class="navbar-nav text-uppercase ms-auto py-4 py-lg-0">
                 <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
@@ -53,7 +56,7 @@
     <div class="container">
         <div class="text-center">
             <h2 class="section-heading text-uppercase">Services</h2>
-            <h3 class="section-subheading text-muted">AIoT 기반 서버 운영 솔루션 소개</h3>
+            <h3 id="m4" class="section-subheading text-muted">AIoT 기반 서버 운영 솔루션 소개</h3>
         </div>
         <div class="row text-center">
             <div class="col-md-4">
@@ -62,7 +65,7 @@
                             <i class="fas fa-shopping-cart fa-stack-1x fa-inverse"></i>
                         </span>
                 <h4 class="my-3">Solution</h4>
-                <p class="text-muted">실시간 장애 예방, 자동화 대응, 환경 통합 감시 <br> 대시보드 기반의 시각화 및 예측 운영</p>
+                <p id="m1" class="text-muted">실시간 장애 예방, 자동화 대응, 환경 통합 감시 <br> 대시보드 기반의 시각화 및 예측 운영</p>
             </div>
             <div class="col-md-4">
                         <span class="fa-stack fa-4x">
@@ -70,7 +73,7 @@
                             <i class="fas fa-laptop fa-stack-1x fa-inverse"></i>
                         </span>
                 <h4 class="my-3">Server</h4>
-                <p class="text-muted">AI가 서버 리소스의 이상 징후를 실시간 탐지</p>
+                <p id="m2" class="text-muted">AI가 서버 리소스의 이상 징후를 실시간 탐지</p>
             </div>
             <div class="col-md-4">
                         <span class="fa-stack fa-4x">
@@ -78,7 +81,7 @@
                             <i class="fas fa-lock fa-stack-1x fa-inverse"></i>
                         </span>
                 <h4 class="my-3">IOT</h4>
-                <p class="text-muted">IoT 센서를 통해 온도, 습도, 전력 등 서버룸 환경을 모니터링.</p>
+                <p id="m3" class="text-muted">IoT 센서를 통해 온도, 습도, 전력 등 서버룸 환경을 모니터링</p>
             </div>
         </div>
     </div>
@@ -88,7 +91,7 @@
     <div class="container">
         <div class="text-center">
             <h2 class="section-heading text-uppercase">Dashboard</h2>
-            <h3 class="section-subheading text-muted">다양한 형태의 그래프를 제공합니다.</h3>
+            <h3 id="m5" class="section-subheading text-muted">다양한 형태의 그래프를 제공합니다.</h3>
         </div>
         <div class="row">
             <div class="col-lg-4 col-sm-6 mb-4">
@@ -189,7 +192,7 @@
     <div class="container">
         <div class="text-center">
             <h2 class="section-heading text-uppercase">About</h2>
-            <h3 class="section-subheading text-muted">프로젝트 정리</h3>
+            <h3 id="m6" class="section-subheading text-muted">프로젝트 정리</h3>
         </div>
         <ul class="timeline">
             <li>
@@ -201,9 +204,9 @@
                 <div class="timeline-panel">
                     <div class="timeline-heading">
                         <h4>2024.09</h4>
-                        <h4 class="subheading">IoT 센서 연동 및 데이터 시각화</h4>
+                        <h4 id="m7" class="subheading">IoT 센서 연동 및 데이터 시각화</h4>
                     </div>
-                    <div class="timeline-body"><p class="text-muted">노드레드를 통해 받은 데이터를 활용한 기후 정보 수집 <br> InfluxDB로 데이터 저장, Grafana를 통한 웹 출력 </p></div>
+                    <div id="m8" class="timeline-body"><p class="text-muted">노드레드를 통해 받은 데이터를 활용한 기후 정보 수집 <br> InfluxDB로 데이터 저장, Grafana를 통한 웹 출력 </p></div>
                 </div>
             </li>
             <li class="timeline-inverted">
@@ -215,9 +218,9 @@
                 <div class="timeline-panel">
                     <div class="timeline-heading">
                         <h4>2024.12</h4>
-                        <h4 class="subheading">Servlet과 JSP를 활용한 MVC 패턴 기반 쇼핑몰 개발</h4>
+                        <h4 id="m9" class="subheading">Servlet과 JSP를 활용한 MVC 패턴 기반 쇼핑몰 개발</h4>
                     </div>
-                    <div class="timeline-body"><p class="text-muted">상품 검색, 장바구니, 결제 시스템 등 핵심 기능 구현<br>관리자 페이지를 통한 상품 CRUD 기능 개발</p></div>
+                    <div id="m10" class="timeline-body"><p class="text-muted">상품 검색, 장바구니, 결제 시스템 등 핵심 기능 구현<br>관리자 페이지를 통한 상품 CRUD 기능 개발</p></div>
                 </div>
             </li>
             <li>
@@ -229,9 +232,9 @@
                 <div class="timeline-panel">
                     <div class="timeline-heading">
                         <h4>2025.03</h4>
-                        <h4 class="subheading">Spring Blog 프로젝트</h4>
+                        <h4 id="m11" class="subheading">Spring Blog 프로젝트</h4>
                     </div>
-                    <div class="timeline-body"><p class="text-muted">MSA(Microservice Architecture) 기반 블로그 서비스 개발</p></div>
+                    <div id="m12" class="timeline-body"><p class="text-muted">MSA(Microservice Architecture) 기반 블로그 서비스 개발</p></div>
                 </div>
             </li>
             <li class="timeline-inverted">
@@ -245,7 +248,7 @@
                         <h4>2025.05</h4>
                         <h4 class="subheading">Catch Server</h4>
                     </div>
-                    <div class="timeline-body"><p class="text-muted">AIOT 기반 서버 운영</p></div>
+                    <div id="m13" class="timeline-body"><p class="text-muted">AIOT 기반 서버 운영</p></div>
                 </div>
             </li>
         </ul>
@@ -261,49 +264,49 @@
         <div class="team-grid">
             <div class="team-member">
                 <img src="index/assets/img/team/1.jpg" alt="문장곤">
-                <div class="name">문장곤</div>
+                <div id="m14" class="name">문장곤</div>
                 <a class="btn btn-dark btn-social mx-2" href="https://github.com/Moon-janggon" target="_blank" aria-label="GitHub">
                     <i class="fab fa-github"></i>
                 </a>
             </div>
             <div class="team-member">
                 <img src="index/assets/img/team/2.jpg" alt="성장원">
-                <div class="name">성장원</div>
+                <div id="m15" class="name">성장원</div>
                 <a class="btn btn-dark btn-social mx-2" href="https://github.com/jangwonseong" target="_blank" aria-label="GitHub">
                     <i class="fab fa-github"></i>
                 </a>
             </div>
             <div class="team-member">
                 <img src="index/assets/img/team/3.jpg" alt="오성현">
-                <div class="name">오성현</div>
+                <div id="m16" class="name">오성현</div>
                 <a class="btn btn-dark btn-social mx-2" href="https://github.com/hso03" target="_blank" aria-label="GitHub">
                     <i class="fab fa-github"></i>
                 </a>
             </div>
             <div class="team-member">
                 <img src="index/assets/img/team/4.jpg" alt="이지원">
-                <div class="name">이지원</div>
+                <div id="m17" class="name">이지원</div>
                 <a class="btn btn-dark btn-social mx-2" href="https://github.com/JiwonLee-2" target="_blank" aria-label="GitHub">
                     <i class="fab fa-github"></i>
                 </a>
             </div>
             <div class="team-member">
                 <img src="index/assets/img/team/5.jpg" alt="정지연">
-                <div class="name">정지연</div>
+                <div id="m18" class="name">정지연</div>
                 <a class="btn btn-dark btn-social mx-2" href="https://github.com/saumonrose08" target="_blank" aria-label="GitHub">
                     <i class="fab fa-github"></i>
                 </a>
             </div>
             <div class="team-member">
                 <img src="index/assets/img/team/6.jpg" alt="임성인">
-                <div class="name">임성인</div>
+                <div id="m19" class="name">임성인</div>
                 <a class="btn btn-dark btn-social mx-2" href="https://github.com/InSeong23" target="_blank" aria-label="GitHub">
                     <i class="fab fa-github"></i>
                 </a>
             </div>
             <div class="team-member">
                 <img src="index/assets/img/team/7.jpg" alt="윤기원">
-                <div class="name">윤기원</div>
+                <div id="m20" class="name">윤기원</div>
                 <a class="btn btn-dark btn-social mx-2" href="https://github.com/ygw1026" target="_blank" aria-label="GitHub">
                     <i class="fab fa-github"></i>
                 </a>
@@ -315,23 +318,23 @@
 <section class="page-section" id="contact">
     <div class="container">
         <div class="text-center mb-5">
-            <h2 class="section-heading text-uppercase">등록하기</h2>
-            <p class="section-subheading text-muted">AIoT 기반 서버 운영 솔루션을 지금 경험하세요.</p>
+            <h2 id="m21" class="section-heading text-uppercase">등록하기</h2>
+            <p id="m22" class="section-subheading text-muted">AIoT 기반 서버 운영 솔루션을 지금 경험하세요.</p>
         </div>
 
             <div class="row justify-content-center">
                 <div class="col-md-4">
                     <div class="card h-100 shadow-sm">
                         <div class="card-body text-center">
-                            <h5 class="card-title">기본 제공 플랜</h5>
+                            <h5 id="m23" class="card-title">기본 제공 플랜</h5>
                             <h6 class="card-subtitle mb-3">
-                                <span class="text-muted text-decoration-line-through">₩99,000</span>
-                                <span class="text-primary fw-bold">무료</span>
+                                <span id="m24" class="text-muted text-decoration-line-through">₩99,000</span>
+                                <span id="m25" class="text-primary fw-bold">무료</span>
                             </h6>
                             <ul class="list-unstyled my-3 text-start">
-                                <li class="mb-2 text-center">✅ 센서 데이터 제공</li>
-                                <li class="mb-2 text-center">✅ 서버 기기 연결</li>
-                                <li class="mb-2 text-center">✅ 기본 알림 기능</li>
+                                <li id="m26" class="mb-2 text-center">✅ 센서 데이터 제공</li>
+                                <li id="m27" class="mb-2 text-center">✅ 서버 기기 연결</li>
+                                <li id="m28" class="mb-2 text-center">✅ 기본 알림 기능</li>
                             </ul>
                         </div>
                     </div>
@@ -340,7 +343,7 @@
 
             <!-- 등록 버튼 -->
             <div class="text-center mt-4">
-                <a class="btn btn-primary btn-xl text-uppercase" href="/auth/purchase">
+                <a id="m29" class="btn btn-primary btn-xl text-uppercase" href="/auth/purchase">
                     등록하기
                 </a>
             </div>
@@ -564,6 +567,11 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 <!-- Core theme JS-->
 <script src="index/js/scripts.js"></script>
+<!--nav 관련 JS -->
 <script src="/index/js/nav.js" type="module"></script>
+
+<!--언어 전환용 JS-->
+<script src="/admin/js/locales-index.js"></script>
+<!--<script src="/admin/js/locales-head.js"></script>-->
 </body>
 </html>

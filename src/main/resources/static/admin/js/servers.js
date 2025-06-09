@@ -2,9 +2,15 @@ import {
     fetchWithAuth
 } from '../../index/js/auth.js'
 
+import {
+    translationMap
+} from '../../index/js/translationMap.js'
+
+const converter = valueConverter();
+
 window.addEventListener('DOMContentLoaded', async event => {
 
-    const url = '/rule/servers/cp/javame';
+    const url = '/rule/servers/cp/companyDomain';
 
     const serverResponse = await fetchWithAuth(url);
     const json = await serverResponse.json();
@@ -24,7 +30,7 @@ window.addEventListener('DOMContentLoaded', async event => {
             serverNo_td.innerText = smallJson.serverNo;
             server_iphost.innerText = smallJson.iphost;
             server_companydomain.innerText = smallJson.companyDomain;
-            server_createdAt.innerText = smallJson.createdAt;
+            server_createdAt.innerText = converter.timeConverterHM(smallJson.createdAt);
 
             tr.appendChild(serverNo_td);
             tr.appendChild(server_iphost);
@@ -64,12 +70,12 @@ window.addEventListener('DOMContentLoaded', async event => {
                     const createdAt = document.createElement('td');
 
                     serverDataNo.innerText = serverData.serverDataNo;
-                    location.innerText = serverData.serverDataLocation;
-                    gateway.innerText = serverData.serverDataGateway;
-                    serverDataName.innerText = serverData.serverDataName;
+                    location.innerText = translationMap[serverData.serverDataLocation] || serverData.serverDataLocation;
+                    gateway.innerText = translationMap[serverData.serverDataGateway] || serverData.serverDataGateway;
+                    serverDataName.innerText = translationMap[serverData.serverDataName] || serverData.serverDataName;
                     minThreshold.innerText = serverData.minThreshold;
                     maxThreshold.innerText = serverData.maxThreshold;
-                    createdAt.innerText = serverData.createdAt;
+                    createdAt.innerText = converter.timeConverterHM(serverData.createdAt)
 
                     tr1.appendChild(serverDataNo);
                     tr1.appendChild(location);

@@ -3,6 +3,8 @@ import {
     fetchWithAuthPut
 } from '../../index/js/auth.js'
 
+const convert = valueConverter();
+
 window.addEventListener('DOMContentLoaded', function (){
 
     const pending = new pendigTable();
@@ -21,7 +23,6 @@ const pendigTable = function (){
         const result = await fetchWithAuth(url,"method : 'GET");
         const json = await result.json();
         const tbody = document.querySelector('#membersTable tbody')
-        console.log(json);
 
         if(tbody){
             json.content.forEach(json =>{
@@ -34,12 +35,14 @@ const pendigTable = function (){
                 const deleteBtn = document.createElement('button');
                 approveBtn.innerText = '승인';
                 approveBtn.classList.add('approve-btn');
+                approveBtn.classList.add('trendy-button');
                 deleteBtn.innerText = '삭제';
                 deleteBtn.classList.add('delete-btn');
+                deleteBtn.classList.add('trendy-button');
                 approveBtn.addEventListener('click', function (e) {
                     if (e.target.classList.contains('approve-btn')) {
                         const email = json.memberEmail;
-                        if(!confirm(`${email}님의 권한을 주시겠습니까?????`)) return;
+                        if(!confirm(`${email}님의 권한을 주시겠습니까?`)) return;
                         const memberNo = json.memberNo;
                         const url = `/members/role/${memberNo}?role=ROLE_USER`;
 
@@ -58,7 +61,7 @@ const pendigTable = function (){
                 deleteBtn.addEventListener('click', function (e) {
                     if (e.target.classList.contains('delete-btn')) {
                         const email = json.memberEmail;
-                        if(!confirm(`${email}님을 삭제하시겠습니까?????`)) return;
+                        if(!confirm(`${email}님을 삭제하시겠습니까?`)) return;
                         const memberNo = json.memberNo;
                         const url = SERVER_URL + `/members/${memberNo}`
 
@@ -76,7 +79,7 @@ const pendigTable = function (){
 
 
                 td1.innerText = json.memberEmail;
-                td2.innerText = json.registerAt;
+                td2.innerText = convert.timeConverterHM(json.registerAt);
                 td3.appendChild(approveBtn);
                 td3.appendChild(deleteBtn);
 
