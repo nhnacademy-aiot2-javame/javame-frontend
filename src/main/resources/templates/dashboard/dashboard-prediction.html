@@ -19,7 +19,7 @@
 
         .main-chart-container {
             position: relative;
-            height: 150px !important;
+            height: 400px;
             width: 100%;
         }
 
@@ -220,6 +220,74 @@
         ::-webkit-scrollbar-thumb:hover {
             background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
         }
+        .status-normal {
+            background: linear-gradient(135deg, #28a745 0%, #218838 100%) !important;
+            color: white;
+            animation: pulse-normal 2s infinite;
+        }
+
+        .status-abnormal {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+            color: white;
+            animation: pulse-abnormal 1s infinite;
+        }
+
+        .status-unknown {
+            background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%) !important;
+            color: white;
+        }
+
+        @keyframes pulse-normal {
+            0% {
+                box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+            }
+            50% {
+                box-shadow: 0 2px 15px rgba(40, 167, 69, 0.5);
+            }
+            100% {
+                box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+            }
+        }
+
+        @keyframes pulse-abnormal {
+            0% {
+                box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+            }
+            50% {
+                box-shadow: 0 2px 20px rgba(220, 53, 69, 0.7);
+            }
+            100% {
+                box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+            }
+        }
+
+        /* 차트 컨테이너 수정 - 차트가 잘리지 않도록 */
+        .chart-container {
+            position: relative;
+            height: 350px;  /* 400px에서 줄임 */
+            width: 100%;
+            padding: 10px;  /* 패딩 추가 */
+        }
+
+        .main-chart-container {
+            position: relative;
+            height: 350px;  /* 400px에서 줄임 */
+            width: 100%;
+            padding: 10px;  /* 패딩 추가 */
+        }
+
+        /* 차트 카드 바디 수정 */
+        .chart-card .card-body {
+            padding: 1.5rem;
+            background: #ffffff;
+            overflow: hidden;  /* 오버플로우 숨김 */
+        }
+
+        /* 캔버스 요소 크기 제한 */
+        canvas {
+            max-width: 100% !important;
+            max-height: 100% !important;
+        }
     </style>
 </head>
 <body class="sb-nav-fixed">
@@ -245,28 +313,28 @@
                             <div class="text-primary">
                                 <i class="fas fa-microchip fa-2x"></i>
                                 <div class="mt-2">CPU</div>
-                                <span class="accuracy-badge">87.5%</span>
+                                <span class="accuracy-badge" id="cpu-status-badge">로딩중...</span>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="text-danger">
                                 <i class="fas fa-memory fa-2x"></i>
                                 <div class="mt-2">메모리</div>
-                                <span class="accuracy-badge">92.1%</span>
+                                <span class="accuracy-badge" id="memory-status-badge">로딩중...</span>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="text-success">
                                 <i class="fas fa-hdd fa-2x"></i>
                                 <div class="mt-2">디스크</div>
-                                <span class="accuracy-badge">78.3%</span>
+                                <span class="accuracy-badge" id="disk-status-badge">로딩중...</span>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="text-warning">
                                 <i class="fas fa-bolt fa-2x"></i>
                                 <div class="mt-2">전력량</div>
-                                <span class="accuracy-badge">77.9%</span>
+                                <span class="accuracy-badge" id="power-status-badge">로딩중...</span>
                             </div>
                         </div>
                     </div>
@@ -291,6 +359,12 @@
                             <canvas id="mainPredictionMixedChart"></canvas>
                         </div>
                     </div>
+                    <div class="card-footer text-muted">
+                        <small>
+                            <i class="fas fa-info-circle me-1"></i>
+                            시계열 분석 기반 예측 (정확도: 92.1%)
+                        </small>
+                    </div>
                 </div>
 
                 <!-- 상세 예측 분석 -->
@@ -303,8 +377,16 @@
                     <div class="col-lg-6">
                         <div class="card chart-card mb-4">
                             <div class="card-header">
-                                <i class="fas fa-memory me-2 text-warning"></i>
-                                메모리 사용량 주간 예측
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="fas fa-memory me-2 text-warning"></i>
+                                        메모리 사용률 예측 분석
+                                    </div>
+                                    <div>
+                                        <span class="badge bg-primary">현재 데이터</span>
+                                        <span class="badge bg-danger">AI 예측</span>
+                                    </div>
+                                </div>
                             </div>
                             <div class="card-body">
                                 <div class="chart-container">
@@ -324,8 +406,16 @@
                     <div class="col-lg-6">
                         <div class="card chart-card mb-4">
                             <div class="card-header">
-                                <i class="fas fa-hdd me-2 text-info"></i>
-                                디스크 사용량 예측
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="fas fa-memory me-2 text-warning"></i>
+                                        디스크 사용률 예측 분석
+                                    </div>
+                                    <div>
+                                        <span class="badge bg-primary">현재 데이터</span>
+                                        <span class="badge bg-danger">AI 예측</span>
+                                    </div>
+                                </div>
                             </div>
                             <div class="card-body">
                                 <div class="chart-container">
@@ -378,49 +468,6 @@
                     <div class="card-body">
                         <div class="chart-container">
                             <canvas id="multiMetricComparisonChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- AI 모델 상태 카드 -->
-                <div class="row">
-                    <div class="col-lg-4">
-                        <div class="card bg-primary text-white mb-4 status-card">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <div class="text-white-75 small">예측 모델 상태</div>
-                                        <div class="text-lg fw-bold">활성화</div>
-                                    </div>
-                                    <i class="fas fa-robot fa-2x text-white-50"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="card bg-success text-white mb-4 status-card">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <div class="text-white-75 small">평균 예측 정확도</div>
-                                        <div class="text-lg fw-bold">86.0%</div>
-                                    </div>
-                                    <i class="fas fa-bullseye fa-2x text-white-50"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="card bg-warning text-white mb-4 status-card">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <div class="text-white-75 small">마지막 학습</div>
-                                        <div class="text-lg fw-bold">2시간 전</div>
-                                    </div>
-                                    <i class="fas fa-clock fa-2x text-white-50"></i>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
