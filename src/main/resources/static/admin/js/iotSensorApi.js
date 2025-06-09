@@ -98,9 +98,11 @@ export function closeSensorDataWebSocket() {
     }
 }
 
-// ★★★ 통합 평균 데이터 조회 함수 (1h/24h/1w 지원) ★★★
+// ★★★ 통합 평균 데이터 조회 함수 (시간 범위 지원 추가) ★★★
 export async function getAverageData(origin, measurement, filters, timeRange = '1h') {
     const params = new URLSearchParams();
+
+    // ★★★ 검색 결과 [2] Period Over Period 방식: 파라미터 중복 제거 ★★★
     Object.entries(filters).forEach(([key, value]) => {
         if (key !== 'companyDomain') { // companyDomain은 게이트웨이에서 처리
             params.append(key, value);
@@ -109,6 +111,9 @@ export async function getAverageData(origin, measurement, filters, timeRange = '
 
     params.append("origin", origin);
     params.append("measurement", measurement);
+
+    // ★★★ startTime/endTime 중복 추가 방지 ★★★
+    // filters에서 이미 추가되었으므로 다시 추가하지 않음
 
     let endpoint;
     switch(timeRange) {
@@ -125,7 +130,6 @@ export async function getAverageData(origin, measurement, filters, timeRange = '
             endpoint = '/average/' + timeRange;
     }
 
-    // ★★★ companyDomain 제거 - 게이트웨이 필터에서 자동 처리 ★★★
     const url = API_BASE_URL + endpoint + '?' + params.toString();
 
     console.log('getAverageData 호출 (' + timeRange + '):', url);
@@ -140,7 +144,18 @@ export async function getAverageData(origin, measurement, filters, timeRange = '
                 error: true
             };
         }
-        return await res.json();
+        const result = await res.json();
+
+        // ★★★ 검색 결과 [3] 응답 데이터 로깅 강화 ★★★
+        console.log(`getAverageData(${timeRange}) 응답:`, {
+            timeSeriesAverage: result.timeSeriesAverage?.length || 0,
+            overallAverage: result.overallAverage,
+            actualStartTime: result.actualStartTime,
+            actualEndTime: result.actualEndTime,
+            hasData: result.hasData
+        });
+
+        return result;
     } catch (error) {
         console.error('getAverageData(' + timeRange + ') 오류:', error);
         return {
