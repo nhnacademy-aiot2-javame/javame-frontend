@@ -56,7 +56,7 @@ const memberTable = function (){
                                     alert("서버 오류 발생");
                                 } else {
                                     alert("권한 변경 성공");
-                                    window.location.href = `/environment/members`;
+                                    window.location.href = `/members/member-list`;
                                 }
                             });
 
@@ -99,7 +99,7 @@ const memberTable = function (){
                 previous.textContent = "이전";
                 previous.disabled = false;
                 previous.classList.add('page-btn');
-                previous.addEventListener('click', () => window.location.href = `/environment/members?page=${previousNum}`);
+                previous.addEventListener('click', () => window.location.href = `/members/member-list?page=${previousNum}`);
                 element.appendChild(previous);
             }
 
@@ -114,7 +114,7 @@ const memberTable = function (){
                 btn.textContent = num;
                 btn.classList.add('page-btn');
                 btn.disabled = false;
-                btn.addEventListener('click',()=>window.location.href=`/environment/members?page=${num}`);
+                btn.addEventListener('click',()=>window.location.href=`/members/member-list?page=${num}`);
                 if(num === page.pageable.pageNumber+1){
                     btn.classList.add('active-page');
                 }
@@ -128,7 +128,7 @@ const memberTable = function (){
                 next.textContent = "다음";
                 next.disabled = false;
                 next.classList.add('page-btn');
-                next.addEventListener('click', () => window.location.href = `/environment/members?page=${nextNum}`);
+                next.addEventListener('click', () => window.location.href = `/members/member-list?page=${nextNum}`);
                 element.appendChild(next);
             }
         }
@@ -180,7 +180,7 @@ const pendigTable = function (){
                                     alert("서버 오류 발생");
                                 } else {
                                     alert("권한 변경 성공");
-                                    window.location.href = `/environment/members`;
+                                    window.location.href = `/members/member-list`;
                                 }
                             })
                     }
@@ -199,7 +199,7 @@ const pendigTable = function (){
                                     alert("서버 오류 발생");
                                 } else {
                                     alert("회원 삭제 성공");
-                                    window.location.href = `/environment/members`;
+                                    window.location.href = `/members/member-list`;
                                 }
                             })
                     }
@@ -237,7 +237,7 @@ const pendigTable = function (){
                 previous.textContent = "이전";
                 previous.disabled = false;
                 previous.classList.add('page-btn');
-                previous.addEventListener('click', () => window.location.href = `/environment/members?page=${previousNum}`);
+                previous.addEventListener('click', () => window.location.href = `/members/member-list?page=${previousNum}`);
                 element.appendChild(previous);
             }
 
@@ -252,7 +252,7 @@ const pendigTable = function (){
                 btn.textContent = num;
                 btn.classList.add('page-btn');
                 btn.disabled = false;
-                btn.addEventListener('click',()=>window.location.href=`/environment/members?page=${num}`);
+                btn.addEventListener('click',()=>window.location.href=`/members/member-list?page=${num}`);
                 if(num === page.pageable.pageNumber+1){
                     btn.classList.add('active-page');
                 }
@@ -266,7 +266,7 @@ const pendigTable = function (){
                 next.textContent = "다음";
                 next.disabled = false;
                 next.classList.add('page-btn');
-                next.addEventListener('click', () => window.location.href = `/environment/members?page=${nextNum}`);
+                next.addEventListener('click', () => window.location.href = `/members/member-list?page=${nextNum}`);
                 element.appendChild(next);
             }
         }
