@@ -340,7 +340,7 @@ export async function fetchWithAuthBody(url, bodyOptions) {
         body: JSON.stringify(bodyOptions)
     };
 
-    let response = await fetch(url, mergedOptions);
+    let response = await fetch(CICD_URL+url, mergedOptions);
 
     if (response.status === 401) {
         const refreshRequired = response.headers.get('X-Refresh-Required') === 'true';
