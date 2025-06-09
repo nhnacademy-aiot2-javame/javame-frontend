@@ -10,6 +10,98 @@
   <link href="/admin/css/styles.css" rel="stylesheet" />
   <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css" />
+
+  <style>
+    /* ★★★ 통일된 카드 디자인 ★★★ */
+    .card {
+      border: none;
+      border-radius: 1rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+      overflow: hidden;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, #ffffff 0%, #f1f3f4 100%);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      padding: 1.25rem 1.5rem;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    .card-body {
+      background: #ffffff;
+    }
+
+    .card-footer {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+      border-radius: 0 0 0.5rem 0.5rem;
+      padding: 1rem 1.25rem;
+      backdrop-filter: blur(10px);
+    }
+
+    /* ★★★ 트리 영역 특별 스타일 ★★★ */
+    .col-md-3 .card {
+      position: relative;
+    }
+
+    .col-md-3 .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0.3) 100%);
+    }
+
+    .col-md-3 .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 35px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Shoelace 커스텀 트리 아이콘 설정 */
+    .custom-icons sl-tree-item.selected::part(base) {
+      background-color: #007bff;
+      color: white;
+      border-radius: 4px;
+    }
+
+    /* ★★★ 차트 카드 특별 스타일 ★★★ */
+    #areaChartCard {
+      margin-bottom: 2rem;
+    }
+
+    #barChartCard,
+    #pieChartCard {
+      height: auto;
+    }
+
+    /* ★★★ 파이 차트 레전드 영역 ★★★ */
+    .custom-legend {
+      background: rgba(248, 249, 250, 0.5);
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    /* ★★★ 반응형 대응 ★★★ */
+    @media (max-width: 768px) {
+      .card {
+        margin-bottom: 1rem;
+      }
+
+      .card:hover {
+        transform: translateY(-2px);
+      }
+    }
+  </style>
+
   <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace-autoloader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script type="module" src="/admin/js/charts.js"></script>
@@ -29,7 +121,7 @@
           <li class="breadcrumb-item"><a href="/environment/dashboard-main">대시보드</a></li>
           <li class="breadcrumb-item active">트리</li>
         </ol>
-        <div class="row sidebar-row">
+        <div class="row sidebar-row" style="position: relative;">
           <!-- 왼쪽 트리 필터 영역 (슬라이드 사이드바) -->
           <div id="sidebar">
             <div class="card h-100">
@@ -45,7 +137,7 @@
                     <sl-option value="15">15분</sl-option>
                     <sl-option value="30">30분</sl-option>
                   </sl-select>
-                  <button id="hideSidebarBtn" class="btn btn-light btn-sm" title="접기" style="font-size: 1.2rem;">
+                  <button id="hideSidebarBtn" class="btn btn-light btn-sm" title="접기">
                     <i class="fas fa-chevron-left"></i>
                   </button>
                 </div>
@@ -58,17 +150,14 @@
               </div>
             </div>
           </div>
+          <button id="showSidebarBtn" style="display:none;" class="btn btn-light btn-sm" title="펼치기">
+            <i class="fas fa-chevron-right"></i>
+          </button>
           <!-- 오른쪽 차트 영역 -->
           <div id="chartArea">
-            <!-- 펼치기 버튼 (차트 왼쪽) -->
-            <button id="showSidebarBtn"
-                    style="display:none;"
-                    title="필터 펼치기">
-              <i class="fas fa-chevron-right"></i>
-            </button>
             <!-- 상단: 실시간 데이터(영역차트, 한 줄 전체) -->
             <div id="areaChartCard" class="card mb-4 chart-card" style="height:500px;">
-              <div class="card-header">
+              <div class="card-header" id="areaChartTitle">
                 <i class="fas fa-chart-area me-1"></i>
                 실시간 데이터
               </div>
@@ -77,9 +166,8 @@
               </div>
               <div class="card-footer small text-muted">마지막 업데이트: 오늘 00:00</div>
             </div>
-            <!-- 하단: 파이차트(왼쪽) + 빈카드(오른쪽) 나란히 2열 배치 -->
-            <div class="row">
-              <div class="col-lg-6">
+            <div class="row" style="margin-top: 75px;">
+              <div class="col-lg-6 col-md-12">
                 <div id="pieChartCard" class="card mb-4 chart-card" style="height:500px;">
                   <div class="card-header">
                     <i class="fas fa-chart-pie me-1"></i>
@@ -88,6 +176,11 @@
                   <div class="card-body flex-column p-0" style="height:100%; overflow:hidden;">
                     <div class="flex-grow-1 d-flex align-items-center justify-content-center" style="height:350px; max-height:350px; width:100%; overflow:hidden;">
                       <canvas id="myPieChart" width="300" height="300"></canvas>
+                    </div>
+                    <div style="text-align:right; margin:4px 8px 2px 0;">
+                      <button id="pieLegendDeselectAllBtn" type="button" class="btn btn-outline-secondary btn-sm" style="padding:2px 10px; font-size:13px;">
+                        전체 해제
+                      </button>
                     </div>
                     <div id="pieChartLegend"
                          class="custom-legend px-3"
@@ -98,20 +191,18 @@
                   <div class="card-footer small text-muted">마지막 업데이트: 오늘 00:00</div>
                 </div>
               </div>
-              <div class="col-lg-6">
-                <!-- === 임계값 등록 폼(빈카드) === -->
+              <div class="col-lg-6 col-md-12">
                 <div class="card mb-4 chart-card" style="height:500px; background:#fafbfd;">
                   <div class="card-header" style="font-weight: 600;">
                     임계값 등록
                   </div>
                   <div class="card-body" style="height:100%; display: flex; align-items: center; justify-content: center;">
-                    <div id="thresholdPrevValue" style="margin-bottom: 12px; color: #666; font-size:1rem;"></div>
                     <div id="thresholdRegisterCard" style="padding:16px; text-align:center; width:100%;">
-                      <!-- 데이터명(동적, 초기엔 안내문구) -->
                       <h4 id="thresholdDataName" style="margin-bottom: 24px;">
                         데이터를 선택하세요
                       </h4>
                       <div style="margin:16px 0;">
+                        <div id="thresholdPrevValue" style="margin-bottom: 12px; color: #666; font-size:1rem;"></div>
                         <label>
                           최소값:
                           <input id="minThresholdInput" type="number" style="width:100px;" />
@@ -131,11 +222,37 @@
                   </div>
                   <div class="card-footer small text-muted">&nbsp;</div>
                 </div>
-                <!-- === 임계값 등록 폼 끝 === -->
               </div>
             </div>
+<!--            <div class="col-12">-->
+<!--              <div class="card mb-4 chart-card" style="min-height:180px;">-->
+<!--                <div class="card-header" style="font-weight: 600;">-->
+<!--                  데이터 상세 테이블-->
+<!--                </div>-->
+<!--                <div class="card-body" style="height:100%; overflow-y:auto; padding:12px;">-->
+<!--                  <table id="dataDetailTable" class="table table-sm table-bordered align-middle">-->
+<!--                    <thead>-->
+<!--                    <tr>-->
+<!--                      <th>데이터 수집 위치</th>   &lt;!&ndash; location &ndash;&gt;-->
+<!--                      <th>데이터</th>            &lt;!&ndash; gatewayId &ndash;&gt;-->
+<!--                      <th>세부 항목</th>         &lt;!&ndash; _measurement(영문+한글) &ndash;&gt;-->
+<!--                      <th>측정값</th>            &lt;!&ndash; value &ndash;&gt;-->
+<!--                      <th>데이터 수집 시간</th>   &lt;!&ndash; time &ndash;&gt;-->
+<!--                    </tr>-->
+<!--                    </thead>-->
+<!--                    <tbody>-->
+<!--                    <tr>-->
+<!--                      <td colspan="4" class="text-center">데이터가 없습니다.</td>-->
+<!--                    </tr>-->
+<!--                    </tbody>-->
+<!--                  </table>-->
+<!--                </div>-->
+<!--                <div class="card-footer small text-muted">&nbsp;</div>-->
+<!--              </div>-->
+<!--            </div>-->
+
           </div> <!-- chartArea -->
-        </div> <!-- row -->
+        </div> <!-- row sidebar-row -->
       </div>
     </main>
     <div th:replace="~{fragments/footer :: footer}"></div>
