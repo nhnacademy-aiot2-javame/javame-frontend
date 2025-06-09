@@ -45,7 +45,9 @@ const messages = {
         // m39: `사용자 관리`,
         // m40: `회사 정보 관리`,
         // m41: `회원 허가`,
-        // m42: `메인으로`
+        // m42: `메인으로`,
+        m43: `센서 조회`,
+        m44: `센서 리스트`
 
 
 
@@ -101,6 +103,8 @@ const messages = {
         // m40: `Company Information Management`,
         // m41: `User Approval`,
         // m42: `Back to Main`
+        m43: `센서 조회`,
+        m44: `센서 리스트`
 
 
 
@@ -111,12 +115,17 @@ const messages = {
 function setLanguage(lang) {
     const t = messages[lang];
 
-    // 일반 텍스트는 innterText
-    document.getElementById('m2').innerText = t.m2;
-    document.getElementById('m3').innerText = t.m3;
-    document.getElementById('m4').innerText = t.m4;
-    document.getElementById('m5').innerText = t.m5;
-    document.getElementById('m6').innerText = t.m6;
+    function setText(id, text) {
+        const el = document.getElementById(id);
+        if(el) el.innerText = text;
+    }
+
+    setText(`m2`, t.m2);
+    setText(`m3`, t.m3);
+    setText(`m4`, t.m4);
+    setText(`m5`, t.m5);
+    setText(`m6`, t.m6);
+
 
 
     document.getElementById('m11').innerText = t.m11;
