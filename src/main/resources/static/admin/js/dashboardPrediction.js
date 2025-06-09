@@ -1,6 +1,6 @@
 // admin/js/dashboardPrediction.js (수정된 버전)
 
-import { createMixedLineChart, createMultiLineChart } from './chartUtils.js';
+import { createMixedLineChart,createMixedLineChartForMem ,createMultiLineChart } from './chartUtils.js';
 import {fetchWithAuth} from '/index/js/auth.js';
 
 const chartInstances = {};
@@ -34,21 +34,99 @@ async function getCurrentContext() {
         return { companyDomain: 'javame', deviceId: '192.168.71.74' };
     }
 }
+
 // DOM 로드 완료 후 실행
 window.addEventListener('DOMContentLoaded', () => {
     console.log("Dashboard Prediction page loaded. Initializing AI prediction charts...");
 
-    // ★★★ HTML에 없는 요소들에 대한 이벤트 리스너 제거 ★★★
     // 바로 차트들을 그리기
     drawAllPredictionCharts();
 
-    // 5초마다 자동 새로고침 (실시간 효과)
+    // 초기 상태 배지 업데이트
+    updateStatusBadges();
+
+    // 60초마다 자동 새로고침
     setInterval(() => {
         console.log("Auto refreshing prediction charts...");
         drawAllPredictionCharts();
+        updateStatusBadges();
     }, 60000);
 });
 
+/**
+ * 상태 배지 업데이트 함수
+ */
+async function updateStatusBadges() {
+    try {
+        const context = await getCurrentContext();
+
+        // CPU 상태 업데이트
+        updateSingleStatusBadge('cpu', context);
+
+        // 메모리 상태 업데이트
+        updateSingleStatusBadge('memory', context);
+
+        // 디스크 상태 업데이트
+        updateSingleStatusBadge('disk', context);
+
+        // 전력량은 별도 처리 (예측 정확도 표시)
+        const powerBadge = document.getElementById('power-status-badge');
+        if (powerBadge) {
+            powerBadge.textContent = '정상';
+            powerBadge.className = 'accuracy-badge status-normal';
+            powerBadge.title = '전력 사용량: 정상 범위';
+        }
+
+    } catch (error) {
+        console.error('상태 배지 업데이트 실패:', error);
+    }
+}
+
+/**
+ * 개별 상태 배지 업데이트
+ */
+async function updateSingleStatusBadge(type, context) {
+    const badge = document.getElementById(`${type}-status-badge`);
+    if (!badge) return;
+
+    try {
+        // 최근 데이터 가져오기
+        const response = await fetchWithAuth(`/environment/forecast/${type}?` + new URLSearchParams({
+            companyDomain: context.companyDomain,
+            deviceId: context.deviceId,
+            hoursBack: 1,      // 최근 1시간
+            hoursForward: 0    // 예측 없음
+        }));
+
+        if (response.ok) {
+            const data = await response.json();
+            if (data.historicalData && data.historicalData.length > 0) {
+                // 최근 값의 평균 계산
+                const recentValues = data.historicalData.slice(-5); // 최근 5개 값
+                const avgValue = recentValues.reduce((sum, point) => sum + point.value, 0) / recentValues.length;
+
+                // 임계값 기준으로 상태 판단
+                const thresholds = {
+                    cpu: 80,
+                    memory: 85,
+                    disk: 85
+                };
+
+                const threshold = thresholds[type];
+                const isNormal = avgValue < threshold;
+
+                // 배지 업데이트
+                badge.textContent = isNormal ? '정상' : '비정상';
+                badge.className = isNormal ? 'accuracy-badge status-normal' : 'accuracy-badge status-abnormal';
+                badge.title = `현재 사용률: ${avgValue.toFixed(2)}% (임계값: ${threshold}%)`;
+            }
+        }
+    } catch (error) {
+        console.error(`${type} 상태 업데이트 실패:`, error);
+        badge.textContent = '확인 불가';
+        badge.className = 'accuracy-badge status-unknown';
+    }
+}
 /**
  * 모든 예측 차트를 그립니다 (HTML 구조에 맞춤)
  */
@@ -258,7 +336,7 @@ async function drawMemoryPredictionChart() {
         // 차트 제목을 CPU/디스크와 동일한 형식으로 수정
         const chartTitle = `메모리 사용률 현재 + AI 예측 분석`;
 
-        chartInstances[canvasId] = createMixedLineChart(
+        chartInstances[canvasId] = createMixedLineChartForMem(
             canvasId,
             labels,
             mixedData,
