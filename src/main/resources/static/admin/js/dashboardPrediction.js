@@ -10,30 +10,30 @@ async function getCurrentContext() {
     try {
         // 현재 사용자 정보에서 companyDomain 가져오기
         const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}');
-        const companyDomain = userInfo.companyDomain || 'javame.live';
+        const companyDomain = userInfo.companyDomain || 'javame';
 
-        // 첫 번째 사용 가능한 서버의 deviceId 가져오기
-        const treeResponse = await fetchWithAuth('/environment/companyDomain/tree');
-        if (!treeResponse.ok) throw new Error('트리 데이터 로드 실패');
+        // 실제 사용 가능한 디바이스 목록 가져오기
+        const debugResponse = await fetchWithAuth(`/environment/forecast/debug?companyDomain=${companyDomain}&deviceId=test`);
+        if (debugResponse.ok) {
+            const debugData = await debugResponse.json();
+            console.log('=== 디버그 정보 ===', debugData);
 
-        const treeData = await treeResponse.json();
-        let deviceId = null;
-
-        // 트리에서 첫 번째 서버의 deviceId 찾기
-        if (treeData.origins && treeData.origins.length > 0) {
-            const firstOrigin = treeData.origins[0];
-            if (firstOrigin.children && firstOrigin.children.length > 0) {
-                deviceId = firstOrigin.children[0].value;
+            if (debugData.availableData && debugData.availableData.length > 0) {
+                const firstAvailable = debugData.availableData[0];
+                return {
+                    companyDomain: firstAvailable.companyDomain,
+                    deviceId: firstAvailable.deviceId
+                };
             }
         }
 
-        return { companyDomain, deviceId: deviceId || 'server001' };
+        // 폴백 값
+        return { companyDomain: companyDomain, deviceId: '192.168.71.74' };
     } catch (error) {
         console.error('컨텍스트 정보 가져오기 실패:', error);
-        return { companyDomain: 'javame.live', deviceId: 'server001' };
+        return { companyDomain: 'javame', deviceId: '192.168.71.74' };
     }
 }
-
 // DOM 로드 완료 후 실행
 window.addEventListener('DOMContentLoaded', () => {
     console.log("Dashboard Prediction page loaded. Initializing AI prediction charts...");
@@ -58,17 +58,45 @@ async function drawAllPredictionCharts() {
     try {
         // 모든 차트를 동시에 그리기 (병렬 처리)
         await Promise.all([
-            drawMainPredictionChart(),      // CPU
-            drawMemoryPredictionChart(),    // 메모리
-            drawDiskPredictionChart(),      // 디스크
+            drawMainPredictionChart(),      // CPU (24시간)
+            drawMemoryPredictionChart(),    // 메모리 (24시간)
+            drawDiskPredictionChart(),      // 디스크 (24시간)
             drawMonthlyWattsPredictionChart(), // 전력량
             drawAccuracyChart()            // 정확도
         ]);
 
         console.log('=== 모든 예측 차트 그리기 완료 ===');
+
+        // 차트 통계 정보 출력
+        logChartStatistics();
+
     } catch (error) {
         console.error('차트 그리기 중 오류 발생:', error);
     }
+}
+
+/**
+ * 차트 통계 정보 로깅
+ */
+function logChartStatistics() {
+    console.log('=== 차트 렌더링 통계 ===');
+    Object.entries(chartInstances).forEach(([canvasId, chart]) => {
+        if (chart && chart.data && chart.data.datasets) {
+            const datasets = chart.data.datasets;
+            console.log(`${canvasId}:`);
+            datasets.forEach(dataset => {
+                if (dataset.label !== '연결선' && dataset.data) {
+                    const validData = dataset.data.filter(v => v !== null);
+                    if (validData.length > 0) {
+                        const avg = validData.reduce((a, b) => a + b, 0) / validData.length;
+                        const max = Math.max(...validData);
+                        const min = Math.min(...validData);
+                        console.log(`  - ${dataset.label}: 평균=${avg.toFixed(1)}%, 최대=${max.toFixed(1)}%, 최소=${min.toFixed(1)}%, 포인트수=${validData.length}`);
+                    }
+                }
+            });
+        }
+    });
 }
 
 /**
@@ -81,12 +109,15 @@ async function drawMainPredictionChart() {
     console.log(`[CPU 차트] 캔버스 요소:`, canvas);
 
     try {
-        // ★★★ 실제 API 호출 ★★★
+        const context = await getCurrentContext();
+        console.log('[CPU 차트] 사용할 컨텍스트:', context);
+
+        // 예측 데이터는 있는 만큼만 요청
         const response = await fetchWithAuth('/environment/forecast/cpu?' + new URLSearchParams({
-            companyDomain: 'javame.net',  // 실제 도메인으로 변경 필요
-            deviceId: 'server01',         // 실제 디바이스 ID로 변경 필요
-            hoursBack: 6,
-            hoursForward: 6
+            companyDomain: context.companyDomain,
+            deviceId: context.deviceId,
+            hoursBack: 12,      // 과거 12시간
+            hoursForward: 24    // 미래 24시간 요청 (실제로는 15시간만 있을 수 있음)
         }));
 
         console.log(`[CPU 차트] API 응답 상태:`, response.status);
@@ -96,34 +127,36 @@ async function drawMainPredictionChart() {
         }
 
         const data = await response.json();
-        console.log(`[CPU 차트] 받은 전체 데이터:`, data);
-        console.log(`[CPU 차트] historicalData:`, data.historicalData);
-        console.log(`[CPU 차트] predictedData:`, data.predictedData);
-        console.log(`[CPU 차트] splitTime:`, data.splitTime);
 
-        // 시간 라벨 생성
+        // 30분 단위 시간 라벨 생성
         const labels = [];
 
         // 과거 데이터 라벨
         data.historicalData.forEach(point => {
             const time = new Date(point.timestamp);
-            labels.push(time.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }));
+            labels.push(time.toLocaleTimeString('ko-KR', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            }));
         });
 
-        // 예측 데이터 라벨
+        // 예측 데이터 라벨 (있는 만큼만)
         data.predictedData.forEach(point => {
             const time = new Date(point.timestamp);
-            labels.push(time.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }));
+            labels.push(time.toLocaleTimeString('ko-KR', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            }));
         });
-
-        console.log(`[CPU 차트] 생성된 라벨:`, labels);
 
         // 데이터 추출
         const currentData = data.historicalData.map(point => point.value);
         const predictedData = data.predictedData.map(point => point.value);
 
-        console.log(`[CPU 차트] currentData 값:`, currentData);
-        console.log(`[CPU 차트] predictedData 값:`, predictedData);
+        console.log(`[CPU 차트] 과거 데이터 포인트: ${currentData.length}개`);
+        console.log(`[CPU 차트] 예측 데이터 포인트: ${predictedData.length}개`);
 
         const mixedData = {
             currentData: currentData,
@@ -135,11 +168,15 @@ async function drawMainPredictionChart() {
             chartInstances[canvasId].destroy();
         }
 
+        // 차트 제목 수정 (실제 예측 시간 반영)
+        const predictedHours = Math.floor(predictedData.length / 2); // 30분 단위이므로 2로 나눔
+        const chartTitle = `CPU 사용률 현재 + AI 예측 분석 `;
+
         chartInstances[canvasId] = createMixedLineChart(
             canvasId,
             labels,
             mixedData,
-            'CPU 사용률 현재 + AI 예측 분석'
+            chartTitle
         );
 
         console.log(`✅ CPU 차트 렌더링 완료`);
@@ -160,12 +197,15 @@ async function drawMemoryPredictionChart() {
     console.log(`[메모리 차트] 캔버스 요소:`, canvas);
 
     try {
-        // ★★★ 실제 API 호출 ★★★
+        const context = await getCurrentContext();
+        console.log('[메모리 차트] 사용할 컨텍스트:', context);
+
+        // CPU/디스크와 동일한 시간 범위로 요청
         const response = await fetchWithAuth('/environment/forecast/memory?' + new URLSearchParams({
-            companyDomain: 'javame.net',  // 실제 도메인으로 변경 필요
-            deviceId: 'server01',         // 실제 디바이스 ID로 변경 필요
-            hoursBack: 168,               // 7일 = 168시간
-            hoursForward: 72              // 3일 = 72시간
+            companyDomain: context.companyDomain,
+            deviceId: context.deviceId,
+            hoursBack: 12,      // 과거 12시간
+            hoursForward: 24    // 미래 24시간 요청
         }));
 
         console.log(`[메모리 차트] API 응답 상태:`, response.status);
@@ -175,74 +215,39 @@ async function drawMemoryPredictionChart() {
         }
 
         const data = await response.json();
-        console.log(`[메모리 차트] 받은 전체 데이터:`, data);
-        console.log(`[메모리 차트] historicalData 개수:`, data.historicalData?.length);
-        console.log(`[메모리 차트] predictedData 개수:`, data.predictedData?.length);
 
-        // 일별로 데이터 그룹화 (일 평균 계산)
-        const dailyData = {};
-        const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
-
-        // 과거 데이터 처리
-        data.historicalData.forEach(point => {
-            const date = new Date(point.timestamp);
-            const dayKey = date.toLocaleDateString('ko-KR');
-
-            if (!dailyData[dayKey]) {
-                dailyData[dayKey] = {
-                    values: [],
-                    dayName: dayNames[date.getDay()],
-                    isPredicted: false
-                };
-            }
-            dailyData[dayKey].values.push(point.value);
-        });
-
-        // 예측 데이터 처리
-        data.predictedData.forEach(point => {
-            const date = new Date(point.timestamp);
-            const dayKey = date.toLocaleDateString('ko-KR');
-
-            if (!dailyData[dayKey]) {
-                dailyData[dayKey] = {
-                    values: [],
-                    dayName: dayNames[date.getDay()],
-                    isPredicted: true
-                };
-            }
-            dailyData[dayKey].values.push(point.value);
-            dailyData[dayKey].isPredicted = true;
-        });
-
-        console.log(`[메모리 차트] 일별 그룹화된 데이터:`, dailyData);
-
-        // 라벨과 데이터 배열 생성
+        // 30분 단위 시간 라벨 생성
         const labels = [];
-        const currentData = [];
-        const predictedData = [];
+        const formatDateTime = (timestamp) => {
+            const time = new Date(timestamp);
+            return time.toLocaleTimeString('ko-KR', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+        };
 
-        Object.entries(dailyData).forEach(([date, data]) => {
-            const avgValue = data.values.reduce((a, b) => a + b, 0) / data.values.length;
-            labels.push(data.dayName);
-
-            if (data.isPredicted) {
-                currentData.push(null);
-                predictedData.push(avgValue);
-            } else {
-                currentData.push(avgValue);
-                predictedData.push(null);
-            }
+        // 과거 데이터 라벨
+        data.historicalData.forEach(point => {
+            labels.push(formatDateTime(point.timestamp));
         });
 
-        console.log(`[메모리 차트] 최종 labels:`, labels);
-        console.log(`[메모리 차트] 최종 currentData:`, currentData);
-        console.log(`[메모리 차트] 최종 predictedData:`, predictedData);
+        // 예측 데이터 라벨
+        data.predictedData.forEach(point => {
+            labels.push(formatDateTime(point.timestamp));
+        });
 
-        const splitIndex = currentData.filter(v => v !== null).length;
+        console.log(`[메모리 차트] 데이터 포인트: 과거 ${data.historicalData.length}개, 예측 ${data.predictedData.length}개`);
+
+        // 데이터 추출
+        const currentData = data.historicalData.map(point => point.value);
+        const predictedData = data.predictedData.map(point => point.value);
+
+        const splitIndex = currentData.length;
 
         const mixedData = {
-            currentData: currentData.filter(v => v !== null),
-            predictedData: predictedData.filter(v => v !== null),
+            currentData: currentData,
+            predictedData: predictedData,
             splitIndex: splitIndex
         };
 
@@ -250,18 +255,29 @@ async function drawMemoryPredictionChart() {
             chartInstances[canvasId].destroy();
         }
 
+        // 차트 제목을 CPU/디스크와 동일한 형식으로 수정
+        const chartTitle = `메모리 사용률 현재 + AI 예측 분석`;
+
         chartInstances[canvasId] = createMixedLineChart(
             canvasId,
-            labels.slice(0, 7), // 최대 7일만 표시
+            labels,
             mixedData,
-            '주간 메모리 사용량 예측 (%)'
+            chartTitle
         );
 
-        console.log(`✅ 메모리 차트 렌더링 완료`);
+        // 평균 신뢰도 계산 및 표시
+        if (data.predictedData.length > 0) {
+            const avgConfidence = data.predictedData.reduce((sum, point) =>
+                sum + (point.confidenceScore || 0.9), 0) / data.predictedData.length;
+            console.log(`✅ 메모리 차트 렌더링 완료 (평균 신뢰도: ${(avgConfidence * 100).toFixed(1)}%)`);
+        } else {
+            console.log(`✅ 메모리 차트 렌더링 완료 (예측 데이터 없음)`);
+        }
 
     } catch (error) {
         console.error(`❌ 메모리 차트 API 호출 실패:`, error);
         console.error(`[메모리 차트] 에러 상세:`, error.stack);
+
     }
 }
 
@@ -270,18 +286,21 @@ async function drawMemoryPredictionChart() {
  * 디스크 예측 차트
  */
 async function drawDiskPredictionChart() {
-    const canvasId = 'cpuPredictionChart'; // HTML에서는 디스크지만 ID는 cpu
+    const canvasId = 'cpuPredictionChart';
     const canvas = document.getElementById(canvasId);
 
     console.log(`[디스크 차트] 캔버스 요소:`, canvas);
 
     try {
-        // ★★★ 실제 API 호출 ★★★
+        const context = await getCurrentContext();
+        console.log('[디스크 차트] 사용할 컨텍스트:', context);
+
+        // 예측 요청
         const response = await fetchWithAuth('/environment/forecast/disk?' + new URLSearchParams({
-            companyDomain: 'javame.net',  // 실제 도메인으로 변경 필요
-            deviceId: 'server01',         // 실제 디바이스 ID로 변경 필요
-            hoursBack: 12,
-            hoursForward: 12
+            companyDomain: context.companyDomain,
+            deviceId: context.deviceId,
+            hoursBack: 12,      // 과거 12시간
+            hoursForward: 24    // 미래 24시간 요청
         }));
 
         console.log(`[디스크 차트] API 응답 상태:`, response.status);
@@ -291,39 +310,35 @@ async function drawDiskPredictionChart() {
         }
 
         const data = await response.json();
-        console.log(`[디스크 차트] 받은 전체 데이터:`, data);
-        console.log(`[디스크 차트] resourceType:`, data.resourceType);
-        console.log(`[디스크 차트] historicalData 샘플:`, data.historicalData?.slice(0, 3));
-        console.log(`[디스크 차트] predictedData 샘플:`, data.predictedData?.slice(0, 3));
 
-        // 시간 라벨 생성
+        // 30분 단위 시간 라벨 생성
         const labels = [];
+
+        // 시간 포맷 함수
+        const formatTime = (timestamp) => {
+            const time = new Date(timestamp);
+            return time.toLocaleTimeString('ko-KR', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+        };
 
         // 과거 데이터 라벨
         data.historicalData.forEach(point => {
-            const time = new Date(point.timestamp);
-            labels.push(time.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }));
+            labels.push(formatTime(point.timestamp));
         });
 
         // 예측 데이터 라벨
         data.predictedData.forEach(point => {
-            const time = new Date(point.timestamp);
-            labels.push(time.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }));
+            labels.push(formatTime(point.timestamp));
         });
 
         // 데이터 추출
-        const currentData = data.historicalData.map(point => {
-            console.log(`[디스크 차트] historical 데이터 포인트:`, point);
-            return point.value;
-        });
+        const currentData = data.historicalData.map(point => point.value);
+        const predictedData = data.predictedData.map(point => point.value);
 
-        const predictedData = data.predictedData.map(point => {
-            console.log(`[디스크 차트] predicted 데이터 포인트:`, point);
-            return point.value;
-        });
-
-        console.log(`[디스크 차트] currentData 최종값:`, currentData);
-        console.log(`[디스크 차트] predictedData 최종값:`, predictedData);
+        console.log(`[디스크 차트] 과거 데이터: ${currentData.length}개, 예측 데이터: ${predictedData.length}개`);
 
         const mixedData = {
             currentData: currentData,
@@ -335,11 +350,15 @@ async function drawDiskPredictionChart() {
             chartInstances[canvasId].destroy();
         }
 
+        // 실제 예측 시간 반영
+        const predictedHours = Math.floor(predictedData.length / 2);
+        const chartTitle = `디스크 사용률 예측 `;
+
         chartInstances[canvasId] = createMixedLineChart(
             canvasId,
             labels,
             mixedData,
-            '24시간 디스크 사용률 예측 (%)'
+            chartTitle
         );
 
         console.log(`✅ 디스크 차트 렌더링 완료`);
@@ -348,40 +367,6 @@ async function drawDiskPredictionChart() {
         console.error(`❌ 디스크 차트 API 호출 실패:`, error);
         console.error(`[디스크 차트] 에러 상세:`, error.stack);
     }
-}
-/**
- * 에러 시 폴백 차트 그리기
- */
-function drawFallbackChart(canvasId, resourceType) {
-    const now = new Date();
-    const labels = [];
-
-    // 12시간 전부터 12시간 후까지
-    for (let i = -12; i <= 12; i++) {
-        const time = new Date(now.getTime() + i * 60 * 60 * 1000);
-        labels.push(time.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }));
-    }
-
-    // 더미 데이터 생성
-    const currentData = Array.from({ length: 13 }, () => Math.random() * 30 + 50);
-    const predictedData = Array.from({ length: 12 }, () => Math.random() * 30 + 55);
-
-    const mixedData = {
-        currentData: currentData,
-        predictedData: predictedData,
-        splitIndex: 13
-    };
-
-    if (chartInstances[canvasId]) {
-        chartInstances[canvasId].destroy();
-    }
-
-    chartInstances[canvasId] = createMixedLineChart(
-        canvasId,
-        labels,
-        mixedData,
-        `${resourceType} 사용률 예측 (데모 데이터)`
-    );
 }
 /**
  * ★★★ 전력량 예측 차트 (핵심!) ★★★
@@ -398,15 +383,48 @@ async function drawMonthlyWattsPredictionChart() {
     }
 
     try {
-        const response = await fetchWithAuth('/environment/forecast/monthly', { method: 'GET' });
+        console.log('[전력량 차트] API 호출 시작...');
+
+        const response = await fetchWithAuth('/forecast/monthly', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        console.log('[전력량 차트] 응답 상태:', response.status);
+        console.log('[전력량 차트] 응답 헤더:', response.headers);
+
         if (!response.ok) {
-            throw new Error(`서버 오류: ${response.status}`);
+            const errorText = await response.text();
+            console.error('[전력량 차트] 에러 응답 내용:', errorText);
+            throw new Error(`서버 오류: ${response.status} - ${errorText}`);
         }
 
-        const data = await response.json();
+        const responseText = await response.text();
+        console.log('[전력량 차트] 원본 응답:', responseText);
+
+        let data;
+        try {
+            data = JSON.parse(responseText);
+        } catch (parseError) {
+            console.error('[전력량 차트] JSON 파싱 에러:', parseError);
+            console.error('[전력량 차트] 파싱 실패한 텍스트:', responseText);
+            throw new Error('응답 데이터 파싱 실패');
+        }
+
+        console.log('[전력량 차트] 파싱된 데이터:', data);
+
+        // 데이터 구조 확인
+        if (!data.hasOwnProperty('actual_kWh') || !data.hasOwnProperty('predicted_kWh')) {
+            console.error('[전력량 차트] 예상된 데이터 구조가 아님:', Object.keys(data));
+            throw new Error('데이터 구조 오류');
+        }
+
         const used = data.actual_kWh;
         const predicted = data.predicted_kWh;
 
+        console.log('[전력량 차트] 실제 사용량:', used, '예측 사용량:', predicted);
         if (chartInstances[canvasId]) {
             chartInstances[canvasId].destroy();
         }
@@ -481,7 +499,9 @@ async function drawMonthlyWattsPredictionChart() {
 
         console.log("✅ 월간 예측 차트 성공");
     } catch (err) {
-        console.error("❌ 차트 로딩 실패:", err);
+        console.error("❌ 전력량 차트 로딩 실패:", err);
+        console.error('[전력량 차트] 에러 스택:', err.stack);
+
     }
 }
 
@@ -497,7 +517,7 @@ function drawAccuracyChart() {
     const datasets = [
         {
             label: 'CPU 예측 정확도',
-            data: [85.2, 86.1, 87.3, 86.8, 87.5, 88.1, 87.5],
+            data: [75.2, 76.8, 77.1, 77.5, 77.9, 78.2, 77.9],
             unit: 'percentage',
             borderColor: '#4682B4'
         },
@@ -515,7 +535,7 @@ function drawAccuracyChart() {
         },
         {
             label: '전력량 예측 정확도',
-            data: [75.2, 76.8, 77.1, 77.5, 77.9, 78.2, 77.9],
+            data: [85.2, 86.1, 87.3, 86.8, 87.5, 88.1, 87.5],
             unit: 'percentage',
             borderColor: '#FFC107'
         }
