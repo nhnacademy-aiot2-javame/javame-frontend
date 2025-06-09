@@ -62,6 +62,28 @@ const messages = {
         m54: `최소 임계값`,
         m55: `최대 임계값`,
         m56: `등록 시간`,
+    //   server.html
+        m57: `서버 조회`,
+        m58: `서버 리스트`,
+        m59: `서버 번호`,
+        m60: `아이피 주소`,
+        m61: `회사 도메인`,
+        m62: `등록 시간`,
+        m63: `서버 데이터 리스트`,
+        m64: `데이터 번호`,
+        m65: `위치`,
+        m66: `게이트웨이`,
+        m67: `데이터 이름`,
+        m68: `최소 임계값`,
+        m69: `최대 임계값`,
+        m70: `등록 시간`,
+    //     admin/index.html
+        m71: `회사를 선택하세요`,
+    // common/settings.html
+        m72: `설정`,
+        m73: `알림 설정`,
+
+
 
 
 
@@ -135,6 +157,34 @@ const messages = {
         m54: `Min Threshold`,
         m55: `Max Threshold`,
         m56: `Created At`,
+    // server.html
+        m57: `View Servers`,
+        m58: `Server List`,
+        m59: `Server No.`,
+        m60:`Ip Address`,
+        m61: `Company Domain`,
+        m62: `Created At`,
+        m63: `Server Data List`,
+        m64: `Data No.`,
+        m65: `Location`,
+        m66: `Gateway`,
+        m67: `Data Name`,
+        m68: `Min Threshold`,
+        m69: `Max Threshold`,
+        m70: `Created At`,
+        // common/settings.html
+        m72: `설정`,
+        m73: `알림 설정`,
+        m74: `이메일 알림 받기`,
+        m75: `앱 알림 받기`,
+        m76: `저장`,
+        m77: `테마 설정`,
+        m78: `라이트 모드`,
+        m79: `다크 모드`,
+        m80: `회원 탈퇴`,
+        m81: `계정을 삭제하면 복구할 수 없습니다. 계속하시겠습니까?`,
+        m82: ``??,
+        m83: `회원 탈퇴`,
 
 
 
@@ -161,7 +211,9 @@ function setLanguage(lang) {
         'm36','m37','m38','m39','m40','m41','m42',
         'm43','m44','m45','m46','m47','m48',
         'm49','m50','m51','m52','m53','m54',
-        'm55','m56'
+        'm55','m56','m57','m58','m59','m60',
+        'm61','m62','m63','m64','m65','m66',
+        'm67','m68','m69','m70'
 
     ];
 
