@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 async function fetchMembers() {
-    const res = await fetch('http://localhost:10279/api/v1/members', {
+    const res = await fetch('https://javame.live/api/v1/members', {
         headers: {
             ...authHeader()
         }
@@ -50,7 +50,7 @@ async function fetchMembers() {
 }
 
 async function grantPermission(memberId) {
-    const res = await fetch(`http://localhost:10279/api/v1/members/${memberId}/permission`, {
+    const res = await fetch(`https://javame.live/api/v1/members/${memberId}/permission`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
