@@ -10,7 +10,37 @@ async function getCurrentContext() {
     try {
         // 현재 사용자 정보에서 companyDomain 가져오기
         const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}');
-        const companyDomain = userInfo.companyDomain || 'javame';
+
+        // ★★★ 도메인에서 실제 회사명 추출하는 로직 ★★★
+        let companyDomain = userInfo.companyDomain;
+        if (companyDomain && companyDomain.includes('.')) {
+            const parts = companyDomain.split('.');
+
+            // TLD(최상위 도메인) 목록
+            const tlds = ['com', 'net', 'org', 'co.kr', 'go.kr', 'or.kr', 'ac.kr', 'pe.kr'];
+
+            // 뒤에서부터 TLD 확인
+            let tldLength = 0;
+            for (let i = parts.length - 1; i >= 0; i--) {
+                const checkTld = parts.slice(i).join('.');
+                if (tlds.includes(checkTld)) {
+                    tldLength = parts.length - i;
+                    break;
+                }
+            }
+
+            // TLD를 제외한 바로 앞 부분이 회사명
+            // 예: s4.java21.net → java21
+            // 예: javame.com → javame
+            // 예: test.javame.co.kr → javame
+            if (tldLength > 0 && parts.length > tldLength) {
+                companyDomain = parts[parts.length - tldLength - 1];
+            } else {
+                // TLD를 찾지 못한 경우 첫 번째 부분 사용
+                companyDomain = parts[0];
+            }
+        }
+        console.log('추출된 companyDomain:', companyDomain);
 
         // 실제 사용 가능한 디바이스 목록 가져오기
         const debugResponse = await fetchWithAuth(`/environment/forecast/debug?companyDomain=${companyDomain}&deviceId=test`);
@@ -31,9 +61,10 @@ async function getCurrentContext() {
         return { companyDomain: companyDomain, deviceId: '192.168.71.74' };
     } catch (error) {
         console.error('컨텍스트 정보 가져오기 실패:', error);
-        return { companyDomain: 'javame', deviceId: '192.168.71.74' };
+
     }
 }
+
 
 // DOM 로드 완료 후 실행
 window.addEventListener('DOMContentLoaded', () => {
