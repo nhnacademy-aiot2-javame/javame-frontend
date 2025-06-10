@@ -2,8 +2,10 @@ package com.nhnacademy.frontend.auth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/auth")
@@ -29,5 +31,11 @@ public class AuthController {
     @GetMapping("/findpass")
     public String findPassPage(){
         return "auth/find-password";
+    }
+
+    @GetMapping("/callback")
+    public String callback(@RequestParam String email, Model model) {
+        model.addAttribute("email", email);
+        return "auth/callback";
     }
 }

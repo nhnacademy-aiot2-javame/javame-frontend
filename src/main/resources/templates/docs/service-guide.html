@@ -7,7 +7,6 @@
 <head>
     <title>서비스 안내 - NHN Academy IoT</title>
     <!-- 이 페이지에만 필요한 추가 CSS (이전 페이지들과 유사한 스타일 사용 가능) -->
-    <th:block layout:fragment="css">
         <style>
             .guide-content h2 {
                 margin-top: 2.5rem;
@@ -68,7 +67,6 @@
                 font-weight: 600;
             }
         </style>
-    </th:block>
 </head>
 
 <body>
@@ -199,7 +197,6 @@
                     <h2>4. 대시보드 활용 가이드</h2>
                     <h3>4.1. 메인 대시보드</h3>
                     <p>메인 대시보드에서는 시스템의 전반적인 상태와 주요 지표들을 한눈에 확인할 수 있습니다. CPU, 메모리, 디스크, 네트워크 등의 현재 사용률을 게이지 차트로 보여주며, 주요 알림 사항도 함께 제공됩니다.</p>
-                    <p><img th:src="@{/admin/assets/img/main_dashboard_example.png}" alt="메인 대시보드 예시" class="img-fluid"></p>
 
                     <h3>4.2. 통합 차트 분석</h3>
                     <p>통합 차트 분석 페이지에서는 사용자가 직접 조회 기간, Y축 단위, 측정 항목 등을 선택하여 원하는 데이터를 심층적으로 분석할 수 있습니다. 여러 측정 항목의 시계열 데이터를 하나의 그래프에 중첩하여 비교 분석하는 것이 가능합니다.</p>
@@ -212,7 +209,6 @@
                         <li><strong>측정 항목 선택:</strong> 테이블에서 그래프로 보고자 하는 측정 항목들을 체크박스로 선택합니다.</li>
                         <li>선택된 항목들의 시계열 데이터가 상단 꺾은선 그래프에 자동으로 그려집니다.</li>
                     </ol>
-                    <p><img th:src="@{/admin/assets/img/integration_chart_example.png}" alt="통합 차트 예시" class="img-fluid"></p>
                     <p><span class="badge bg-warning text-dark badge-custom">팁:</span> 단위가 다른 데이터들(예: %와 °C)은 그래프의 Y축이 자동으로 분리되어 표시되므로, 값의 범위가 크게 달라도 함께 비교 분석할 수 있습니다.</p>
 
                     <h2>5. 문제 해결 및 문의</h2>
@@ -238,6 +234,7 @@
 <!-- 공통 JavaScript 파일들 -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 <script th:src="@{/admin/js/scripts.js}"></script>
+<script type="module" src="/admin/js/fragmentsHeader.js"></script>
 <!-- 이 페이지에만 필요한 JS가 있다면 여기에 추가 -->
 <th:block layout:fragment="script">
     <!-- 예시: <script>hljs.highlightAll(); // 만약 코드 하이라이팅 라이브러리 사용 시</script> -->

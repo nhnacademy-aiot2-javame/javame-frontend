@@ -6,7 +6,7 @@ const messages = {
         m3: `IoT 센서를 통해 온도, 습도, 전력 등 서버룸 환경을 모니터링`,
         m4: `AIoT 기반 서버 운영 솔루션 소개`,
         m5: `다양한 형태의 그래프를 제공합니다.`,
-        m6: `프로젝트 정리`,
+        m6: `우리가 걸어온 길`,
         m7: `IoT 센서 연동 및 데이터 시각화`,
         m8: `노드레드를 통해 받은 데이터를 활용한 기후 정보 수집`,
         m9: `Servlet과 JSP를 활용한 MVC 패턴 기반 쇼핑몰 개발`,
@@ -31,21 +31,147 @@ const messages = {
         m27: `✅ 서버 기기 연결`,
         m28: `✅ 기본 알림 기능`,
         m29: `등록하기`,
+        m118: `서비스`,
+        m119: `대시보드`,
+        m120: `연혁`,
+        m121: `운영진 소개`,
+        m122: `요금제`,
+
+
         loginLogoutBtn: `로그인`,
         registerDashboardBtn: `회원가입`,
         m30: `개인정보 처리방침`,
         m31: `이용약관`,
         m32: `서비스 안내`,
+        // head.html
+        m140: `NHN Academy 센서 관리`,
         // m33: `메인으로`,
-        m34: `비밀번호 변경`,
-        m35: `로그아웃`,
-        // m36: `로그아웃`,
-        // m37: `설정`,
-        // m38: `마이페이지`,
-        // m39: `사용자 관리`,
-        // m40: `회사 정보 관리`,
-        // m41: `회원 허가`,
-        // m42: `메인으로`
+        // m34: `비밀번호 변경`,
+        // m35: `로그아웃`,
+        // head.html
+        m36: `로그아웃`,
+        m37: `설정`,
+        m38: `마이페이지`,
+        m39: `사용자 관리`,
+        m40: `회사 정보 관리`,
+        m41: `회원 허가`,
+        m42: `메인으로`,
+        // sensor.html
+        m43: `센서 조회`,
+        m44: `센서 리스트`,
+        m45: `센서 번호`,
+        m46: `센서 아이디`,
+        m47: `회사 도메인`,
+        m48: `등록 시간`,
+        m49: `센서 데이터 리스트`,
+        m50: `데이터 번호`,
+        m51: `위치`,
+        m52: `게이트웨이`,
+        m53: `데이터 이름`,
+        m54: `최소 임계값`,
+        m55: `최대 임계값`,
+        m56: `등록 시간`,
+    //   server.html
+        m57: `서버 조회`,
+        m58: `서버 리스트`,
+        m59: `서버 번호`,
+        m60: `아이피 주소`,
+        m61: `회사 도메인`,
+        m62: `등록 시간`,
+        m63: `서버 데이터 리스트`,
+        m64: `데이터 번호`,
+        m65: `위치`,
+        m66: `게이트웨이`,
+        m67: `데이터 이름`,
+        m68: `최소 임계값`,
+        m69: `최대 임계값`,
+        m70: `등록 시간`,
+    //     admin/index.html
+        m71: `회사를 선택하세요`,
+        m108: `회사를 선택해주세요`,
+        m109: `선택 완료`,
+        m110: `대시보드로 이동`,
+        m111: `홈으로 돌아가기`,
+    // common/settings.html
+        m72: `설정`,
+        m73: `알림 설정`,
+        m74: `이메일 알림 받기`,
+        m75: `앱 알림 받기`,
+        m76: `저장`,
+        m77: `테마 설정`,
+        m78: `라이트 모드`,
+        m79: `다크 모드`,
+        m80: `회원 탈퇴`,
+        m81: `계정을 삭제하면 복구할 수 없습니다. 계속하시겠습니까?`,
+        // m82: ``??,
+        m83: `회원 탈퇴`,
+        // common/my-page.html
+        m84: `마이페이지`,
+        m85: `내 정보`,
+        m86: `회원 넘버`,
+        m87: `이메일`,
+        m88: `역할`,
+        m89:`소속 회사`,
+        m90: `비밀번호 변경`,
+        m91: `현재 비밀번호`,
+        m92: `현재 비밀번호`,
+        m93: `새 비밀번호`,
+        m94: `새 비밀번호`,
+        m95: `비밀번호 변경`,
+        m96: `메인으로`,
+        m97: `로그아웃`,
+        // owner/pendingmembers.html
+        m98: `승인 대기 중인 회원`,
+        m99: `이메일`,
+        m100: `가입일자`,
+        m101: `승인 여부`,
+        // owner/members.html
+        m102:  `회원 관리`,
+        m103: `이메일`,
+        m104: `권한`,
+        m105: `가입일자`,
+        m106: `최근 로그인`,
+        m107: `승인대기`,
+        // auth/login.html
+        m112: `로그인`,
+        m113: `Google로 로그인`,
+        m114: `비밀번호 찾기`,
+        m115: `&larr; 홈으로 돌아가기`,
+        // auth/register.html
+        m116: `회원가입`,
+        m117: ``,
+        // auth/purchase.html
+        // auth/find-password.html
+        // auth/callback.html
+        // sidebar.html
+        m123: `핵심`,
+        m124: `메인 대시보드`,
+        m125: `상세 대시보드`,
+        m126: `트리`,
+        m127: `통합`,
+        m128: `시계열`,
+        m129: `분석`,
+        m130: `AI 예측 차트`,
+        m131: `테이블`,
+        m132: `리포트`,
+        m133: `서버`,
+        m134: `서버 및 데이터 등록`,
+        m135: `서버리스트 조회`,
+        m136: `센서`,
+        m137: `센서 및 데이터 등록`,
+        m138: `센서리스트 조회`,
+        m139: `로그인 계정`,
+        //layout.html
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -86,21 +212,129 @@ const messages = {
         m27: `✅ Server Device Connection`,
         m28: `✅ Basic Alert System `,
         m29: `Subscribe`,
+        m118: `Services`,
+        m119: `Dashboard`,
+        m120: `About`,
+        m121: `Team`,
+        m122: `Plan`,
         loginLogoutBtn: `Log in`,
         registerDashboardBtn: `Sign up`,
         m30: `Privacy Policy`,
         m31: `Terms of Service`,
         m32: `Service Guide`,
+        // head.html
+        m140: `NHN Academy Sensor Management`,
         // m33: `Back to Main`,
         // m34: `Change Password`,
         // m35: `Log out`,
-        // m36: `Log out`,
-        // m37: `Setting`,
-        // m38: `My Page`,
-        // m39: `User Management`,
-        // m40: `Company Information Management`,
-        // m41: `User Approval`,
-        // m42: `Back to Main`
+        m36: `Log out`,
+        m37: `Setting`,
+        m38: `My Page`,
+        m39: `User Management`,
+        m40: `Company Information Management`,
+        m41: `User Approval`,
+        m42: `Back to Main`,
+        // sensor.html
+        m43: `View Sensors`,
+        m44: `Sensor List`,
+        m45: `Sensor No.`,
+        m46: `Sensor Id`,
+        m47: `Company Domain`,
+        m48: `Created At`,
+        m49: `Sensor Data List`,
+        m50: `Data No.`,
+        m51: `Location`,
+        m52: `Gateway`,
+        m53: `Data Name`,
+        m54: `Min Threshold`,
+        m55: `Max Threshold`,
+        m56: `Created At`,
+    // server.html
+        m57: `View Servers`,
+        m58: `Server List`,
+        m59: `Server No.`,
+        m60:`Ip Address`,
+        m61: `Company Domain`,
+        m62: `Created At`,
+        m63: `Server Data List`,
+        m64: `Data No.`,
+        m65: `Location`,
+        m66: `Gateway`,
+        m67: `Data Name`,
+        m68: `Min Threshold`,
+        m69: `Max Threshold`,
+        m70: `Created At`,
+        // admin/index.html
+        m71: `Please select a company`,
+        m108: `Please choose a company`,
+        m109: `Selection complete`,
+        m110: `Go to Dashboard`,
+        m111: `Return to Home`,
+        // common/settings.html
+        m72: `Settings`,
+        m73: `Notification Settings`,
+        m74: `Receive Email Notifications`,
+        m75: `Receive App Notifications`,
+        m76: `Save`,
+        m77: `Theme Settings`,
+        m78: `Light Mode`,
+        m79: `Dark Mode`,
+        m80: `Delete Account`,
+        m81: `Once your account is deleted, it cannot be recovered. Do you wish to continue?`,
+        // m82: ``??,
+        m83: `Delete Account`,
+        // common/my-page.html
+        m84: `My Page`,
+        m85: `My Info`,
+        m86: `Member Number`,
+        m87: `Email`,
+        m88: `Role`,
+        m89: `Company`,
+        m90: `Change Password`,
+        m91: `Current Password`,
+        m92: `Confirm Current Password`,
+        m93: `New Password`,
+        m94: `Confirm New Password`,
+        m95: `Update Password`,
+        m96: `Go to Main`,
+        m97: `Log Out`,
+        // owner/pendingmembers.html
+        m98: `Pending Members`,
+        m99: `Email`,
+        m100: `Registration Date`,
+        m101: `Approval Status`,
+        // owner/members.html
+        m102: `Member Management`,
+        m103: `Email`,
+        m104: `Role`,
+        m105: `Registration Date`,
+        m106: `Last Login`,
+        m107: `Pending Approval`,
+        // auth/login.html
+        m112: `Login`,
+        m113: `Login with Google`,
+        m114: `Find Password`,
+        m115: `Back to Home`,
+        // sidebar.html
+        m123: `Core`,
+        m124: `Main Dashboard`,
+        m125: `Detailed Dashboard`,
+        m126: `Tree`,
+        m127: `Integrated`,
+        m128: `Time Series`,
+        m129: `Analysis`,
+        m130: `AI Prediction Chart`,
+        m131: `Table`,
+        m132: `Report`,
+        m133: `Server`,
+        m134: `Server and Data Registration`,
+        m135: `Server List View`,
+        m136: `Sensor`,
+        m137: `Sensor and Data Registration`,
+        m138: `Sensor List View`,
+        m139: `Login Account`,
+        //layout.html
+
 
 
 
@@ -111,63 +345,76 @@ const messages = {
 function setLanguage(lang) {
     const t = messages[lang];
 
-    // 일반 텍스트는 innterText
-    document.getElementById('m2').innerText = t.m2;
-    document.getElementById('m3').innerText = t.m3;
-    document.getElementById('m4').innerText = t.m4;
-    document.getElementById('m5').innerText = t.m5;
+    function setText(id, text) {
+        const el = document.getElementById(id);
+        if(el) el.innerText = text;
+    }
+
+    // 반복 처리할 ID 리스트
+    const ids = [
+        'm1', 'm2', 'm3', 'm4', 'm5', 'm6',
+        'm11','m13','m14','m15','m16','m17',
+        'm18', 'm19','m20','m21','m22','m23',
+        'm24','m25','m26','m27','m28','m29',
+        'loginLogoutBtn','registerDashboardBtn',
+        ...Array.from({length: 111}, (_, i) => `m${i+30}`)
+
+    ];
+
+    ids.forEach(id => {
+        setText(id, t[id])
+    });
 
 
+    function setHTML(id, text){
+        const df = document.getElementById(id);
+        if(df) df.innerHTML = text;
+    }
+    setHTML('m1', t['m1']);
+    setHTML('m7', t['m7']);
+    setHTML('m8', t['m8']);
+    setHTML('m9', t['m9']);
+    setHTML('m10', t['m10']);
+    setHTML('m12', t['m12']);
 
-    document.getElementById('m11').innerText = t.m11;
-    document.getElementById('m13').innerText = t.m13;
-    document.getElementById('m14').innerText = t.m14;
-    document.getElementById('m15').innerText = t.m15;
-    document.getElementById('m16').innerText = t.m16;
-    document.getElementById('m17').innerText = t.m17;
-    document.getElementById('m18').innerText = t.m18;
-    document.getElementById('m19').innerText = t.m19;
-    document.getElementById('m20').innerText = t.m20;
-    document.getElementById('m21').innerText = t.m21;
-    document.getElementById('m22').innerText = t.m22;
-    document.getElementById('m23').innerText = t.m23;
-    document.getElementById('m24').innerText = t.m24;
-    document.getElementById('m25').innerText = t.m25;
-    document.getElementById('m26').innerText = t.m26;
-    document.getElementById('m27').innerText = t.m27;
-    document.getElementById('m28').innerText = t.m28;
-    document.getElementById('m29').innerText = t.m29;
-    document.getElementById('loginLogoutBtn').innerText = t.loginLogoutBtn;
-    document.getElementById('registerDashboardBtn').innerText = t.registerDashboardBtn;
-    document.getElementById('m30').innerText = t.m30;
-    document.getElementById('m31').innerText = t.m31;
-    document.getElementById('m32').innerText = t.m32;
-    // document.getElementById('m33').innerText = t.m33;
-    // document.getElementById('m34').innerText = t.m34;
-    // document.getElementById('m35').innerText = t.m35;
-    // document.getElementById('m36').innerText = t.m36;
-    // document.getElementById('m37').innerText = t.m37;
-    // document.getElementById('m38').innerText = t.m38;
-    // document.getElementById('m39').innerText = t.m39;
-    // document.getElementById('m40').innerText = t.m40;
-    // document.getElementById('m41').innerText = t.m41;
-    // document.getElementById('m42').innerText = t.m42;
-
-
-    // <br> 포함된 경우는 innterHTML 사용
-    document.getElementById('m1').innerHTML = t.m1;
-    document.getElementById('m10').innerHTML = t.m10;
-    document.getElementById('m12').innerHTML = t.m12;
-    document.getElementById('m8').innerHTML = t.m8;
-    document.getElementById('m7').innerHTML = t.m7;
-    document.getElementById('m9').innerHTML = t.m9;
-
+    // 언어 설정값 저장
     localStorage.setItem('lang', lang);
+
+    // 언어 설정한 시각도 같이 저장
+    localStorage.setItem('langSetAt', Date.now().toString());
+
 }
 
 // 페이지 로드 시 저장된 언어 불러오기
 document.addEventListener('DOMContentLoaded', () => {
-    const savedLang = localStorage.getItem('lang') || 'ko';
+    const EXPIRE_HOURS = 1/6; // 몇 시간 동안 기억할지 (10분)
+    const now = new Date().getTime();
+
+    let savedLang = localStorage.getItem('lang');
+    const langSetAt = localStorage.getItem('langSetAt'); //localStorage 에서 가져온 값은 항상 문자열
+
+    let langToSet ='ko'; // 기본값. 저장된 값이 없거나 유효기간이 지나면 기본 언어인 한국어로 설정.
+
+    if (savedLang && langSetAt) { // 둘 다 값이 있을 때만 유효 시간 체크를 진행합니다.
+        const elapsed = (now -parseInt(langSetAt,10)) /(1000* 60* 60); // 시간 단위로 변환
+        // 언제 마지막으로 언어가 설정되었는지를 기준으로, 지금까지 얼마나 시간이 지났는지 '시간 단위'로 계산하는 것
+
+        if (elapsed < EXPIRE_HOURS) {
+            langToSet = savedLang;
+        } else {
+            // 유효 기간이 지나면 초기화
+            localStorage.removeItem('lang');
+            localStorage.removeItem('langSetAt');
+        }
+
+    }
+
+
+    if(!savedLang) {
+        //저장된 언어가 없으면 한국어로 설정하고 저장
+        savedLang ='ko';
+        sessionStorage.setItem('lang', savedLang);
+    }
     setLanguage(savedLang);
 
     // 버튼 이벤트 등록

@@ -8,83 +8,143 @@
     <meta name="author" content="NHN Academy" />
     <title>NHN Academy IoT 서버 조회</title>
     <link href="/admin/css/styles.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     <script type="module" src="/admin/js/servers.js"></script>
     <script src="/index/js/valueConverter.js"></script>
+
+    <!-- 테이블 디자인 전용 스타일 -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fc;
+            color: #343a40;
+        }
+
+        h1, h2 {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .table-wrapper {
+            background-color: #fff;
+            border-radius: 16px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            padding: 24px;
+            margin-bottom: 40px;
+        }
+
+        .table-wrapper h2 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: linear-gradient(to right, #4e73df, #1cc88a);
+            color: white;
+        }
+
+        th, td {
+            padding: 16px;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        tr {
+            border-bottom: 1px solid #e0e0e0;
+            transition: background 0.2s ease-in-out;
+        }
+
+        tbody>tr:hover {
+            background-color: #f1f5f9;
+            cursor: pointer;
+        }
+
+        #serverDataTable {
+            display: none;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            th, td {
+                padding: 12px;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
 </head>
+
 <body class="sb-nav-fixed">
-<style>
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-    }
+<!-- 기존 헤더 유지 -->
+<div th:replace="~{fragments/head :: header}"></div>
 
-    table, th, td {
-        border: 1px solid #ccc;
-    }
-
-    th, td {
-        padding: 8px;
-        text-align: center;
-    }
-
-    tr:hover {
-        background-color: #f1f1f1;
-        cursor: pointer;
-    }
-</style>
-
-
-    <div th:replace="~{fragments/head :: header}"></div>
-    <div id="layoutSidenav">
+<div id="layoutSidenav">
+    <!-- 기존 사이드바 유지 -->
     <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
     <div id="layoutSidenav_content">
-
         <main class="container-fluid px-4 mt-4">
-            <h1 class="mb-4">서버 조회</h1>
+            <h1 id="m57" class="mb-4">서버 조회</h1>
 
-            <h2>서버 리스트</h2>
+
+            <h2 id="m58" style="text-align: center">서버 리스트</h2>
             <table id="serverTable" border="1">
                 <thead>
                 <tr>
-                    <th>서버 번호</th>
-                    <th>ip 주소</th>
-                    <th>회사 도메인</th>
-                    <th>등록 시간</th>
-<!--                    <th>Server No</th>-->
-<!--                    <th>Iphost</th>-->
-<!--                    <th>CompanyDomain</th>-->
-<!--                    <th>CreatedAt</th>-->
+                    <th id="m59">서버 번호</th>
+                    <th id="m60">아이피 주소</th>
+                    <th id="m61">회사 도메인</th>
+                    <th id="m62">등록 시간</th>
                 </tr>
                 </thead>
                 <tbody id="serverTable_content"></tbody>
             </table>
             <br>
-            <h2>서버 데이터 리스트</h2>
+            <h2 id="m63" style="text-align: center">서버 데이터 리스트</h2>
             <table id="serverDataTable" border="1" style="display: none;">
                 <thead>
                 <tr>
-                    <th>데이터 번호</th>
-                    <th>위치</th>
-                    <th>게이트웨이</th>
-                    <th>데이터 이름</th>
-                    <th>최소 임계값</th>
-                    <th>최대 임계값</th>
-                    <th>등록 시간</th>
-<!--                    <th>Data No</th>-->
-<!--                    <th>Location</th>-->
-<!--                    <th>Gateway</th>-->
-<!--                    <th>Name</th>-->
-<!--                    <th>MinThreshold</th>-->
-<!--                    <th>MaxThreshold</th>-->
-<!--                    <th>CreatedAt</th>-->
+                    <th id="m64">데이터 번호</th>
+                    <th id="m65">위치</th>
+                    <th id="m66">게이트웨이</th>
+                    <th id="m67">데이터 이름</th>
+                    <th id="m68">최소 임계값</th>
+                    <th id="m69">최대 임계값</th>
+                    <th id="m70">등록 시간</th>
                 </tr>
                 </thead>
                 <tbody id ="serverDataTable_content"></tbody>
             </table>
         </main>
 
+
+            <div class="table-wrapper" id="serverDataTable">
+                <h2>서버 데이터 리스트</h2>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>데이터 번호</th>
+                        <th>위치</th>
+                        <th>게이트웨이</th>
+                        <th>데이터 이름</th>
+                        <th>최소 임계값</th>
+                        <th>최대 임계값</th>
+                        <th>등록 시간</th>
+                    </tr>
+                    </thead>
+                    <tbody id="serverDataTable_content"></tbody>
+                </table>
+            </div>
+        </main>
     </div>
 </div>
 
@@ -93,5 +153,10 @@
 <script src="/admin/js/scripts.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
 
-
+<!--언어 전환용 JS-->
+<script src="/admin/js/locales-index.js"></script>
+<script type="module" src="/admin/js/fragmentsHeader.js"></script>
 </body>
+
+</html>
+

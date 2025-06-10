@@ -27,7 +27,7 @@ jobs:
 
       # Build the Spring Boot application
       - name: Build with Maven
-        run: mvn clean package -DskipTests
+        run: mvn clean package -Dmaven.test.skip=true
 
       # Log in to Docker Hub
       - name: Log in to Docker Hub

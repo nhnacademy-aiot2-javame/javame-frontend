@@ -5,7 +5,7 @@
      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
         <!-- Navbar Brand -->
-        <a class="navbar-brand ps-3" href="/environment/dashboard-main">NHN Academy 센서 관리</a>
+        <a id="m140" class="navbar-brand ps-3" href="/environment/dashboard-main">NHN Academy 센서 관리</a>
         <!-- Sidebar Toggle -->
         <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0 ps-3" id="sidebarToggle">
             <i class="fas fa-bars"></i>
@@ -28,6 +28,14 @@
 <!--                    <i class="fa-solid fa-bell"></i>-->
 <!--                </button>-->
 <!--            </li>-->
+            <!-- 경고알람 받는곳 -->
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" id="alarmDropDown" href="#" role="button"
+                   data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-bell"></i></a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown" id = "alarmUlTag">
+                </ul>
+            </li>
+
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button"
                    data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
@@ -45,7 +53,6 @@
                     <li sec:authorize="hasAnyAuthority('OWNER')">
                         <a id="m39" class="dropdown-item" href="/members/member-list">사용자 관리</a>
                         <a id="m40" class="dropdown-item" href="/companies/settings">회사 정보 관리</a>
-                        <a id="m41" class="dropdown-item" href="/members/permission">회원 허가</a>
                     </li>
 
                     <li><a id="m42" class="dropdown-item" href="/">메인으로</a></li>
@@ -53,5 +60,7 @@
             </li>
         </ul>
     </nav>
-</div>
 
+</div>
+<!--언어 전환용 JS-->
+<script src="/admin/js/locales-index.js"></script>
