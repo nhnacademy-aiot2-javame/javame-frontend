@@ -28,6 +28,6 @@ public class MemberController {
     // 오너는 본인 회사 회원 리스트 페이지로 이동
     @GetMapping("/member-list")
     public String memberListOwner() {
-        return "owner/members";  // templates/owner/member-list.html
+        return "common/members";  // templates/owner/member-list.html
     }
 }
