@@ -2,6 +2,8 @@ import {
     fetchWithAuth
 } from '../../index/js/auth.js'
 
+const converter = valueConverter();
+
 window.addEventListener('DOMContentLoaded', async event => {
 
     const url = '/rule/sensors/cp/companyDomain';
@@ -24,7 +26,7 @@ window.addEventListener('DOMContentLoaded', async event => {
             sensorNo.innerText = sensor.sensorNo;
             sensorId.innerText = sensor.sensorId;
             companyDomain.innerText = sensor.companyDomain;
-            createdAt.innerText = sensor.createdAt;
+            createdAt.innerText = converter.timeConverterHM(sensor.createdAt);
 
             tr.appendChild(sensorNo);
             tr.appendChild(sensorId);
@@ -32,6 +34,7 @@ window.addEventListener('DOMContentLoaded', async event => {
             tr.appendChild(createdAt);
 
             tr.addEventListener('click', async  function(){
+                document.querySelector('#sensorDataTableWrapper').setAttribute('style','display: table');
 
                 const url = `/rule/sensor-datas/by-sensor-no/${sensor.sensorNo}`;
                 const sensorDataResponse = await fetchWithAuth(url);
@@ -64,7 +67,7 @@ window.addEventListener('DOMContentLoaded', async event => {
                         sensorDataName.innerText = sensorData.sensorDataName;
                         minThreshold.innerText = sensorData.minThreshold;
                         maxThreshold.innerText = sensorData.maxThreshold;
-                        createdAt.innerText = sensorData.createdAt;
+                        createdAt.innerText = converter.timeConverterHM(sensorData.createdAt);
 
                         tr1.appendChild(sensorDataNo);
                         tr1.appendChild(location);
