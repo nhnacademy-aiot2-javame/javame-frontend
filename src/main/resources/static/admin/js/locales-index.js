@@ -212,6 +212,19 @@ const messages = {
         m186: `AI 분석 리포트`,
         m187: `AI 분석 요약`,
         m188: '데이터 시각화',
+        // rule/sensorRegister.html
+        m189: `센서 및 데이터 등록`,
+        m190: `센서 리스트`,
+        m191: `센서 번호`,
+        m192: `센서 아이디`,
+        m193: `센서 데이터 리스트`,
+        m194: `데이터 번호`,
+        m195: `데이터 이름`,
+        m196: `게이트웨이`,
+        m197: `데이터 이름`,
+        m198: `최소 임계값`,
+        m199: `최대 임계값`,
+        m200: `등록 시간`
 
 
 
@@ -441,6 +454,20 @@ const messages = {
         m186: `AI Analysis Report`,
         m187: `AI Analysis Summary`,
         m188: `Data Visualization`,
+        // rule/sensorRegister.html
+        m189: `Sensor and Data Register`,
+        m190: `Sensor No.`,
+        m191: `Sensor Id`,
+        m192: `Sensor Data List`,
+        m193: `Data No.`,
+        m194: `Data List`,
+        m195: `Data No.`,
+        m196: `Location`,
+        m197: `Gateway`,
+        m198: `Data Name`,
+        m199: `Min Threshold`,
+        m200: `Max Threshold`,
+        m201: `Created At`,
 
 
 
@@ -465,7 +492,7 @@ function setLanguage(lang) {
         'm18', 'm19','m20','m21','m22','m23',
         'm24','m25','m26','m27','m28','m29',
         'loginLogoutBtn','registerDashboardBtn',
-        ...Array.from({length: 159}, (_, i) => `m${i+30}`)
+        ...Array.from({length: 172}, (_, i) => `m${i+30}`)
 
     ];
 
@@ -488,43 +515,63 @@ function setLanguage(lang) {
     // 언어 설정값 저장
     localStorage.setItem('lang', lang);
 
-    // 언어 설정한 시각도 같이 저장
-    localStorage.setItem('langSetAt', Date.now().toString());
+    // // 언어 설정한 시각도 같이 저장
+    // localStorage.setItem('langSetAt', Date.now().toString());
 
 }
 
-// 페이지 로드 시 저장된 언어 불러오기
 document.addEventListener('DOMContentLoaded', () => {
-    const EXPIRE_HOURS = 1/6; // 몇 시간 동안 기억할지 (10분)
-    const now = new Date().getTime();
-
-    let savedLang = localStorage.getItem('lang');
-    const langSetAt = localStorage.getItem('langSetAt'); //localStorage 에서 가져온 값은 항상 문자열
-
-    let langToSet ='ko'; // 기본값. 저장된 값이 없거나 유효기간이 지나면 기본 언어인 한국어로 설정.
-
-    if (savedLang && langSetAt) { // 둘 다 값이 있을 때만 유효 시간 체크를 진행합니다.
-        const elapsed = (now -parseInt(langSetAt,10)) /(1000* 60* 60); // 시간 단위로 변환
-        // 언제 마지막으로 언어가 설정되었는지를 기준으로, 지금까지 얼마나 시간이 지났는지 '시간 단위'로 계산하는 것
-
-        if (elapsed < EXPIRE_HOURS) {
-            langToSet = savedLang;
-        } else {
-            // 유효 기간이 지나면 초기화
-            localStorage.removeItem('lang');
-            localStorage.removeItem('langSetAt');
-        }
-
-    }
-
-    if(!savedLang) {
-        //저장된 언어가 없으면 한국어로 설정하고 저장
-        savedLang ='ko';
-        sessionStorage.setItem('lang', savedLang);
-    }
+    // 저장된 언어가 있으면 그걸 사용하고, 없으면 기본값 'ko'
+    const savedLang = localStorage.getItem('lang') || 'ko';
     setLanguage(savedLang);
 
-    // 버튼 이벤트 등록
-    document.getElementById('btn-ko').addEventListener('click', () => setLanguage('ko'));
-    document.getElementById('btn-en').addEventListener('click', () => setLanguage('en'));
+    // 버튼 클릭 시 언어 변경
+    document.getElementById('btn-ko').addEventListener('click', () => {
+        localStorage.setItem('lang', 'ko');
+        setLanguage('ko');
+    });
+
+    document.getElementById('btn-en').addEventListener('click', () => {
+        localStorage.setItem('lang', 'en');
+        setLanguage('en');
+    });
 });
+
+
+
+
+
+// // 페이지 로드 시 저장된 언어 불러오기
+// document.addEventListener('DOMContentLoaded', () => {
+//     const EXPIRE_HOURS = 1/6; // 몇 시간 동안 기억할지 (10분)
+//     const now = new Date().getTime();
+//
+//     let savedLang = localStorage.getItem('lang');
+//     const langSetAt = localStorage.getItem('langSetAt'); //localStorage 에서 가져온 값은 항상 문자열
+//
+//     let langToSet ='ko'; // 기본값. 저장된 값이 없거나 유효기간이 지나면 기본 언어인 한국어로 설정.
+//
+//     if (savedLang && langSetAt) { // 둘 다 값이 있을 때만 유효 시간 체크를 진행합니다.
+//         const elapsed = (now -parseInt(langSetAt,10)) /(1000* 60* 60); // 시간 단위로 변환
+//         // 언제 마지막으로 언어가 설정되었는지를 기준으로, 지금까지 얼마나 시간이 지났는지 '시간 단위'로 계산하는 것
+//
+//         if (elapsed < EXPIRE_HOURS) {
+//             langToSet = savedLang;
+//         } else {
+//             // 유효 기간이 지나면 초기화
+//             localStorage.removeItem('lang');
+//             localStorage.removeItem('langSetAt');
+//         }
+//
+//     }
+//
+//     if(!savedLang) {
+//         //저장된 언어가 없으면 한국어로 설정하고 저장
+//         savedLang ='ko';
+//         sessionStorage.setItem('lang', savedLang);
+//     }
+//     setLanguage(savedLang);
+//
+//     // 버튼 이벤트 등록
+//     document.getElementById('btn-ko').addEventListener('click', () => setLanguage('ko'));
+//     document.getElementById('btn-en').addEventListener('click', () => setLanguage('en'));
