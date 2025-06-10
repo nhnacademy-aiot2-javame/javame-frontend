@@ -78,7 +78,7 @@ class DashboardWebSocket {
             // ★★★ 모든 차트를 로딩 상태로 초기화 ★★★
             this.initializeLoadingCharts();
 
-            this.socket = new WebSocket(`ws://localhost:10279/api/v1/ws/environment?token=${token}`);
+            this.socket = new WebSocket(`wss://javame.live/api/v1/ws/environment?token=${token}`);
 
             this.socket.onopen = () => {
                 console.log('Dashboard WebSocket 연결 성공');
