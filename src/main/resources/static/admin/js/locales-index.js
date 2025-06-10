@@ -43,6 +43,8 @@ const messages = {
         m30: `개인정보 처리방침`,
         m31: `이용약관`,
         m32: `서비스 안내`,
+        // head.html
+        m140: `NHN Academy 센서 관리`,
         // m33: `메인으로`,
         // m34: `비밀번호 변경`,
         // m35: `로그아웃`,
@@ -137,10 +139,30 @@ const messages = {
         m115: `&larr; 홈으로 돌아가기`,
         // auth/register.html
         m116: `회원가입`,
-        m117: ``
+        m117: ``,
         // auth/purchase.html
         // auth/find-password.html
         // auth/callback.html
+        // sidebar.html
+        m123: `핵심`,
+        m124: `메인 대시보드`,
+        m125: `상세 대시보드`,
+        m126: `트리`,
+        m127: `통합`,
+        m128: `시계열`,
+        m129: `분석`,
+        m130: `AI 예측 차트`,
+        m131: `테이블`,
+        m132: `리포트`,
+        m133: `서버`,
+        m134: `서버 및 데이터 등록`,
+        m135: `서버리스트 조회`,
+        m136: `센서`,
+        m137: `센서 및 데이터 등록`,
+        m138: `센서리스트 조회`,
+        m139: `로그인 계정`,
+        //layout.html
+
 
 
 
@@ -201,6 +223,7 @@ const messages = {
         m31: `Terms of Service`,
         m32: `Service Guide`,
         // head.html
+        m140: `NHN Academy Sensor Management`,
         // m33: `Back to Main`,
         // m34: `Change Password`,
         // m35: `Log out`,
@@ -241,6 +264,12 @@ const messages = {
         m68: `Min Threshold`,
         m69: `Max Threshold`,
         m70: `Created At`,
+        // admin/index.html
+        m71: `Please select a company`,
+        m108: `Please choose a company`,
+        m109: `Selection complete`,
+        m110: `Go to Dashboard`,
+        m111: `Return to Home`,
         // common/settings.html
         m72: `Settings`,
         m73: `Notification Settings`,
@@ -281,6 +310,31 @@ const messages = {
         m105: `Registration Date`,
         m106: `Last Login`,
         m107: `Pending Approval`,
+        // auth/login.html
+        m112: `Login`,
+        m113: `Login with Google`,
+        m114: `Find Password`,
+        m115: `Back to Home`,
+        // sidebar.html
+        m123: `Core`,
+        m124: `Main Dashboard`,
+        m125: `Detailed Dashboard`,
+        m126: `Tree`,
+        m127: `Integrated`,
+        m128: `Time Series`,
+        m129: `Analysis`,
+        m130: `AI Prediction Chart`,
+        m131: `Table`,
+        m132: `Report`,
+        m133: `Server`,
+        m134: `Server and Data Registration`,
+        m135: `Server List View`,
+        m136: `Sensor`,
+        m137: `Sensor and Data Registration`,
+        m138: `Sensor List View`,
+        m139: `Login Account`,
+        //layout.html
+
 
 
 
@@ -303,7 +357,7 @@ function setLanguage(lang) {
         'm18', 'm19','m20','m21','m22','m23',
         'm24','m25','m26','m27','m28','m29',
         'loginLogoutBtn','registerDashboardBtn',
-        ...Array.from({length: 93}, (_, i) => `m${i+30}`)
+        ...Array.from({length: 111}, (_, i) => `m${i+30}`)
 
     ];
 
@@ -323,12 +377,38 @@ function setLanguage(lang) {
     setHTML('m10', t['m10']);
     setHTML('m12', t['m12']);
 
+    // 언어 설정값 저장
     localStorage.setItem('lang', lang);
+
+    // 언어 설정한 시각도 같이 저장
+    localStorage.setItem('langSetAt', Date.now().toString());
+
 }
 
 // 페이지 로드 시 저장된 언어 불러오기
 document.addEventListener('DOMContentLoaded', () => {
-    let savedLang = sessionStorage.getItem('lang');
+    const EXPIRE_HOURS = 1/6; // 몇 시간 동안 기억할지 (10분)
+    const now = new Date().getTime();
+
+    let savedLang = localStorage.getItem('lang');
+    const langSetAt = localStorage.getItem('langSetAt'); //localStorage 에서 가져온 값은 항상 문자열
+
+    let langToSet ='ko'; // 기본값. 저장된 값이 없거나 유효기간이 지나면 기본 언어인 한국어로 설정.
+
+    if (savedLang && langSetAt) { // 둘 다 값이 있을 때만 유효 시간 체크를 진행합니다.
+        const elapsed = (now -parseInt(langSetAt,10)) /(1000* 60* 60); // 시간 단위로 변환
+        // 언제 마지막으로 언어가 설정되었는지를 기준으로, 지금까지 얼마나 시간이 지났는지 '시간 단위'로 계산하는 것
+
+        if (elapsed < EXPIRE_HOURS) {
+            langToSet = savedLang;
+        } else {
+            // 유효 기간이 지나면 초기화
+            localStorage.removeItem('lang');
+            localStorage.removeItem('langSetAt');
+        }
+
+    }
+
 
     if(!savedLang) {
         //저장된 언어가 없으면 한국어로 설정하고 저장
