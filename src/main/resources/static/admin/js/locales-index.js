@@ -82,6 +82,47 @@ const messages = {
     // common/settings.html
         m72: `설정`,
         m73: `알림 설정`,
+        m74: `이메일 알림 받기`,
+        m75: `앱 알림 받기`,
+        m76: `저장`,
+        m77: `테마 설정`,
+        m78: `라이트 모드`,
+        m79: `다크 모드`,
+        m80: `회원 탈퇴`,
+        m81: `계정을 삭제하면 복구할 수 없습니다. 계속하시겠습니까?`,
+        m82: ``??,
+        m83: `회원 탈퇴`,
+        // common/my-page.html
+        m84: `마이페이지`,
+        m85: `내 정보`,
+        m86: `회원 넘버`,
+        m87: `이메일`,
+        m88: `역할`,
+        m89:`소속 회사`,
+        m90: `비밀번호 변경`,
+        m91: `현재 비밀번호`,
+        m92: `현재 비밀번호`,
+        m93: `새 비밀번호`,
+        m94: `새 비밀번호`,
+        m95: `비밀번호 변경`,
+        m96: `메인으로`,
+        m97: `로그아웃`,
+        // owner/pendingmembers.html
+        m98: `승인 대기 중인 회원`,
+        m99: `이메일`,
+        m100: `가입일자`,
+        m101: `승인 여부`,
+        // owner/members.html
+        m102:  `회원 관리`,
+        m103: `이메일`,
+        m104: `권한`,
+        m105: `가입일자`,
+        m106: `최근 로그인`,
+        m107: ``
+
+
+
+
 
 
 
@@ -173,18 +214,39 @@ const messages = {
         m69: `Max Threshold`,
         m70: `Created At`,
         // common/settings.html
-        m72: `설정`,
-        m73: `알림 설정`,
-        m74: `이메일 알림 받기`,
-        m75: `앱 알림 받기`,
-        m76: `저장`,
-        m77: `테마 설정`,
-        m78: `라이트 모드`,
-        m79: `다크 모드`,
-        m80: `회원 탈퇴`,
-        m81: `계정을 삭제하면 복구할 수 없습니다. 계속하시겠습니까?`,
+        m72: `Settings`,
+        m73: `Notification Settings`,
+        m74: `Receive Email Notifications`,
+        m75: `Receive App Notifications`,
+        m76: `Save`,
+        m77: `Theme Settings`,
+        m78: `Light Mode`,
+        m79: `Dark Mode`,
+        m80: `Delete Account`,
+        m81: `Once your account is deleted, it cannot be recovered. Do you wish to continue?`,
         m82: ``??,
-        m83: `회원 탈퇴`,
+        m83: `Delete Account`,
+        // common/my-page.html
+        m84: `My Page`,
+        m85: `My Info`,
+        m86: `Member Number`,
+        m87: `Email`,
+        m88: `Role`,
+        m89: `Company`,
+        m90: `Change Password`,
+        m91: `Current Password`,
+        m92: `Confirm Current Password`,
+        m93: `New Password`,
+        m94: `Confirm New Password`,
+        m95: `Update Password`,
+        m96: `Go to Main`,
+        m97: `Log Out`,
+        // owner/pendingmembers.html
+        m98: `Pending Members`,
+        m99: `Email`,
+        m100: `Registration Date`,
+        m101: `Approval Status`,
+
 
 
 
@@ -207,13 +269,7 @@ function setLanguage(lang) {
         'm18', 'm19','m20','m21','m22','m23',
         'm24','m25','m26','m27','m28','m29',
         'loginLogoutBtn','registerDashboardBtn',
-        'm30','m31','m32','m33','m34','m35',
-        'm36','m37','m38','m39','m40','m41','m42',
-        'm43','m44','m45','m46','m47','m48',
-        'm49','m50','m51','m52','m53','m54',
-        'm55','m56','m57','m58','m59','m60',
-        'm61','m62','m63','m64','m65','m66',
-        'm67','m68','m69','m70'
+        ...Array.from({length: 72}, (_, i) => `m$(i+30)`)
 
     ];
 
