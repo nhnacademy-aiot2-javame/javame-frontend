@@ -31,14 +31,21 @@ const messages = {
         m27: `✅ 서버 기기 연결`,
         m28: `✅ 기본 알림 기능`,
         m29: `등록하기`,
+        m118: `서비스`,
+        m119: `대시보드`,
+        m120: `연혁`,
+        m121: `운영진 소개`,
+        m122: `요금제`,
+
+
         loginLogoutBtn: `로그인`,
         registerDashboardBtn: `회원가입`,
         m30: `개인정보 처리방침`,
         m31: `이용약관`,
         m32: `서비스 안내`,
         // m33: `메인으로`,
-        m34: `비밀번호 변경`,
-        m35: `로그아웃`,
+        // m34: `비밀번호 변경`,
+        // m35: `로그아웃`,
         // head.html
         m36: `로그아웃`,
         m37: `설정`,
@@ -79,6 +86,10 @@ const messages = {
         m70: `등록 시간`,
     //     admin/index.html
         m71: `회사를 선택하세요`,
+        m108: `회사를 선택해주세요`,
+        m109: `선택 완료`,
+        m110: `대시보드로 이동`,
+        m111: `홈으로 돌아가기`,
     // common/settings.html
         m72: `설정`,
         m73: `알림 설정`,
@@ -90,7 +101,7 @@ const messages = {
         m79: `다크 모드`,
         m80: `회원 탈퇴`,
         m81: `계정을 삭제하면 복구할 수 없습니다. 계속하시겠습니까?`,
-        m82: ``??,
+        // m82: ``??,
         m83: `회원 탈퇴`,
         // common/my-page.html
         m84: `마이페이지`,
@@ -118,7 +129,19 @@ const messages = {
         m104: `권한`,
         m105: `가입일자`,
         m106: `최근 로그인`,
-        m107: ``
+        m107: `승인대기`,
+        // auth/login.html
+        m112: `로그인`,
+        m113: `Google로 로그인`,
+        m114: `비밀번호 찾기`,
+        m115: `&larr; 홈으로 돌아가기`,
+        // auth/register.html
+        m116: `회원가입`,
+        m117: ``
+        // auth/purchase.html
+        // auth/find-password.html
+        // auth/callback.html
+
 
 
 
@@ -167,15 +190,20 @@ const messages = {
         m27: `✅ Server Device Connection`,
         m28: `✅ Basic Alert System `,
         m29: `Subscribe`,
+        m118: `Services`,
+        m119: `Dashboard`,
+        m120: `About`,
+        m121: `Team`,
+        m122: `Plan`,
         loginLogoutBtn: `Log in`,
         registerDashboardBtn: `Sign up`,
         m30: `Privacy Policy`,
         m31: `Terms of Service`,
         m32: `Service Guide`,
         // head.html
-        m33: `Back to Main`,
-        m34: `Change Password`,
-        m35: `Log out`,
+        // m33: `Back to Main`,
+        // m34: `Change Password`,
+        // m35: `Log out`,
         m36: `Log out`,
         m37: `Setting`,
         m38: `My Page`,
@@ -224,7 +252,7 @@ const messages = {
         m79: `Dark Mode`,
         m80: `Delete Account`,
         m81: `Once your account is deleted, it cannot be recovered. Do you wish to continue?`,
-        m82: ``??,
+        // m82: ``??,
         m83: `Delete Account`,
         // common/my-page.html
         m84: `My Page`,
@@ -246,7 +274,13 @@ const messages = {
         m99: `Email`,
         m100: `Registration Date`,
         m101: `Approval Status`,
-
+        // owner/members.html
+        m102: `Member Management`,
+        m103: `Email`,
+        m104: `Role`,
+        m105: `Registration Date`,
+        m106: `Last Login`,
+        m107: `Pending Approval`,
 
 
 
@@ -269,7 +303,7 @@ function setLanguage(lang) {
         'm18', 'm19','m20','m21','m22','m23',
         'm24','m25','m26','m27','m28','m29',
         'loginLogoutBtn','registerDashboardBtn',
-        ...Array.from({length: 72}, (_, i) => `m$(i+30)`)
+        ...Array.from({length: 93}, (_, i) => `m${i+30}`)
 
     ];
 
@@ -278,21 +312,29 @@ function setLanguage(lang) {
     });
 
 
-
-    // <br> 포함된 경우는 innterHTML 사용
-    document.getElementById('m1').innerHTML = t.m1;
-    document.getElementById('m10').innerHTML = t.m10;
-    document.getElementById('m12').innerHTML = t.m12;
-    document.getElementById('m8').innerHTML = t.m8;
-    document.getElementById('m7').innerHTML = t.m7;
-    document.getElementById('m9').innerHTML = t.m9;
+    function setHTML(id, text){
+        const df = document.getElementById(id);
+        if(df) df.innerHTML = text;
+    }
+    setHTML('m1', t['m1']);
+    setHTML('m7', t['m7']);
+    setHTML('m8', t['m8']);
+    setHTML('m9', t['m9']);
+    setHTML('m10', t['m10']);
+    setHTML('m12', t['m12']);
 
     localStorage.setItem('lang', lang);
 }
 
 // 페이지 로드 시 저장된 언어 불러오기
 document.addEventListener('DOMContentLoaded', () => {
-    const savedLang = localStorage.getItem('lang') || 'ko';
+    let savedLang = sessionStorage.getItem('lang');
+
+    if(!savedLang) {
+        //저장된 언어가 없으면 한국어로 설정하고 저장
+        savedLang ='ko';
+        sessionStorage.setItem('lang', savedLang);
+    }
     setLanguage(savedLang);
 
     // 버튼 이벤트 등록
