@@ -44,7 +44,7 @@ class ServiceWebSocket {
     }
 
     connect() {
-        const token = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
+        const token = localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
         if (!token) {
             console.error('JWT 토큰이 없습니다.');
             return;
