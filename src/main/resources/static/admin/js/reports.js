@@ -10,9 +10,6 @@ const API_BASE_URL = 'https://javame.live/api/v1/environment/reports';
 // ★★★ 전역 변수 ★★★
 let currentChartInstances = [];
 
-// ★★★ 전역 변수 ★★★
-let currentChartInstances = [];
-
 document.addEventListener('DOMContentLoaded', () => {
     console.log('리포트 페이지 로드 완료');
     initializeReportPage();
