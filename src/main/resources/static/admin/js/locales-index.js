@@ -1,4 +1,4 @@
-const messages = {
+export const messages = {
     ko: {
         m1: `실시간 장애 예방, 자동화 대응, 환경 통합 감시 
             <br> 대시보드 기반의 시각화 및 예측 운영`,
@@ -37,9 +37,10 @@ const messages = {
         m121: `운영진 소개`,
         m122: `요금제`,
 
-
-        loginLogoutBtn: `로그인`,
-        registerDashboardBtn: `회원가입`,
+        login: `로그인`,
+        logout: `로그아웃`,
+        dashboard: `대시보드`,
+        signup: `회원가입`,
         m30: `개인정보 처리방침`,
         m31: `이용약관`,
         m32: `서비스 안내`,
@@ -212,6 +213,19 @@ const messages = {
         m186: `AI 분석 리포트`,
         m187: `AI 분석 요약`,
         m188: '데이터 시각화',
+        // rule/sensorRegister.html
+        m189: `센서 및 데이터 등록`,
+        m190: `센서 리스트`,
+        m191: `센서 번호`,
+        m192: `센서 아이디`,
+        m193: `센서 데이터 리스트`,
+        m194: `데이터 번호`,
+        m195: `데이터 이름`,
+        m196: `게이트웨이`,
+        m197: `데이터 이름`,
+        m198: `최소 임계값`,
+        m199: `최대 임계값`,
+        m200: `등록 시간`
 
 
 
@@ -271,8 +285,10 @@ const messages = {
         m120: `About`,
         m121: `Team`,
         m122: `Plan`,
-        loginLogoutBtn: `Log in`,
-        registerDashboardBtn: `Sign up`,
+        login: "login",
+        logout: "logout",
+        dashboard: "dashboard",
+        signup: "signup",
         m30: `Privacy Policy`,
         m31: `Terms of Service`,
         m32: `Service Guide`,
@@ -441,6 +457,20 @@ const messages = {
         m186: `AI Analysis Report`,
         m187: `AI Analysis Summary`,
         m188: `Data Visualization`,
+        // rule/sensorRegister.html
+        m189: `Sensor and Data Register`,
+        m190: `Sensor No.`,
+        m191: `Sensor Id`,
+        m192: `Sensor Data List`,
+        m193: `Data No.`,
+        m194: `Data List`,
+        m195: `Data No.`,
+        m196: `Location`,
+        m197: `Gateway`,
+        m198: `Data Name`,
+        m199: `Min Threshold`,
+        m200: `Max Threshold`,
+        m201: `Created At`,
 
 
 
@@ -449,8 +479,12 @@ const messages = {
     },
 };
 
+export function getCurrentLang() {
+    return localStorage.getItem('lang') || 'ko';
+}
 
-function setLanguage(lang) {
+
+ export function setLanguage(lang) {
     const t = messages[lang];
 
     function setText(id, text) {
@@ -464,8 +498,8 @@ function setLanguage(lang) {
         'm11','m13','m14','m15','m16','m17',
         'm18', 'm19','m20','m21','m22','m23',
         'm24','m25','m26','m27','m28','m29',
-        'loginLogoutBtn','registerDashboardBtn',
-        ...Array.from({length: 159}, (_, i) => `m${i+30}`)
+        'login', 'logout','dashboard','signup',
+        ...Array.from({length: 172}, (_, i) => `m${i+30}`)
 
     ];
 
@@ -488,10 +522,53 @@ function setLanguage(lang) {
     // 언어 설정값 저장
     localStorage.setItem('lang', lang);
 
-    // 언어 설정한 시각도 같이 저장
-    localStorage.setItem('langSetAt', Date.now().toString());
+    // // 언어 설정한 시각도 같이 저장
+    // localStorage.setItem('langSetAt', Date.now().toString());
 
 }
+
+// document.addEventListener('DOMContentLoaded', () => {
+//
+//     let savedLang = localStorage.getItem('lang');
+//
+//     if(savedLang == "en")  {
+//         //저장된 언어가 없으면 한국어로 설정하고 저장
+//         savedLang ='ko';
+//         localStorage.setItem('lang', savedLang);
+//     }
+//     // 버튼 클릭 시 언어 변경
+//     document.getElementById('btn-ko').addEventListener('click', () => {
+//         localStorage.setItem('lang', 'ko');
+//         setLanguage('ko');
+//     });
+//
+//     document.getElementById('btn-en').addEventListener('click', () => {
+//         localStorage.setItem('lang', 'en');
+//         setLanguage('en');
+//     });
+// });
+
+
+//
+// //
+// //
+// // // 페이지 로드 시 저장된 언어 불러오기
+// document.addEventListener('DOMContentLoaded', () => {
+//     let savedLang = localStorage.getItem('lang');
+//     let langToSet = 'ko'; // 기본값. 저장된 값이 없거나 유효기간이 지나면 기본 언어인 한국어로 설정.
+//
+//
+//     // if (savedLang === "en") {
+//     //     //저장된 언어가 없으면 한국어로 설정하고 저장
+//     //     savedLang = 'ko';
+//     //     localStorage.setItem('lang', savedLang);
+//     // }
+//     setLanguage(savedLang);
+//
+//     // 버튼 이벤트 등록
+//     document.getElementById('btn-ko').addEventListener('click', () => setLanguage('ko'));
+//     document.getElementById('btn-en').addEventListener('click', () => setLanguage('en'));
+// });
 
 // 페이지 로드 시 저장된 언어 불러오기
 document.addEventListener('DOMContentLoaded', () => {
