@@ -2,8 +2,7 @@
 import {
     createAreaChart,
     createBarChart,
-    createPieChart,
-    createComboBarLineChart
+    createPieChart
 } from './chartUtils.js';
 
 const API_BASE_URL = 'http://localhost:10279/api/v1/environment/reports';

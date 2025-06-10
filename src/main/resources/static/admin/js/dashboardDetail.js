@@ -193,7 +193,7 @@ class ServiceWebSocket {
 
 const serviceWS = new ServiceWebSocket();
 
-// ★★★ 서비스 데이터 가져오기 ★★★
+// ★★★ 서비스 데이터 가져오기 (x,y 좌표 형식으로 변경) ★★★
 async function fetchServiceData(measurement, timeRange = '1h') {
     const servicesData = [];
 
@@ -206,12 +206,36 @@ async function fetchServiceData(measurement, timeRange = '1h') {
                 location: 'service_resource_data'
             };
 
+            // ★★★ 날짜 범위가 선택된 경우 startTime, endTime 추가 ★★★
+            if (!selectedDateRange.isRealtime && selectedDateRange.startDate && selectedDateRange.endDate) {
+                filters.startTime = selectedDateRange.startDate + 'T00:00:00';
+                filters.endTime = selectedDateRange.endDate + 'T23:59:59';
+            }
+
             const data = await getAverageData('server_data', measurement, filters, timeRange);
+
+            // ★★★ 선택된 날짜 범위 기준으로 시간 라벨 생성 ★★★
+            const timeLabels = generateTimeLabelsFromDateRange();
+
+            // ★★★ 시간 라벨과 데이터 매핑 ★★★
+            const chartData = [];
+            if (data.timeSeriesAverage && data.timeSeriesAverage.length > 0) {
+                // 데이터 포인트 수와 시간 라벨 수를 맞춤
+                const dataPoints = data.timeSeriesAverage;
+                const labelCount = timeLabels.length;
+
+                for (let i = 0; i < Math.min(dataPoints.length, labelCount); i++) {
+                    chartData.push({
+                        x: timeLabels[i], // ★★★ 실제 선택된 날짜 범위의 시간 ★★★
+                        y: dataPoints[i]
+                    });
+                }
+            }
 
             servicesData.push({
                 serviceName: service.label,
                 gatewayId: service.gatewayId,
-                data: data.timeSeriesAverage || [],
+                data: chartData,
                 overallAverage: data.overallAverage || 0,
                 hasData: data.hasData || false,
                 color: service.color
@@ -219,19 +243,13 @@ async function fetchServiceData(measurement, timeRange = '1h') {
 
         } catch (error) {
             console.error(`서비스 ${service.label} 데이터 요청 실패:`, error);
-            servicesData.push({
-                serviceName: service.label,
-                gatewayId: service.gatewayId,
-                data: [],
-                overallAverage: 0,
-                hasData: false,
-                color: service.color
-            });
         }
     }
 
     return servicesData;
 }
+
+
 
 // ★★★ 서비스 선택 UI 렌더링 ★★★
 function renderServiceSelector() {
@@ -306,6 +324,7 @@ function renderServiceSelector() {
 }
 
 // ★★★ 차트 렌더링 ★★★
+// ★★★ 차트 렌더링 (labels 제거) ★★★
 async function renderChart(canvasId, measurement) {
     try {
         console.log(`차트 렌더링: ${canvasId} - ${measurement}`);
@@ -318,12 +337,11 @@ async function renderChart(canvasId, measurement) {
 
         const timeRange = selectedDateRange.isRealtime ? '1h' : '24h';
         const servicesData = await fetchServiceData(measurement, timeRange);
-        const timeLabels = generateTimeLabels();
 
-        // ★★★ chartUtils.js의 createServiceComparisonChart 사용 ★★★
+        // ★★★ labels 없이 차트 생성 (x,y 데이터 사용) ★★★
         chartInstances[canvasId] = createServiceComparisonChart(
             canvasId,
-            timeLabels,
+            [], // ★★★ 빈 배열 전달 ★★★
             servicesData,
             { name: measurement, label: getMeasurementLabel(measurement) }
         );
@@ -337,46 +355,49 @@ async function renderChart(canvasId, measurement) {
     }
 }
 
-// ★★★ 유틸리티 함수들 ★★★
-function generateTimeLabels() {
+// ★★★ 날짜 범위 기반 시간 라벨 생성 함수 추가 ★★★
+function generateTimeLabelsFromDateRange() {
     const labels = [];
-    const now = new Date();
 
     if (selectedDateRange.isRealtime) {
+        // 실시간 모드: 현재 시간 기준
+        const now = new Date();
         for (let i = 23; i >= 0; i--) {
             const time = new Date(now.getTime() - i * 60 * 60 * 1000);
-            labels.push(time.toLocaleString('ko-KR', {
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit'
-            }));
+            labels.push(time);
         }
     } else {
-        const start = new Date(selectedDateRange.startDate);
-        const end = new Date(selectedDateRange.endDate);
-        const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+        // 날짜 선택 모드: 선택된 날짜 범위 기준
+        const start = new Date(selectedDateRange.startDate + 'T00:00:00');
+        const end = new Date(selectedDateRange.endDate + 'T23:59:59');
+        const now = new Date();
+
+        // ★★★ 종료 시간이 미래라면 현재 시간으로 제한 ★★★
+        const actualEnd = end > now ? now : end;
+
+        const diffDays = Math.ceil((actualEnd - start) / (1000 * 60 * 60 * 24));
 
         if (diffDays <= 1) {
-            for (let i = 0; i < 24; i++) {
+            // 1일 이하: 1시간 간격
+            const diffHours = Math.ceil((actualEnd - start) / (1000 * 60 * 60));
+            for (let i = 0; i < diffHours; i++) {
                 const time = new Date(start.getTime() + i * 60 * 60 * 1000);
-                labels.push(time.toLocaleString('ko-KR', {
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit'
-                }));
+                if (time <= now) { // ★★★ 미래 시간 제외 ★★★
+                    labels.push(time);
+                }
             }
         } else {
+            // 1일 초과: 1일 간격
             for (let i = 0; i <= diffDays; i++) {
                 const time = new Date(start.getTime() + i * 24 * 60 * 60 * 1000);
-                labels.push(time.toLocaleString('ko-KR', {
-                    month: '2-digit',
-                    day: '2-digit'
-                }));
+                if (time <= now) { // ★★★ 미래 시간 제외 ★★★
+                    labels.push(time);
+                }
             }
         }
     }
 
+    console.log('생성된 시간 라벨:', labels.map(l => l.toLocaleString('ko-KR')));
     return labels;
 }
 
