@@ -75,4 +75,24 @@ public class DashboardController {
     public String testWebSocket() {
         return "test/test";
     }
+
+    @GetMapping("/sensorRegister")
+    public String getSensorRegister() {
+        return "rule/sensorRegister";
+    }
+
+    @GetMapping("/serverRegister")
+    public String getServerRegister() {
+        return "rule/serverRegister";
+    }
+
+    @GetMapping("/sensorList")
+    public String getSensorList() {
+        return "rule/sensor";
+    }
+
+    @GetMapping("/serverList")
+    public String getServerList() {
+        return "rule/server";
+    }
 }
