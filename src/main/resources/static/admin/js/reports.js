@@ -5,58 +5,15 @@ import {
     createPieChart
 } from './chartUtils.js';
 
-import { getCurrentUser } from '/index/js/auth.js';
-
-// ★★★ API Base URL을 동적으로 설정 ★★★
-let API_BASE_URL = null;
-let currentCompanyDomain = null;
+const API_BASE_URL = 'https://javame.live/api/v1/environment/reports';
 
 // ★★★ 전역 변수 ★★★
 let currentChartInstances = [];
 
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
     console.log('리포트 페이지 로드 완료');
-
-    // ★★★ 1. 먼저 API Base URL 초기화 ★★★
-    await initializeApiBaseUrl();
-
-    // ★★★ 2. 그 다음 리포트 페이지 초기화 ★★★
     initializeReportPage();
 });
-
-// ★★★ 새로 추가할 함수 ★★★
-async function initializeApiBaseUrl() {
-    try {
-        // 현재 사용자 정보에서 companyDomain 추출
-        const currentUser = getCurrentUser();
-        if (currentUser && currentUser.companyDomain) {
-            currentCompanyDomain = currentUser.companyDomain;
-        } else {
-            // JWT 토큰에서 직접 추출 (fallback)
-            const token = sessionStorage.getItem('accessToken');
-            if (token) {
-                const payload = JSON.parse(atob(token.split('.')[1]));
-                currentCompanyDomain = payload.companyDomain;
-            }
-        }
-
-        // ★★★ 동적 API Base URL 설정 ★★★
-        if (currentCompanyDomain) {
-            API_BASE_URL = `https://javame.live/api/v1/environment/${currentCompanyDomain}/reports`;
-        } else {
-            // 기본값 사용 (게이트웨이가 자동으로 처리)
-            API_BASE_URL = 'https://javame.live/api/v1/environment/companyDomain/reports';
-        }
-
-        console.log(`✅ 현재 도메인: ${currentCompanyDomain || 'auto-detect'}`);
-        console.log(`✅ API Base URL: ${API_BASE_URL}`);
-
-    } catch (error) {
-        console.error('API Base URL 초기화 실패:', error);
-        // 기본값 사용
-        API_BASE_URL = 'https://javame.live/api/v1/environment/companyDomain/reports';
-    }
-}
 
 function initializeReportPage() {
     const form = document.getElementById('reportGenerationForm');
@@ -78,7 +35,7 @@ function initializeReportPage() {
     console.log('리포트 페이지 초기화 완료');
 }
 
-// ★★★ handleReportGeneration 함수에서 도메인 정보 추가 ★★★
+// ★★★ 리포트 생성 처리 ★★★
 async function handleReportGeneration(e) {
     e.preventDefault();
 
@@ -90,11 +47,7 @@ async function handleReportGeneration(e) {
         return;
     }
 
-    console.log('리포트 생성 요청:', {
-        userPrompt,
-        reportType,
-        companyDomain: currentCompanyDomain // ★★★ 도메인 정보 로깅 ★★★
-    });
+    console.log('리포트 생성 요청:', { userPrompt, reportType });
 
     const requestBody = {
         userPrompt,
@@ -105,7 +58,6 @@ async function handleReportGeneration(e) {
     clearResults();
 
     try {
-        // ★★★ 동적으로 설정된 API_BASE_URL 사용 ★★★
         const response = await fetch(`${API_BASE_URL}/generate`, {
             method: 'POST',
             headers: {
@@ -114,7 +66,6 @@ async function handleReportGeneration(e) {
             },
             body: JSON.stringify(requestBody)
         });
-
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({
@@ -175,28 +126,22 @@ function displayAISummary(summaryText) {
         return;
     }
 
+    // 마크다운을 HTML로 변환
     const htmlContent = convertMarkdownToHtml(summaryText);
 
-    // ★★★ 도메인 정보를 포함한 UI ★★★
+    // ★★★ 깔끔한 UI/UX 적용 ★★★
     summaryElement.innerHTML = `
         <div class="ai-analysis-panel p-4 rounded" style="background-color: #f8f9fa;">
-            <div class="d-flex align-items-center justify-content-between mb-3">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-robot text-primary fs-4 me-2"></i>
-                    <span class="fw-bold fs-5">AI 분석 결과</span>
-                </div>
-                <!-- ★★★ 현재 도메인 표시 ★★★ -->
-                ${currentCompanyDomain ? `
-                    <span class="badge bg-primary">
-                        <i class="fas fa-building me-1"></i>${currentCompanyDomain}
-                    </span>
-                ` : ''}
+            <div class="d-flex align-items-center mb-3">
+                <i class="fas fa-robot text-primary fs-4 me-2"></i>
+                <span class="fw-bold fs-5">AI 분석 결과</span>
             </div>
             <div class="summary-content lh-lg">
                 ${htmlContent}
             </div>
         </div>
     `;
+
     // ★★★ 생성된 테이블에 Bootstrap 클래스 추가 ★★★
     const tables = summaryElement.querySelectorAll('table');
     tables.forEach(table => {
@@ -439,6 +384,15 @@ function convertMarkdownToHtml(markdown) {
     if (!markdown) return '';
     return marked.parse(markdown);
 }
+
+// ★★★ 디버깅 함수들 ★★★
+window.debugReportCharts = function() {
+    // ... 기존 디버깅 함수 ...
+};
+
+window.clearAllCharts = function() {
+    // ... 기존 차트 정리 함수 ...
+};
 
 window.addEventListener('beforeunload', () => {
     destroyExistingCharts();
