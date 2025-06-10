@@ -301,8 +301,8 @@
             <!-- 페이지 헤더 -->
             <div class="page-header">
                 <div class="container-fluid px-4">
-                    <h1><i class="fas fa-robot me-3"></i>AI 기반 리포트 생성</h1>
-                    <p class="subtitle mb-0">자연어로 질문하면 AI가 데이터를 분석하여 인사이트를 제공합니다</p>
+                    <h1 id="m174"><i class="fas fa-robot me-3"></i>AI 기반 리포트 생성</h1>
+                    <p id="m175" class="subtitle mb-0">자연어로 질문하면 AI가 데이터를 분석하여 인사이트를 제공합니다</p>
                 </div>
             </div>
 
@@ -310,8 +310,8 @@
                 <!-- 브레드크럼 -->
                 <nav aria-label="breadcrumb" class="mb-4">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a th:href="@{/environment/dashboard-main}">메인 대시보드</a></li>
-                        <li class="breadcrumb-item active">AI 리포트</li>
+                        <li class="breadcrumb-item"><a id="m176" th:href="@{/environment/dashboard-main}">메인 대시보드</a></li>
+                        <li id="m177" class="breadcrumb-item active">AI 리포트</li>
                     </ol>
                 </nav>
 
@@ -321,8 +321,8 @@
                         <div class="d-flex align-items-center">
                             <i class="fas fa-comments me-3 fs-4"></i>
                             <div>
-                                <h4 class="mb-1">무엇을 분석해드릴까요?</h4>
-                                <p class="mb-0 opacity-90">궁금한 내용을 자연스럽게 말씀해주세요</p>
+                                <h4 id="m178" class="mb-1">무엇을 분석해드릴까요?</h4>
+                                <p id="m179" class="mb-0 opacity-90">궁금한 내용을 자연스럽게 말씀해주세요</p>
                             </div>
                         </div>
                     </div>
@@ -330,7 +330,8 @@
                         <form id="reportGenerationForm">
                             <div class="mb-4">
                                 <label for="userPromptInput" class="form-label fw-semibold fs-5 mb-3">
-                                    <i class="fas fa-lightbulb me-2 text-warning"></i>분석 요청
+                                    <i class="fas fa-lightbulb me-2 text-warning"></i>
+                                    <span id="m180" class="navbar-text">분석 요청</span>
                                 </label>
                                 <textarea
                                         class="form-control prompt-textarea"
@@ -340,13 +341,15 @@
                                         required></textarea>
                                 <div class="form-text mt-2">
                                     <i class="fas fa-info-circle me-1"></i>
-                                    시스템 메트릭(CPU, 메모리, 온도, 전력) 또는 JVM 서비스 메트릭(인증, 환경API, 프론트엔드, 게이트웨이, 회원)을 자연어로 요청하세요.
+                                    <span id="m181" class="navbar-text">시스템 메트릭(CPU, 메모리, 온도, 전력) 또는 JVM 서비스 메트릭(인증, 환경API, 프론트엔드, 게이트웨이, 회원)을 자연어로 요청하세요.</span>
+
                                 </div>
                             </div>
 
                             <div class="text-center">
                                 <button type="submit" class="btn btn-primary submit-btn">
-                                    <i class="fas fa-magic me-2"></i>AI 분석 시작
+                                    <i class="fas fa-magic me-2"></i>
+                                    <span id="m182" class="navbar-text">AI 분석 시작</span>
                                 </button>
                             </div>
                         </form>
@@ -356,17 +359,17 @@
                 <!-- 로딩 및 오류 메시지 -->
                 <div id="loadingSpinner" class="alert loading-container fade-in-up" style="display: none;">
                     <div class="spinner-border loading-spinner text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
+                        <span  class="visually-hidden">Loading...</span>
                     </div>
-                    <h5 class="mb-2">🤖 AI가 데이터를 분석하고 있습니다</h5>
-                    <p class="mb-0">잠시만 기다려주세요...</p>
+                    <h5 id="m183" class="mb-2">🤖 AI가 데이터를 분석하고 있습니다</h5>
+                    <p id="m184" class="mb-0">잠시만 기다려주세요...</p>
                 </div>
 
                 <div id="errorMessage" class="alert alert-danger error-alert fade-in-up" style="display: none;">
                     <div class="d-flex align-items-center">
                         <i class="fas fa-exclamation-triangle me-3 fs-4"></i>
                         <div>
-                            <h6 class="mb-1">오류가 발생했습니다</h6>
+                            <h6 id="m185" class="mb-1">오류가 발생했습니다</h6>
                             <span class="error-text"></span>
                         </div>
                     </div>
@@ -378,7 +381,7 @@
                         <div class="card-header report-header">
                             <div class="d-flex align-items-center">
                                 <i class="fas fa-chart-line me-3 fs-3"></i>
-                                <h3 id="reportGeneratedTitle">AI 분석 리포트</h3>
+                                <h3 id="m186">AI 분석 리포트</h3>
                             </div>
                         </div>
                         <div class="card-body report-body">
@@ -387,7 +390,7 @@
                                 <div class="section-icon">
                                     <i class="fas fa-brain"></i>
                                 </div>
-                                <h4>AI 분석 요약</h4>
+                                <h4 id="m187">AI 분석 요약</h4>
                             </div>
                             <div class="summary-section">
                                 <div id="reportSummary" class="summary-content">
@@ -406,7 +409,7 @@
                                     <div class="section-icon">
                                         <i class="fas fa-chart-area"></i>
                                     </div>
-                                    <h4>데이터 시각화</h4>
+                                    <h4 id="m188">데이터 시각화</h4>
                                 </div>
                                 <div id="reportChartsContainer">
                                     <!-- JavaScript가 여기에 차트를 생성 -->
@@ -430,5 +433,8 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
 <script type="module" src="/admin/js/reports.js"></script>
 <script type="module" src="/admin/js/chartUtils.js"></script>
+
+<!--언어 전환용 JS-->
+<script src="/admin/js/locales-index.js"></script>
 </body>
 </html>
