@@ -196,6 +196,23 @@ const messages = {
         m168: `메모리 사용량`,
         m169: `디스크 사용량`,
         m170: `서버 온도`,
+        // dashboard/reports.html
+        m174: `AI 기반 리포트 생성`,
+        m175: `자연어로 질문하면 AI가 데이터를 분석하여 인사이트를 제공합니다`,
+        m176: `메인 대시보드`,
+        m177: `AI 리포트`,
+        m178: `무엇을 분석해드릴까요?`,
+        m179: `궁금한 내용을 자연스럽게 말씀해주세요`,
+        m180: `분석 요청`,
+        m181: `시스템 메트릭(CPU, 메모리, 온도, 전력) 또는 JVM 서비스 메트릭(인증, 환경API, 프론트엔드, 게이트웨이, 회원)을 자연어로 요청하세요.`,
+        m182: `AI 분석 시작`,
+        m183: `🤖 AI가 데이터를 분석하고 있습니다`,
+        m184: `잠시만 기다려주세요...`,
+        m185: `오류가 발생했습니다.`,
+        m186: `AI 분석 리포트`,
+        m187: `AI 분석 요약`,
+        m188: '데이터 시각화',
+
 
 
 
@@ -408,6 +425,22 @@ const messages = {
         m168: `Memory Usage`,
         m169: `Disk Usage`,
         m170: `Server Temperature`,
+    //  dashboard/reports.html
+        m174: `AI-Based Report Generation`,
+        m175: `Ask questions in natural language, and the AI will analyze the data to provide insights.`,
+        m176: `Main Dashboard`,
+        m177: `AI Report`,
+        m178: `What would you like to analyze?`,
+        m179: `Please ask your question naturally.`,
+        m180: `Request Analysis`,
+        m181: `Ask in natural language for system metrics (CPU, memory, temperature, power) or JVM service metrics (auth, env API, frontend, gateway, member).`,
+        m182: `Start AI Analysis`,
+        m183: `🤖 The AI is analyzing your data`,
+        m184: `Please wait a moment...`,
+        m185: `An error has occurred.`,
+        m186: `AI Analysis Report`,
+        m187: `AI Analysis Summary`,
+        m188: `Data Visualization`,
 
 
 
@@ -432,7 +465,7 @@ function setLanguage(lang) {
         'm18', 'm19','m20','m21','m22','m23',
         'm24','m25','m26','m27','m28','m29',
         'loginLogoutBtn','registerDashboardBtn',
-        ...Array.from({length: 144}, (_, i) => `m${i+30}`)
+        ...Array.from({length: 159}, (_, i) => `m${i+30}`)
 
     ];
 
