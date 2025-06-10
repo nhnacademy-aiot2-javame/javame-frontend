@@ -283,31 +283,34 @@ export async function getOutboundTraffic() {
     }
 }
 
-// ★★★ 통합 통계 조회 함수 (새로 추가) ★★★
-export async function getDashboardStats() {
+// ★★★ 서비스 목록 조회 함수 추가 ★★★
+export async function getAvailableServices(origin = 'server_data', location = 'service_resource_data') {
     try {
-        const res = await fetchWithAuth(API_BASE_URL + '/stats');
+        const url = `${API_BASE_URL}/services?origin=${origin}&location=${location}`;
+        console.log('서비스 목록 조회:', url);
+
+        const res = await fetchWithAuth(url);
         if (!res.ok) {
-            console.warn('통합 통계 조회 실패: ' + res.status);
+            console.error('서비스 목록 조회 실패:', res.status, await res.text());
             return {
-                serviceCount: 0,
-                serverCount: 0,
-                sensorCount: 0,
-                outboundTraffic: { formattedValue: '0.0 MB' },
-                inboundTraffic: { formattedValue: '0.0 MB' },
+                services: [],
+                count: 0,
+                error: true,
                 success: false
             };
         }
-        const data = await res.json();
-        return data;
+
+        const result = await res.json();
+        console.log('서비스 목록 조회 성공:', result);
+
+        return result;
     } catch (error) {
-        console.error('통합 통계 조회 오류:', error);
+        console.error('서비스 목록 조회 오류:', error);
         return {
-            serviceCount: 0,
-            serverCount: 0,
-            sensorCount: 0,
-            outboundTraffic: { formattedValue: '0.0 MB' },
-            inboundTraffic: { formattedValue: '0.0 MB' },
+            services: [],
+            count: 0,
+            error: true,
+            errorMessage: error.message,
             success: false
         };
     }
