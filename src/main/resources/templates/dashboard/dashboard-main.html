@@ -309,9 +309,9 @@
     <div id="layoutSidenav_content">
         <main>
             <div class="container-fluid px-4">
-                <h1 class="mt-4">메인 대시보드</h1>
+                <h1 id="m141" class="mt-4">메인 대시보드</h1>
                 <ol class="breadcrumb mb-4">
-                    <li class="breadcrumb-item active">종합현황</li>
+                    <li id="m142" class="breadcrumb-item active">종합현황</li>
                 </ol>
 
                 <!-- ★★★ 동적 서버 선택 탭 ★★★ -->
@@ -319,11 +319,11 @@
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="mb-0">
                             <i class="fas fa-server me-2 text-primary"></i>
-                            서버 모니터링
+                            <span id="m143" class="nav-text">서버 모니터링</span>
                         </h5>
                         <div class="d-flex align-items-center">
-                            <span class="badge bg-primary me-2" id="selectedServerInfo">전체 서버</span>
-                            <span class="small text-muted">실시간 업데이트</span>
+                            <span id="m144" class="badge bg-primary me-2">전체 서버</span>
+                            <span id="m145" class="small text-muted">실시간 업데이트</span>
                         </div>
                     </div>
 
@@ -349,12 +349,13 @@
                                         <i class="fas fa-server"></i>
                                     </div>
                                     <div>
-                                        <h5 class="mb-0 fw-bold">도메인</h5>
+                                        <h5 id="m146" class="mb-0 fw-bold">도메인</h5>
                                         <small class="text-muted" id="totalDomain">--</small>
                                     </div>
                                 </div>
                                 <a href="/rules/serverList" class="card-header-link">
-                                    <i class="fas fa-external-link-alt me-1"></i>설정
+                                    <i class="fas fa-external-link-alt me-1"></i>
+                                    <span id="m147" class="nav-text">설정</span>
                                 </a>
                             </div>
                             <div class="card-body" style="padding: 1rem 1.5rem;">
@@ -362,34 +363,40 @@
                                 <div class="connection-status">
                                     <div class="connection-status-item d-flex justify-content-between align-items-center mb-2">
                         <span class="small fw-medium">
-                            <i class="fas fa-server me-2 text-primary"></i>서버
+                            <i class="fas fa-server me-2 text-primary"></i>
+                            <span id="m148" class="nav-text">서버</span>
                         </span>
                                         <span class="badge" id="serverConnectionStatus">
-                            <i class="fas fa-circle me-1"></i>확인중...
+                            <i class="fas fa-circle me-1"></i>
+                                            <span id="m149" class="nav-text">확인중...</span>
                         </span>
                                     </div>
                                     <div class="connection-status-item d-flex justify-content-between align-items-center mb-2">
                         <span class="small fw-medium">
-                            <i class="fas fa-broadcast-tower me-2 text-success"></i>센서
+                            <i class="fas fa-broadcast-tower me-2 text-success"></i>
+                            <span id="m150" class="nav-text">센서</span>
                         </span>
                                         <span class="badge" id="sensorConnectionStatus">
-                            <i class="fas fa-circle me-1"></i>확인중...
+                            <i class="fas fa-circle me-1"></i>
+                                            <span id="m151" class="navbar-text">확인중...</span>
                         </span>
                                     </div>
                                     <div class="connection-status-item d-flex justify-content-between align-items-center">
                         <span class="small fw-medium">
-                            <i class="fas fa-cogs me-2 text-info"></i>서비스
+                            <i class="fas fa-cogs me-2 text-info"></i>
+                            <span id="m152" class="navbar-text">서비스</span>
                         </span>
                                         <span class="badge" id="serviceConnectionStatus">
-                            <i class="fas fa-circle me-1"></i>확인중...
+                            <i class="fas fa-circle me-1"></i>
+                                            <span id="m153" class="navbar-text">확인중...</span>
                         </span>
                                     </div>
                                 </div>
                             </div>
                             <div class="card-footer">
                                 <div class="d-flex justify-content-between small">
-                                    <span>서비스: <span id="totalServicesCount" class="fw-bold">--</span>개</span>
-                                    <span>센서: <span id="totalSensorsCount" class="fw-bold">--</span>개</span>
+                                    <span id="m154">서비스: <span id="totalServicesCount" class="fw-bold">--</span>개</span>
+                                    <span id="m155">센서: <span id="totalSensorsCount" class="fw-bold">--</span>개</span>
                                 </div>
                             </div>
                         </div>
@@ -403,32 +410,33 @@
                                     <div class="icon-circle bg-warning-soft me-3">
                                         <i class="fas fa-exclamation-triangle"></i>
                                     </div>
-                                    <h5 class="mb-0 fw-bold">알람</h5>
+                                    <h5 id="m156" class="mb-0 fw-bold">알람</h5>
                                 </div>
                                 <a href="/environment/warnify" class="card-header-link">
-                                    <i class="fas fa-external-link-alt me-1"></i>상세보기
+                                    <i class="fas fa-external-link-alt me-1"></i>
+                                    <span id="m157" class="navbar-text">상세보기</span>
                                 </a>
                             </div>
                             <div class="card-body" style="padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: center;">
                                 <div class="d-flex justify-content-around text-center w-100">
                                     <div>
                                         <div class="stat-value" id="alarm발생Count">--</div>
-                                        <div class="stat-label">발생</div>
+                                        <div id="m158" class="stat-label">발생</div>
                                     </div>
                                     <div>
                                         <div class="stat-value" id="alarm안정Count">--</div>
-                                        <div class="stat-label">안정</div>
+                                        <div id="m159" class="stat-label">안정</div>
                                     </div>
                                     <div>
                                         <div class="stat-value" id="alarm데이터부족Count">--</div>
-                                        <div class="stat-label">데이터부족</div>
+                                        <div id="m160" class="stat-label">데이터부족</div>
                                     </div>
                                 </div>
                             </div>
                             <div class="card-footer">
                                 <div class="d-flex justify-content-between small">
-                                    <span><i class="fas fa-clock me-1"></i>최근 업데이트: 실시간</span>
-                                    <span><i class="fas fa-bell me-1"></i>알림 활성화</span>
+                                    <span id="m161"><i class="fas fa-clock me-1"></i>최근 업데이트: 실시간</span>
+                                    <span id="m162"><i class="fas fa-bell me-1"></i>알림 활성화</span>
                                 </div>
                             </div>
                         </div>
@@ -442,10 +450,11 @@
                                     <div class="icon-circle bg-info-soft me-3">
                                         <i class="fas fa-network-wired"></i>
                                     </div>
-                                    <h5 class="mb-0 fw-bold">서버 트래픽</h5>
+                                    <h5 id="m163" class="mb-0 fw-bold">서버 트래픽</h5>
                                 </div>
                                 <a href="/environment/charts" class="card-header-link">
-                                    <i class="fas fa-external-link-alt me-1"></i>분석
+                                    <i class="fas fa-external-link-alt me-1"></i>
+                                    <span id="m164" class="navbar-text">분석</span>
                                 </a>
                             </div>
                             <div class="card-body" style="padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: center;">
@@ -453,8 +462,8 @@
                             </div>
                             <div class="card-footer">
                                 <div class="d-flex justify-content-between small">
-                                    <span><i class="fas fa-calendar me-1"></i>24시간 누적</span>
-                                    <span><i class="fas fa-arrow-up me-1"></i>송신 전용</span>
+                                    <span id="m165"><i class="fas fa-calendar me-1"></i>24시간 누적</span>
+                                    <span id="m166"><i class="fas fa-arrow-up me-1"></i>송신 전용</span>
                                 </div>
                             </div>
                         </div>
@@ -468,7 +477,7 @@
                         <div class="card gauge-card mb-4">
                             <div class="card-header text-center">
                                 <i class="fas fa-microchip me-2 text-primary"></i>
-                                <span class="fw-bold">CPU 사용률</span>
+                                <span id="m167" class="fw-bold">CPU 사용률</span>
                             </div>
                             <div class="card-body">
                                 <canvas id="gauge1"></canvas>
@@ -481,7 +490,7 @@
                         <div class="card gauge-card mb-4">
                             <div class="card-header text-center">
                                 <i class="fas fa-memory me-2 text-success"></i>
-                                <span class="fw-bold">메모리 사용량</span>
+                                <span id="m168" class="fw-bold">메모리 사용량</span>
                             </div>
                             <div class="card-body">
                                 <canvas id="gauge2"></canvas>
@@ -494,7 +503,7 @@
                         <div class="card gauge-card mb-4">
                             <div class="card-header text-center">
                                 <i class="fas fa-hdd me-2 text-info"></i>
-                                <span class="fw-bold">디스크 사용량</span>
+                                <span id="m169" class="fw-bold">디스크 사용량</span>
                             </div>
                             <div class="card-body">
                                 <canvas id="gauge3"></canvas>
@@ -507,7 +516,7 @@
                         <div class="card gauge-card mb-4">
                             <div class="card-header text-center">
                                 <i class="fas fa-thermometer-half me-2 text-danger"></i>
-                                <span class="fw-bold">서버 온도</span>
+                                <span id="m170" class="fw-bold">서버 온도</span>
                             </div>
                             <div class="card-body">
                                 <canvas id="gauge4"></canvas>
@@ -568,5 +577,9 @@
 <script type="module" src="/admin/js/chartUtils.js"></script>
 <script type="module" src="/admin/js/dashboardMain.js"></script>
 <script type="module" src="/admin/js/fragmentsHeader.js"></script>
+
+
+<!--언어 전환용 JS-->
+<script src="/admin/js/locales-index.js"></script>
 </body>
 </html>
