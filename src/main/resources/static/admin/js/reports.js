@@ -105,7 +105,7 @@ function displayReportResults(reportData) {
 
 // ★★★ 리포트 제목 표시 ★★★
 function displayReportTitle(title) {
-    const titleElement = document.getElementById('reportGeneratedTitle');
+    const titleElement = document.getElementById('m186');
     if (titleElement) {
         titleElement.textContent = title;
     }
@@ -348,7 +348,7 @@ function clearResults() {
     }
 
     const elementsToReset = [
-        'reportGeneratedTitle',
+        'm186',
         'reportSummary',
         'reportChartsContainer',
         'reportInfo'
