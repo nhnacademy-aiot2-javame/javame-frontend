@@ -896,37 +896,37 @@ export function createServiceComparisonChart(canvasId, xAxisLabels, servicesData
             title: 'CPU 사용률 (%)',
             beginAtZero: true,
             max: 100,
-            formatter: (value) => `${parseFloat(value).toFixed(2)}%` // ★★★ 소수점 2자리 ★★★
+            formatter: (value) => `${parseFloat(value).toFixed(2)}%`
         },
         'gc_g1_young_generation_count': {
             unit: '회',
             title: 'GC 실행 횟수',
             beginAtZero: true,
-            formatter: (value) => `${Math.round(value)}회` // ★★★ 정수로 표시 ★★★
+            formatter: (value) => `${Math.round(value)}회`
         },
         'memory_old_gen_used_bytes': {
             unit: 'MB',
             title: '메모리 사용량 (MB)',
             beginAtZero: true,
-            formatter: (value) => formatBytes(value, 2) // ★★★ 소수점 2자리 ★★★
+            formatter: (value) => formatValueByMeasurement(value, 'memory_old_gen_used_bytes') // ★★★ 기존 함수 사용 ★★★
         },
         'memory_total_heap_used_bytes': {
             unit: 'MB',
             title: 'Heap 사용량 (MB)',
             beginAtZero: true,
-            formatter: (value) => formatBytes(value, 2) // ★★★ 소수점 2자리 ★★★
+            formatter: (value) => formatValueByMeasurement(value, 'memory_total_heap_used_bytes') // ★★★ 기존 함수 사용 ★★★
         },
         'process_open_file_descriptors_count': {
             unit: '개',
             title: '열린 파일 수',
             beginAtZero: true,
-            formatter: (value) => `${Math.round(value)}개` // ★★★ 정수로 표시 ★★★
+            formatter: (value) => `${Math.round(value)}개`
         },
         'thread_active_count': {
             unit: '개',
             title: '활성 스레드 수',
             beginAtZero: true,
-            formatter: (value) => `${Math.round(value)}개` // ★★★ 정수로 표시 ★★★
+            formatter: (value) => `${Math.round(value)}개`
         }
     };
 
@@ -964,7 +964,7 @@ export function createServiceComparisonChart(canvasId, xAxisLabels, servicesData
     return new Chart(ctx, {
         type: 'line',
         data: {
-            labels: xAxisLabels,
+            // ★★★ labels 제거, datasets만 사용 ★★★
             datasets: datasets
         },
         options: {
@@ -976,6 +976,19 @@ export function createServiceComparisonChart(canvasId, xAxisLabels, servicesData
             },
             scales: {
                 x: {
+                    type: 'time', // ★★★ 시간 축 설정 ★★★
+                    adapters: {
+                        date: {
+                            zone: 'Asia/Seoul' // ★★★ 한국 시간대 ★★★
+                        }
+                    },
+                    time: {
+                        displayFormats: {
+                            hour: 'MM/dd HH:mm',
+                            day: 'MM/dd',
+                            minute: 'HH:mm'
+                        }
+                    },
                     grid: {
                         display: true,
                         color: 'rgba(0, 0, 0, 0.05)',
@@ -990,7 +1003,9 @@ export function createServiceComparisonChart(canvasId, xAxisLabels, servicesData
                         },
                         color: '#666666',
                         maxTicksLimit: 12,
-                        padding: 8
+                        padding: 8,
+                        autoSkip: true,
+                        maxRotation: 45
                     }
                 },
                 y: {
@@ -1021,7 +1036,7 @@ export function createServiceComparisonChart(canvasId, xAxisLabels, servicesData
                         color: '#666666',
                         padding: 8,
                         callback: function(value) {
-                            return currentConfig.formatter(value);
+                            return formatValueByMeasurement(value, measurement.name || '');
                         }
                     }
                 }
@@ -1117,34 +1132,37 @@ export function createServiceComparisonChart(canvasId, xAxisLabels, servicesData
     });
 }
 
-// ★★★ 바이트 포맷팅 헬퍼 함수 ★★★
-function formatBytes(bytes, decimals = 2) {
-    if (bytes === 0) return '0 Bytes';
+function formatValueByMeasurement(value, measurement) {
+    if (value === null || value === undefined) return '0';
 
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const num = Number(value);
 
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-}
-// ★★★ 차트 데이터 업데이트 함수 ★★★
-export function updateServiceComparisonChart(chartInstance, newData) {
-    if (!chartInstance || !newData) return;
-
-    // 라벨 업데이트
-    if (newData.labels) {
-        chartInstance.data.labels = newData.labels;
+    // 메모리 관련 측정 항목
+    if (measurement.includes('memory') || measurement.includes('heap')) {
+        if (Math.abs(num) >= 1e9) {
+            return (num / 1e9).toFixed(1) + 'GB';
+        } else if (Math.abs(num) >= 1e6) {
+            return (num / 1e6).toFixed(1) + 'MB';
+        } else if (Math.abs(num) >= 1e3) {
+            return (num / 1e3).toFixed(1) + 'KB';
+        } else {
+            return num.toFixed(0) + 'B';
+        }
     }
 
-    // 데이터셋 업데이트
-    if (newData.datasets) {
-        chartInstance.data.datasets = newData.datasets;
+    // CPU 사용률
+    if (measurement.includes('cpu') && measurement.includes('percent')) {
+        return num.toFixed(1) + '%';
     }
 
-    // 차트 업데이트
-    chartInstance.update('none'); // 애니메이션 없이 빠른 업데이트
+    // 기본 포맷
+    if (Math.abs(num) >= 1e6) {
+        return (num / 1e6).toFixed(1) + 'M';
+    } else if (Math.abs(num) >= 1e3) {
+        return (num / 1e3).toFixed(1) + 'K';
+    } else {
+        return num.toFixed(1);
+    }
 }
 
 // ★★★ 서비스 색상 가져오기 함수 ★★★
