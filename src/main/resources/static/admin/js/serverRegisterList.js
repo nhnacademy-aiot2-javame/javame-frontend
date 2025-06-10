@@ -36,22 +36,20 @@ document.addEventListener('DOMContentLoaded',async function (){
                 datalistTbody.innerHTML = '';
                 if(datalistTbody) {
                     let i = 1;
-                    document.querySelector("#sensorDataTable").setAttribute('style','display: table');
+                    document.querySelector("#sensorDataTableWrapper").setAttribute('style','display: table');
                     const num = this.querySelectorAll('td')[1].textContent;
                     const locationUrl = `/environment/companyDomain/dropdown/location?deviceId=${num}`;
-                    const locationResponse = await fetchWithAuth(locationUrl)
+                    const locationResponse = await fetchWithAuth(locationUrl);
                     const locations = await locationResponse.json();
 
                     for(const location of locations){
                         const gatewayIdUrl = `/environment/companyDomain/dropdown/gatewayId?deviceId=${num}&location=${location.value}`;
                         const gatewayIdResponse = await fetchWithAuth(gatewayIdUrl);
                         const gatewayIds = await gatewayIdResponse.json();
-
                         for(const gatewayId of gatewayIds){
                             const measurementUrl = `/environment/companyDomain/dropdown/_measurement?deviceId=${num}&location=${location.value}&gatewayId=${gatewayId.value}`;
                             const measurementResponse = await fetchWithAuth(measurementUrl);
                             const measurements = await measurementResponse.json();
-
                             for (const measurement of measurements) {
                                 const tr = document.createElement('tr');
 
@@ -63,7 +61,7 @@ document.addEventListener('DOMContentLoaded',async function (){
                                 const minThresholdTd = document.createElement('td');
                                 const maxThresholdTd = document.createElement('td');
                                 const buttonTd = document.createElement('td');
-                                console.log(num.label);
+
                                 noTd.innerText = i;
                                 locationTd.innerText = location.label;
                                 deviceIdTd.innerText = num;
