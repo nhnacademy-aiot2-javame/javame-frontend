@@ -1306,13 +1306,18 @@ export function createMixedLineChart(canvasId, labels, data, title = "AI예측 �
             },
             scales: {
                 x: {
-                    type: 'time',
+                    type: 'time',  // X축이 시간 기반일 경우
                     time: {
-                        unit: 'hour'
+                        parser: 'yyyy-MM-dd HH:mm:ss',  // 라벨 형식에 맞게 지정
+                        tooltipFormat: 'yyyy-MM-dd HH:mm',
+                        unit: 'hour',
+                        displayFormats: {
+                            hour: 'HH:mm'
+                        }
                     },
                     adapters: {
                         date: {
-                            zone: 'Asia/Seoul' // 명시적으로 설정도 가능 (옵션)
+                            zone: 'Asia/Seoul'  // ★ 한국 시간대 설정
                         }
                     },
                     ticks: {
