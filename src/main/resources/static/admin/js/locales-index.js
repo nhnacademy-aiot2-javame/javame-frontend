@@ -79,12 +79,11 @@ export const messages = {
 
 
 
-
-
         login: `로그인`,
         logout: `로그아웃`,
         dashboard: `대시보드`,
         signup: `회원가입`,
+
         m30: `개인정보 처리방침`,
         m31: `이용약관`,
         m32: `서비스 안내`,
@@ -562,9 +561,6 @@ export const messages = {
     },
 };
 
-export function getCurrentLang() {
-    return localStorage.getItem('lang') || 'ko';
-}
 
 
  export function setLanguage(lang) {
@@ -676,6 +672,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
     }
+
 
     if(!savedLang) {
         //저장된 언어가 없으면 한국어로 설정하고 저장

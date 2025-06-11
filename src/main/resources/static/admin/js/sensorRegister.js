@@ -7,7 +7,7 @@ document.getElementById('sensorRetrieveButton').addEventListener('click', async 
     const url='/rule/sensors/cp/javame';
     const bhResponse=await fetchWithAuth(url);
     const deviceIdList = await bhResponse.json();
-    console.log(deviceIdList)
+    console.log(deviceIdList);
 
     const tb = document.querySelector("#sensorContent");
 
