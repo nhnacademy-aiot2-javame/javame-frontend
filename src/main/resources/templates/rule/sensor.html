@@ -74,39 +74,40 @@
         <main class="container-fluid px-4 mt-4">
             <h1 id="m43" class="mb-4">센서 조회</h1>
 
-
-            <h2 id="m44" style="text-align: center;">센서 리스트</h2>
-            <table id="sensorTable" border="1">
-                <thead>
-
-                    <tr>
-                        <th id="m45">센서 번호</th>
-                        <th id="m46">센서 아이디</th>
-                        <th id="m47">회사 도메인</th>
-                        <th id="m48">등록 시간</th>
-                    </tr>
-
-                </thead>
-                <tbody id="sensorContent"></tbody>
-            </table>
-            <br>
-            <h2 id="m49" style="text-align: center;">센서 데이터 리스트</h2>
-            <table id="sensorDataTable" border="1" style="display: none;">
-                <thead>
-                    <tr>
-                        <th id="m50">데이터 번호</th>
-                        <th id="m51">위치</th>
-                        <th id="m52">게이트웨이</th>
-                        <th id="m53">데이터 이름</th>
-                        <th id="m54">최소 임계값</th>
-                        <th id="m55">최대 임계값</th>
-                        <th id="m56">등록 시간</th>
-
-
-                    </tr>
+            <div class="table-wrapper">
+                <h2 id="m44" style="text-align: center;">센서 리스트</h2>
+                <table id="sensorTable" border="1">
+                    <thead>
+        
+                        <tr>
+                            <th id="m45">센서 번호</th>
+                            <th id="m46">센서 아이디</th>
+                            <th id="m47">회사 도메인</th>
+                            <th id="m48">등록 시간</th>
+                        </tr>
+        
                     </thead>
-                    <tbody id="sensorDataContent"></tbody>
+                    <tbody id="sensorContent"></tbody>
                 </table>
+            <div>
+            <br>
+            <div class="table-wrapper" id="sensorDataTableWrapper" style="display: none;">
+                <h2 id="m49" style="text-align: center;">센서 데이터 리스트</h2>
+                <table id="sensorDataTable" border="1" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th id="m50">데이터 번호</th>
+                            <th id="m51">위치</th>
+                            <th id="m52">게이트웨이</th>
+                            <th id="m53">데이터 이름</th>
+                            <th id="m54">최소 임계값</th>
+                            <th id="m55">최대 임계값</th>
+                            <th id="m56">등록 시간</th>
+                        </tr>
+                        </thead>
+                        <tbody id="sensorDataContent"></tbody>
+                    </table>
+                </div>
             </div>
         </main>
     </div>
@@ -117,7 +118,8 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 <script src="/admin/js/scripts.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
-
+<script type="module" src="/admin/js/fragmentsHeader.js"></script>
+    
 <!--언어 전환용 JS-->
 <script src="/admin/js/locales-index.js" type="module"></script>
 
