@@ -1,70 +1,36 @@
-// admin/js/dashboardPrediction.js (수정된 버전)
+// admin/js/dashboardPrediction.js
 
-import { createMixedLineChart,createMixedLineChartForMem ,createMultiLineChart } from './chartUtils.js';
+import { createMixedLineChart, createMultiLineChart } from './chartUtils.js';
 import {fetchWithAuth} from '/index/js/auth.js';
 
 const chartInstances = {};
 
-// 현재 회사 도메인과 디바이스 ID 가져오기
-async function getCurrentContext() {
+// API 베이스 URL (iotSensorApi.js와 동일한 패턴)
+const API_BASE_URL = '/environment/companyDomain/forecast';
+
+// 사용 가능한 디바이스 ID 가져오기
+async function getAvailableDeviceId() {
     try {
-        // 현재 사용자 정보에서 companyDomain 가져오기
-        const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}');
-
-        // ★★★ 도메인에서 실제 회사명 추출하는 로직 ★★★
-        let companyDomain = userInfo.companyDomain;
-        if (companyDomain && companyDomain.includes('.')) {
-            const parts = companyDomain.split('.');
-
-            // TLD(최상위 도메인) 목록
-            const tlds = ['com', 'net', 'org', 'co.kr', 'go.kr', 'or.kr', 'ac.kr', 'pe.kr'];
-
-            // 뒤에서부터 TLD 확인
-            let tldLength = 0;
-            for (let i = parts.length - 1; i >= 0; i--) {
-                const checkTld = parts.slice(i).join('.');
-                if (tlds.includes(checkTld)) {
-                    tldLength = parts.length - i;
-                    break;
-                }
-            }
-
-            // TLD를 제외한 바로 앞 부분이 회사명
-            // 예: s4.java21.net → java21
-            // 예: javame.com → javame
-            // 예: test.javame.co.kr → javame
-            if (tldLength > 0 && parts.length > tldLength) {
-                companyDomain = parts[parts.length - tldLength - 1];
-            } else {
-                // TLD를 찾지 못한 경우 첫 번째 부분 사용
-                companyDomain = parts[0];
-            }
-        }
-        console.log('추출된 companyDomain:', companyDomain);
-
-        // 실제 사용 가능한 디바이스 목록 가져오기
-        const debugResponse = await fetchWithAuth(`/environment/forecast/debug?companyDomain=${companyDomain}&deviceId=test`);
+        // 디버그 API를 통해 사용 가능한 디바이스 목록 조회
+        const debugResponse = await fetchWithAuth(`${API_BASE_URL}/debug?deviceId=192.168.71.74`);
         if (debugResponse.ok) {
             const debugData = await debugResponse.json();
-            console.log('=== 디버그 정보 ===', debugData);
+            console.log('=== 사용 가능한 디바이스 정보 ===', debugData);
 
             if (debugData.availableData && debugData.availableData.length > 0) {
-                const firstAvailable = debugData.availableData[0];
-                return {
-                    companyDomain: firstAvailable.companyDomain,
-                    deviceId: firstAvailable.deviceId
-                };
+                // 첫 번째 사용 가능한 디바이스 ID 반환
+                console.error('디바이스 ID 조회:', debugData.availableData[0].deviceId);
+                return debugData.availableData[0].deviceId;
             }
         }
 
-        // 폴백 값
-        return { companyDomain: companyDomain, deviceId: '192.168.71.74' };
+        // 폴백: 고정 디바이스 ID
+        return '192.168.71.74';
     } catch (error) {
-        console.error('컨텍스트 정보 가져오기 실패:', error);
-
+        console.error('디바이스 ID 조회 실패:', error);
+        return '192.168.71.74';
     }
 }
-
 
 // DOM 로드 완료 후 실행
 window.addEventListener('DOMContentLoaded', () => {
@@ -73,93 +39,15 @@ window.addEventListener('DOMContentLoaded', () => {
     // 바로 차트들을 그리기
     drawAllPredictionCharts();
 
-    // 초기 상태 배지 업데이트
-    updateStatusBadges();
-
-    // 60초마다 자동 새로고침
+    // 60초마다 자동 새로고침 (실시간 효과)
     setInterval(() => {
         console.log("Auto refreshing prediction charts...");
         drawAllPredictionCharts();
-        updateStatusBadges();
     }, 60000);
 });
 
 /**
- * 상태 배지 업데이트 함수
- */
-async function updateStatusBadges() {
-    try {
-        const context = await getCurrentContext();
-
-        // CPU 상태 업데이트
-        updateSingleStatusBadge('cpu', context);
-
-        // 메모리 상태 업데이트
-        updateSingleStatusBadge('memory', context);
-
-        // 디스크 상태 업데이트
-        updateSingleStatusBadge('disk', context);
-
-        // 전력량은 별도 처리 (예측 정확도 표시)
-        const powerBadge = document.getElementById('power-status-badge');
-        if (powerBadge) {
-            powerBadge.textContent = '정상';
-            powerBadge.className = 'accuracy-badge status-normal';
-            powerBadge.title = '전력 사용량: 정상 범위';
-        }
-
-    } catch (error) {
-        console.error('상태 배지 업데이트 실패:', error);
-    }
-}
-
-/**
- * 개별 상태 배지 업데이트
- */
-async function updateSingleStatusBadge(type, context) {
-    const badge = document.getElementById(`${type}-status-badge`);
-    if (!badge) return;
-
-    try {
-        // 최근 데이터 가져오기
-        const response = await fetchWithAuth(`/environment/forecast/${type}?` + new URLSearchParams({
-            companyDomain: context.companyDomain,
-            deviceId: context.deviceId,
-            hoursBack: 1,      // 최근 1시간
-            hoursForward: 0    // 예측 없음
-        }));
-
-        if (response.ok) {
-            const data = await response.json();
-            if (data.historicalData && data.historicalData.length > 0) {
-                // 최근 값의 평균 계산
-                const recentValues = data.historicalData.slice(-5); // 최근 5개 값
-                const avgValue = recentValues.reduce((sum, point) => sum + point.value, 0) / recentValues.length;
-
-                // 임계값 기준으로 상태 판단
-                const thresholds = {
-                    cpu: 80,
-                    memory: 85,
-                    disk: 85
-                };
-
-                const threshold = thresholds[type];
-                const isNormal = avgValue < threshold;
-
-                // 배지 업데이트
-                badge.textContent = isNormal ? '정상' : '비정상';
-                badge.className = isNormal ? 'accuracy-badge status-normal' : 'accuracy-badge status-abnormal';
-                badge.title = `현재 사용률: ${avgValue.toFixed(2)}% (임계값: ${threshold}%)`;
-            }
-        }
-    } catch (error) {
-        console.error(`${type} 상태 업데이트 실패:`, error);
-        badge.textContent = '확인 불가';
-        badge.className = 'accuracy-badge status-unknown';
-    }
-}
-/**
- * 모든 예측 차트를 그립니다 (HTML 구조에 맞춤)
+ * 모든 예측 차트를 그립니다
  */
 async function drawAllPredictionCharts() {
     console.log('=== 모든 예측 차트 그리기 시작 ===');
@@ -218,15 +106,15 @@ async function drawMainPredictionChart() {
     console.log(`[CPU 차트] 캔버스 요소:`, canvas);
 
     try {
-        const context = await getCurrentContext();
-        console.log('[CPU 차트] 사용할 컨텍스트:', context);
+        // 사용 가능한 디바이스 ID 가져오기
+        const deviceId = await getAvailableDeviceId();
+        console.log('[CPU 차트] 사용할 deviceId:', deviceId);
 
-        // 예측 데이터는 있는 만큼만 요청
-        const response = await fetchWithAuth('/environment/forecast/cpu?' + new URLSearchParams({
-            companyDomain: context.companyDomain,
-            deviceId: context.deviceId,
+        // API 호출 (companyDomain은 URL 경로에 포함되어 게이트웨이가 처리)
+        const response = await fetchWithAuth(`${API_BASE_URL}/cpu?` + new URLSearchParams({
+            deviceId: deviceId,
             hoursBack: 12,      // 과거 12시간
-            hoursForward: 24    // 미래 24시간 요청 (실제로는 15시간만 있을 수 있음)
+            hoursForward: 24    // 미래 24시간 요청
         }));
 
         console.log(`[CPU 차트] API 응답 상태:`, response.status);
@@ -277,9 +165,7 @@ async function drawMainPredictionChart() {
             chartInstances[canvasId].destroy();
         }
 
-        // 차트 제목 수정 (실제 예측 시간 반영)
-        const predictedHours = Math.floor(predictedData.length / 2); // 30분 단위이므로 2로 나눔
-        const chartTitle = `CPU 사용률 현재 + AI 예측 분석 `;
+        const chartTitle = `CPU 사용률 현재 + AI 예측 분석`;
 
         chartInstances[canvasId] = createMixedLineChart(
             canvasId,
@@ -306,13 +192,13 @@ async function drawMemoryPredictionChart() {
     console.log(`[메모리 차트] 캔버스 요소:`, canvas);
 
     try {
-        const context = await getCurrentContext();
-        console.log('[메모리 차트] 사용할 컨텍스트:', context);
+        // 사용 가능한 디바이스 ID 가져오기
+        const deviceId = await getAvailableDeviceId();
+        console.log('[메모리 차트] 사용할 deviceId:', deviceId);
 
-        // CPU/디스크와 동일한 시간 범위로 요청
-        const response = await fetchWithAuth('/environment/forecast/memory?' + new URLSearchParams({
-            companyDomain: context.companyDomain,
-            deviceId: context.deviceId,
+        // API 호출
+        const response = await fetchWithAuth(`${API_BASE_URL}/memory?` + new URLSearchParams({
+            deviceId: deviceId,
             hoursBack: 12,      // 과거 12시간
             hoursForward: 24    // 미래 24시간 요청
         }));
@@ -364,10 +250,9 @@ async function drawMemoryPredictionChart() {
             chartInstances[canvasId].destroy();
         }
 
-        // 차트 제목을 CPU/디스크와 동일한 형식으로 수정
         const chartTitle = `메모리 사용률 현재 + AI 예측 분석`;
 
-        chartInstances[canvasId] = createMixedLineChartForMem(
+        chartInstances[canvasId] = createMixedLineChart(
             canvasId,
             labels,
             mixedData,
@@ -386,10 +271,8 @@ async function drawMemoryPredictionChart() {
     } catch (error) {
         console.error(`❌ 메모리 차트 API 호출 실패:`, error);
         console.error(`[메모리 차트] 에러 상세:`, error.stack);
-
     }
 }
-
 
 /**
  * 디스크 예측 차트
@@ -401,13 +284,13 @@ async function drawDiskPredictionChart() {
     console.log(`[디스크 차트] 캔버스 요소:`, canvas);
 
     try {
-        const context = await getCurrentContext();
-        console.log('[디스크 차트] 사용할 컨텍스트:', context);
+        // 사용 가능한 디바이스 ID 가져오기
+        const deviceId = await getAvailableDeviceId();
+        console.log('[디스크 차트] 사용할 deviceId:', deviceId);
 
-        // 예측 요청
-        const response = await fetchWithAuth('/environment/forecast/disk?' + new URLSearchParams({
-            companyDomain: context.companyDomain,
-            deviceId: context.deviceId,
+        // API 호출
+        const response = await fetchWithAuth(`${API_BASE_URL}/disk?` + new URLSearchParams({
+            deviceId: deviceId,
             hoursBack: 12,      // 과거 12시간
             hoursForward: 24    // 미래 24시간 요청
         }));
@@ -459,9 +342,7 @@ async function drawDiskPredictionChart() {
             chartInstances[canvasId].destroy();
         }
 
-        // 실제 예측 시간 반영
-        const predictedHours = Math.floor(predictedData.length / 2);
-        const chartTitle = `디스크 사용률 예측 `;
+        const chartTitle = `디스크 사용률 예측`;
 
         chartInstances[canvasId] = createMixedLineChart(
             canvasId,
@@ -477,11 +358,9 @@ async function drawDiskPredictionChart() {
         console.error(`[디스크 차트] 에러 상세:`, error.stack);
     }
 }
+
 /**
- * ★★★ 전력량 예측 차트 (핵심!) ★★★
- */
-/**
- * ★★★ 전력량 예측 차트 (스마트 리팩터링) ★★★
+ * 전력량 예측 차트
  */
 async function drawMonthlyWattsPredictionChart() {
     const canvasId = 'monthlyWattsPredictionChart';
@@ -502,7 +381,6 @@ async function drawMonthlyWattsPredictionChart() {
         });
 
         console.log('[전력량 차트] 응답 상태:', response.status);
-        console.log('[전력량 차트] 응답 헤더:', response.headers);
 
         if (!response.ok) {
             const errorText = await response.text();
@@ -518,7 +396,6 @@ async function drawMonthlyWattsPredictionChart() {
             data = JSON.parse(responseText);
         } catch (parseError) {
             console.error('[전력량 차트] JSON 파싱 에러:', parseError);
-            console.error('[전력량 차트] 파싱 실패한 텍스트:', responseText);
             throw new Error('응답 데이터 파싱 실패');
         }
 
@@ -534,6 +411,7 @@ async function drawMonthlyWattsPredictionChart() {
         const predicted = data.predicted_kWh;
 
         console.log('[전력량 차트] 실제 사용량:', used, '예측 사용량:', predicted);
+
         if (chartInstances[canvasId]) {
             chartInstances[canvasId].destroy();
         }
@@ -610,10 +488,8 @@ async function drawMonthlyWattsPredictionChart() {
     } catch (err) {
         console.error("❌ 전력량 차트 로딩 실패:", err);
         console.error('[전력량 차트] 에러 스택:', err.stack);
-
     }
 }
-
 
 /**
  * 정확도 분석 차트
