@@ -37,10 +37,12 @@ export const messages = {
         m121: `운영진 소개`,
         m122: `요금제`,
 
+
         login: `로그인`,
         logout: `로그아웃`,
         dashboard: `대시보드`,
         signup: `회원가입`,
+
         m30: `개인정보 처리방침`,
         m31: `이용약관`,
         m32: `서비스 안내`,
@@ -137,6 +139,7 @@ export const messages = {
         m112: `로그인`,
         m113: `Google로 로그인`,
         m114: `비밀번호 찾기`,
+
         m115: `홈으로 돌아가기`,
         // auth/register.html
         m116: `회원가입`,
@@ -144,6 +147,7 @@ export const messages = {
         m171: `이미 계정이 있으신가요?`,
         m172: `로그인`,
         m173: `홈으로 돌아가기`,
+
         // auth/purchase.html
         // auth/find-password.html
         // auth/callback.html
@@ -165,6 +169,7 @@ export const messages = {
         m137: `센서 및 데이터 등록`,
         m138: `센서리스트 조회`,
         m139: `로그인 계정`,
+
         // layout.html
         // dashboard/dashboard-main
         m141: `메인 대시보드`,
@@ -247,6 +252,7 @@ export const messages = {
 
 
 
+
     },
     en: {
         m1: `Prevent incidents in real-time, automated response, integrated monitoring
@@ -285,10 +291,12 @@ export const messages = {
         m120: `About`,
         m121: `Team`,
         m122: `Plan`,
+
         login: "login",
         logout: "logout",
         dashboard: "dashboard",
         signup: "signup",
+
         m30: `Privacy Policy`,
         m31: `Terms of Service`,
         m32: `Service Guide`,
@@ -385,12 +393,14 @@ export const messages = {
         m113: `Login with Google`,
         m114: `Find Password`,
         m115: `Back to Home`,
+
         // auth/register.html
         m116: `Sign Up`,
         m117: `Sign Up`,
         m171: `Already have an account?`,
         m172: `Login`,
         m173: `Back to Main`,
+
         // sidebar.html
         m123: `Core`,
         m124: `Main Dashboard`,
@@ -410,6 +420,7 @@ export const messages = {
         m138: `Sensor List View`,
         m139: `Login Account`,
         //layout.html
+
         // dashboard/dashboard-main
         m141: `Main Dashboard`,
         m142: `Overall Status`,
@@ -498,6 +509,7 @@ export function getCurrentLang() {
         'm11','m13','m14','m15','m16','m17',
         'm18', 'm19','m20','m21','m22','m23',
         'm24','m25','m26','m27','m28','m29',
+
         'login', 'logout','dashboard','signup',
         ...Array.from({length: 172}, (_, i) => `m${i+30}`)
 
@@ -506,6 +518,7 @@ export function getCurrentLang() {
     ids.forEach(id => {
         setText(id, t[id])
     });
+
 
 
     function setHTML(id, text){
@@ -521,6 +534,7 @@ export function getCurrentLang() {
 
     // 언어 설정값 저장
     localStorage.setItem('lang', lang);
+
 
     // // 언어 설정한 시각도 같이 저장
     // localStorage.setItem('langSetAt', Date.now().toString());
@@ -593,6 +607,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
     }
+
 
     if(!savedLang) {
         //저장된 언어가 없으면 한국어로 설정하고 저장

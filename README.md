@@ -1,6 +1,7 @@
 
 <h1 align="center">🔧Javame-frontend🔧</h1>
 <div align="center">
+
 이 프로젝트는 NHN 아카데미 3팀(Javame)의 프론트엔드 레포지토리입니다.</br>
 기업형 대시보드 시스템으로, 실시간 데이터 시각화, AI 기반 예측, 리포트 생성 등의 기능을 제공합니다.
 </br>
