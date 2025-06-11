@@ -5,7 +5,7 @@ import {
     createPieChart
 } from './chartUtils.js';
 
-const API_BASE_URL = 'https://javame.live/api/v1/environment/reports';
+const API_BASE_URL = 'http://localhost:10279/api/v1/environment/reports';
 
 // ★★★ 전역 변수 ★★★
 let currentChartInstances = [];
@@ -108,7 +108,7 @@ function displayReportResults(reportData) {
 
 // ★★★ 리포트 제목 표시 ★★★
 function displayReportTitle(title) {
-    const titleElement = document.getElementById('reportGeneratedTitle');
+    const titleElement = document.getElementById('m186');
     if (titleElement) {
         titleElement.textContent = title;
     }
@@ -351,7 +351,7 @@ function clearResults() {
     }
 
     const elementsToReset = [
-        'reportGeneratedTitle',
+        'm186',
         'reportSummary',
         'reportChartsContainer',
         'reportInfo'

@@ -10,61 +10,29 @@
     <link href="/admin/css/styles.css" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     <script type="module" src="/admin/js/sensors.js"></script>
-    <script src="/index/js/valueConverter.js"></script>
 </head>
 <body class="sb-nav-fixed">
 <style>
-    .table-wrapper {
-        background-color: #ffffff;
-        border-radius: 16px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-        padding: 24px;
-        margin-bottom: 40px;
-        width: 100%;
-        overflow-x: auto;
-    }
-
-    .table-wrapper h2 {
-        font-family: 'Inter', sans-serif;
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: #2c3e50;
-        text-align: center;
-        margin-bottom: 16px;
-    }
-
-    .table-wrapper table {
+    table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 0.95rem;
+        margin-top: 20px;
     }
 
-    .table-wrapper thead {
-        background: linear-gradient(to right, #4e73df, #1cc88a);
-        color: white;
+    table, th, td {
+        border: 1px solid #ccc;
     }
 
-    .table-wrapper th,
-    .table-wrapper td {
-        padding: 14px;
+    th, td {
+        padding: 8px;
         text-align: center;
-        border-bottom: 1px solid #e0e0e0;
     }
 
-    .table-wrapper tbody > tr:hover {
-        background-color: #f1f5f9;
+    tr:hover {
+        background-color: #f1f1f1;
         cursor: pointer;
     }
-
-    @media (max-width: 768px) {
-        .table-wrapper th,
-        .table-wrapper td {
-            padding: 10px;
-            font-size: 0.85rem;
-        }
-    }
 </style>
-
 
 <div th:replace="~{fragments/head :: header}"></div>
     <div id="layoutSidenav">
@@ -74,18 +42,15 @@
         <main class="container-fluid px-4 mt-4">
             <h1 id="m43" class="mb-4">센서 조회</h1>
 
-
             <h2 id="m44" style="text-align: center;">센서 리스트</h2>
             <table id="sensorTable" border="1">
                 <thead>
-
                     <tr>
                         <th id="m45">센서 번호</th>
                         <th id="m46">센서 아이디</th>
                         <th id="m47">회사 도메인</th>
                         <th id="m48">등록 시간</th>
                     </tr>
-
                 </thead>
                 <tbody id="sensorContent"></tbody>
             </table>
@@ -101,13 +66,13 @@
                         <th id="m54">최소 임계값</th>
                         <th id="m55">최대 임계값</th>
                         <th id="m56">등록 시간</th>
-
                     </tr>
-                    </thead>
-                    <tbody id="sensorDataContent"></tbody>
-                </table>
-            </div>
+                </thead>
+                <tbody id = "sensorDataContent"></tbody>
+            </table>
+
         </main>
+
     </div>
 </div>
 
@@ -116,8 +81,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 <script src="/admin/js/scripts.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
-
 <!--언어 전환용 JS-->
-<script src="/admin/js/locales-index.js"></script>
+<script src="/admin/js/locales-index.js" type="module"></script>
 
 </body>
