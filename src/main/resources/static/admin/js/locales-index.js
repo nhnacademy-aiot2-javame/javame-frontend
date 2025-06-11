@@ -1,4 +1,4 @@
-const messages = {
+export const messages = {
     ko: {
         m1: `실시간 장애 예방, 자동화 대응, 환경 통합 감시 
             <br> 대시보드 기반의 시각화 및 예측 운영`,
@@ -38,8 +38,11 @@ const messages = {
         m122: `요금제`,
 
 
-        loginLogoutBtn: `로그인`,
-        registerDashboardBtn: `회원가입`,
+        login: `로그인`,
+        logout: `로그아웃`,
+        dashboard: `대시보드`,
+        signup: `회원가입`,
+
         m30: `개인정보 처리방침`,
         m31: `이용약관`,
         m32: `서비스 안내`,
@@ -136,10 +139,15 @@ const messages = {
         m112: `로그인`,
         m113: `Google로 로그인`,
         m114: `비밀번호 찾기`,
-        m115: `&larr; 홈으로 돌아가기`,
+
+        m115: `홈으로 돌아가기`,
         // auth/register.html
         m116: `회원가입`,
-        m117: ``,
+        m117: `회원가입`,
+        m171: `이미 계정이 있으신가요?`,
+        m172: `로그인`,
+        m173: `홈으로 돌아가기`,
+
         // auth/purchase.html
         // auth/find-password.html
         // auth/callback.html
@@ -161,7 +169,73 @@ const messages = {
         m137: `센서 및 데이터 등록`,
         m138: `센서리스트 조회`,
         m139: `로그인 계정`,
-        //layout.html
+
+        // layout.html
+        // dashboard/dashboard-main
+        m141: `메인 대시보드`,
+        m142: `종합현황`,
+        m143: `서버 모니터링`,
+        m144: `전체 서버`,
+        m145: `실시간 업데이트`,
+        m146: `도메인`,
+        m147: `설정`,
+        m148: `서버`,
+        m149: `확인중...`,
+        m150: `센서`,
+        m151:`확인중...`,
+        m152: `서비스`,
+        m153: `확인중...`,
+        m154: `서비스`,
+        m155: `센서`,
+        m156: `알람`,
+        m157: `상세보기`,
+        m158: `발생`,
+        m159: `안정`,
+        m160:`데이터부족`,
+        m161:`최근 업데이트: 실시간`,
+        m162: `알림 활성화`,
+        m163: `서버 트래픽`,
+        m164: `분석`,
+        m165: `24시간 누적`,
+        m166: `송신 전용`,
+        m167: `CPU 사용률`,
+        m168: `메모리 사용량`,
+        m169: `디스크 사용량`,
+        m170: `서버 온도`,
+        // dashboard/reports.html
+        m174: `AI 기반 리포트 생성`,
+        m175: `자연어로 질문하면 AI가 데이터를 분석하여 인사이트를 제공합니다`,
+        m176: `메인 대시보드`,
+        m177: `AI 리포트`,
+        m178: `무엇을 분석해드릴까요?`,
+        m179: `궁금한 내용을 자연스럽게 말씀해주세요`,
+        m180: `분석 요청`,
+        m181: `시스템 메트릭(CPU, 메모리, 온도, 전력) 또는 JVM 서비스 메트릭(인증, 환경API, 프론트엔드, 게이트웨이, 회원)을 자연어로 요청하세요.`,
+        m182: `AI 분석 시작`,
+        m183: `🤖 AI가 데이터를 분석하고 있습니다`,
+        m184: `잠시만 기다려주세요...`,
+        m185: `오류가 발생했습니다.`,
+        m186: `AI 분석 리포트`,
+        m187: `AI 분석 요약`,
+        m188: '데이터 시각화',
+        // rule/sensorRegister.html
+        m189: `센서 및 데이터 등록`,
+        m190: `센서 리스트`,
+        m191: `센서 번호`,
+        m192: `센서 아이디`,
+        m193: `센서 데이터 리스트`,
+        m194: `데이터 번호`,
+        m195: `데이터 이름`,
+        m196: `게이트웨이`,
+        m197: `데이터 이름`,
+        m198: `최소 임계값`,
+        m199: `최대 임계값`,
+        m200: `등록 시간`
+
+
+
+
+
 
 
 
@@ -217,8 +291,12 @@ const messages = {
         m120: `About`,
         m121: `Team`,
         m122: `Plan`,
-        loginLogoutBtn: `Log in`,
-        registerDashboardBtn: `Sign up`,
+
+        login: "login",
+        logout: "logout",
+        dashboard: "dashboard",
+        signup: "signup",
+
         m30: `Privacy Policy`,
         m31: `Terms of Service`,
         m32: `Service Guide`,
@@ -315,6 +393,14 @@ const messages = {
         m113: `Login with Google`,
         m114: `Find Password`,
         m115: `Back to Home`,
+
+        // auth/register.html
+        m116: `Sign Up`,
+        m117: `Sign Up`,
+        m171: `Already have an account?`,
+        m172: `Login`,
+        m173: `Back to Main`,
+
         // sidebar.html
         m123: `Core`,
         m124: `Main Dashboard`,
@@ -335,14 +421,81 @@ const messages = {
         m139: `Login Account`,
         //layout.html
 
+        // dashboard/dashboard-main
+        m141: `Main Dashboard`,
+        m142: `Overall Status`,
+        m143: `Server Monitoring`,
+        m144: `All Servers`,
+        m145: `Real-time Update`,
+        m146: `Domain`,
+        m147: `Settings`,
+        m148: `Server`,
+        m149: `Checking...`,
+        m150: `Sensor`,
+        m151: `Checking...`,
+        m152: `Service`,
+        m153: `Checking...`,
+        m154: `Service`,
+        m155: `Sensor`,
+        m156: `Alarm`,
+        m157: `View Details`,
+        m158: `Occurred`,
+        m159: `Stable`,
+        m160: `Data Insufficient`,
+        m161: `Last Update: Real-time`,
+        m162: `Enable Notifications`,
+        m163: `Server Traffic`,
+        m164: `Analytics`,
+        m165: `24-Hour Total`,
+        m166: `Send Only`,
+        m167: `CPU Usage`,
+        m168: `Memory Usage`,
+        m169: `Disk Usage`,
+        m170: `Server Temperature`,
+    //  dashboard/reports.html
+        m174: `AI-Based Report Generation`,
+        m175: `Ask questions in natural language, and the AI will analyze the data to provide insights.`,
+        m176: `Main Dashboard`,
+        m177: `AI Report`,
+        m178: `What would you like to analyze?`,
+        m179: `Please ask your question naturally.`,
+        m180: `Request Analysis`,
+        m181: `Ask in natural language for system metrics (CPU, memory, temperature, power) or JVM service metrics (auth, env API, frontend, gateway, member).`,
+        m182: `Start AI Analysis`,
+        m183: `🤖 The AI is analyzing your data`,
+        m184: `Please wait a moment...`,
+        m185: `An error has occurred.`,
+        m186: `AI Analysis Report`,
+        m187: `AI Analysis Summary`,
+        m188: `Data Visualization`,
+        // rule/sensorRegister.html
+        m189: `Sensor and Data Register`,
+        m190: `Sensor No.`,
+        m191: `Sensor Id`,
+        m192: `Sensor Data List`,
+        m193: `Data No.`,
+        m194: `Data List`,
+        m195: `Data No.`,
+        m196: `Location`,
+        m197: `Gateway`,
+        m198: `Data Name`,
+        m199: `Min Threshold`,
+        m200: `Max Threshold`,
+        m201: `Created At`,
+
+
 
 
 
     },
 };
 
+export function getCurrentLang() {
+    return localStorage.getItem('lang') || 'ko';
+}
 
-function setLanguage(lang) {
+
+ export function setLanguage(lang) {
     const t = messages[lang];
 
     function setText(id, text) {
@@ -356,14 +509,16 @@ function setLanguage(lang) {
         'm11','m13','m14','m15','m16','m17',
         'm18', 'm19','m20','m21','m22','m23',
         'm24','m25','m26','m27','m28','m29',
-        'loginLogoutBtn','registerDashboardBtn',
-        ...Array.from({length: 111}, (_, i) => `m${i+30}`)
+
+        'login', 'logout','dashboard','signup',
+        ...Array.from({length: 172}, (_, i) => `m${i+30}`)
 
     ];
 
     ids.forEach(id => {
         setText(id, t[id])
     });
+
 
 
     function setHTML(id, text){
@@ -380,10 +535,54 @@ function setLanguage(lang) {
     // 언어 설정값 저장
     localStorage.setItem('lang', lang);
 
-    // 언어 설정한 시각도 같이 저장
-    localStorage.setItem('langSetAt', Date.now().toString());
+
+    // // 언어 설정한 시각도 같이 저장
+    // localStorage.setItem('langSetAt', Date.now().toString());
 
 }
+
+// document.addEventListener('DOMContentLoaded', () => {
+//
+//     let savedLang = localStorage.getItem('lang');
+//
+//     if(savedLang == "en")  {
+//         //저장된 언어가 없으면 한국어로 설정하고 저장
+//         savedLang ='ko';
+//         localStorage.setItem('lang', savedLang);
+//     }
+//     // 버튼 클릭 시 언어 변경
+//     document.getElementById('btn-ko').addEventListener('click', () => {
+//         localStorage.setItem('lang', 'ko');
+//         setLanguage('ko');
+//     });
+//
+//     document.getElementById('btn-en').addEventListener('click', () => {
+//         localStorage.setItem('lang', 'en');
+//         setLanguage('en');
+//     });
+// });
+
+
+//
+// //
+// //
+// // // 페이지 로드 시 저장된 언어 불러오기
+// document.addEventListener('DOMContentLoaded', () => {
+//     let savedLang = localStorage.getItem('lang');
+//     let langToSet = 'ko'; // 기본값. 저장된 값이 없거나 유효기간이 지나면 기본 언어인 한국어로 설정.
+//
+//
+//     // if (savedLang === "en") {
+//     //     //저장된 언어가 없으면 한국어로 설정하고 저장
+//     //     savedLang = 'ko';
+//     //     localStorage.setItem('lang', savedLang);
+//     // }
+//     setLanguage(savedLang);
+//
+//     // 버튼 이벤트 등록
+//     document.getElementById('btn-ko').addEventListener('click', () => setLanguage('ko'));
+//     document.getElementById('btn-en').addEventListener('click', () => setLanguage('en'));
+// });
 
 // 페이지 로드 시 저장된 언어 불러오기
 document.addEventListener('DOMContentLoaded', () => {
