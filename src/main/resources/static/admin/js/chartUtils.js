@@ -1306,20 +1306,11 @@ export function createMixedLineChart(canvasId, labels, data, title = "AI예측 �
             },
             scales: {
                 x: {
-                    type: 'time',  // X축이 시간 기반일 경우
-                    time: {
-                        parser: 'yyyy-MM-dd HH:mm:ss',  // 라벨 형식에 맞게 지정
-                        tooltipFormat: 'yyyy-MM-dd HH:mm',
-                        unit: 'hour',
-                        displayFormats: {
-                            hour: 'HH:mm'
-                        }
+                    grid: {
+                        display: true,
+                        color: 'rgba(0, 0, 0, 0.05)'
                     },
-                    adapters: {
-                        date: {
-                            zone: 'Asia/Seoul'  // ★ 한국 시간대 설정
-                        }
-                    },
+                    border: { display: false },
                     ticks: {
                         font: { size: 10, family: "'Malgun Gothic', sans-serif" },
                         color: '#666666',
