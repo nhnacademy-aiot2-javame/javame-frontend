@@ -1,8 +1,7 @@
 // admin/js/dashboardPrediction.js
 
-import { createMixedLineChart, createMultiLineChart } from './chartUtils.js';
+import { createMixedLineChartForMem, createMultiLineChart } from './chartUtils.js';
 import {fetchWithAuth} from '/index/js/auth.js';
-
 const chartInstances = {};
 
 // API 베이스 URL (iotSensorApi.js와 동일한 패턴)
@@ -167,7 +166,7 @@ async function drawMainPredictionChart() {
 
         const chartTitle = `CPU 사용률 현재 + AI 예측 분석`;
 
-        chartInstances[canvasId] = createMixedLineChart(
+        chartInstances[canvasId] = createMixedLineChartForMem(
             canvasId,
             labels,
             mixedData,
@@ -252,7 +251,7 @@ async function drawMemoryPredictionChart() {
 
         const chartTitle = `메모리 사용률 현재 + AI 예측 분석`;
 
-        chartInstances[canvasId] = createMixedLineChart(
+        chartInstances[canvasId] = createMixedLineChartForMem(
             canvasId,
             labels,
             mixedData,
@@ -344,7 +343,7 @@ async function drawDiskPredictionChart() {
 
         const chartTitle = `디스크 사용률 예측`;
 
-        chartInstances[canvasId] = createMixedLineChart(
+        chartInstances[canvasId] = createMixedLineChartForMem(
             canvasId,
             labels,
             mixedData,
