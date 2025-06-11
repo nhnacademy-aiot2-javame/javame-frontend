@@ -130,14 +130,22 @@ async function drawMainPredictionChart() {
 
         // 과거 데이터 라벨
         data.historicalData.forEach(point => {
-            labels.push(formatKSTTime(point.timestamp));
-
+            const time = new Date(point.timestamp);
+            labels.push(time.toLocaleTimeString('ko-KR', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            }));
         });
 
         // 예측 데이터 라벨 (있는 만큼만)
         data.predictedData.forEach(point => {
-            labels.push(formatKSTTime(point.timestamp));
-
+            const time = new Date(point.timestamp);
+            labels.push(time.toLocaleTimeString('ko-KR', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            }));
         });
 
         // 데이터 추출
@@ -206,8 +214,12 @@ async function drawMemoryPredictionChart() {
         // 30분 단위 시간 라벨 생성
         const labels = [];
         const formatDateTime = (timestamp) => {
-            labels.push(formatKSTTime(point.timestamp));
-
+            const time = new Date(timestamp);
+            return time.toLocaleTimeString('ko-KR', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
         };
 
         // 과거 데이터 라벨
@@ -296,8 +308,12 @@ async function drawDiskPredictionChart() {
 
         // 시간 포맷 함수
         const formatTime = (timestamp) => {
-            labels.push(formatKSTTime(point.timestamp));
-
+            const time = new Date(timestamp);
+            return time.toLocaleTimeString('ko-KR', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
         };
 
         // 과거 데이터 라벨
@@ -525,22 +541,4 @@ function drawAccuracyChart() {
     } catch (error) {
         console.error(`❌ Failed to render accuracy chart:`, error);
     }
-}
-
-function formatKSTTime(timestamp) {
-    const date = new Date(timestamp);
-
-    // UTC + 9 시간 더하기 (KST는 UTC+9)
-    const kstOffset = 9 * 60; // 분 단위
-    const localOffset = date.getTimezoneOffset(); // 현재 시스템의 오프셋(분)
-
-    // 총 보정된 시간(ms)
-    const adjustedTime = new Date(date.getTime() + (kstOffset + localOffset) * 60 * 1000);
-
-    // 한국식 시간 포맷
-    return adjustedTime.toLocaleTimeString('ko-KR', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-    });
 }
