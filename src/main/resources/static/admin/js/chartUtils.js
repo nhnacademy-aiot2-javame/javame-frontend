@@ -1306,11 +1306,15 @@ export function createMixedLineChart(canvasId, labels, data, title = "AI예측 �
             },
             scales: {
                 x: {
-                    grid: {
-                        display: true,
-                        color: 'rgba(0, 0, 0, 0.05)'
+                    type: 'time',
+                    time: {
+                        unit: 'hour'
                     },
-                    border: { display: false },
+                    adapters: {
+                        date: {
+                            zone: 'Asia/Seoul' // 명시적으로 설정도 가능 (옵션)
+                        }
+                    },
                     ticks: {
                         font: { size: 10, family: "'Malgun Gothic', sans-serif" },
                         color: '#666666',
