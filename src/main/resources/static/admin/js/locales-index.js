@@ -561,6 +561,9 @@ export const messages = {
     },
 };
 
+export function getCurrentLang() {
+    return localStorage.getItem('lang') || 'ko';
+}
 
 
  export function setLanguage(lang) {
