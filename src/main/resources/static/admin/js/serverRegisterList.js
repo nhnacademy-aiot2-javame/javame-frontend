@@ -110,9 +110,9 @@ document.addEventListener('DOMContentLoaded',async function (){
 
                                         const serverDataJson = {
                                             serverNo: serverResponse.serverNo,
-                                            serverDataLocation: location,
-                                            serverDataGateway: gatewayId,
-                                            serverDataName: measurement,
+                                            serverDataLocation: location.label,
+                                            serverDataGateway: gatewayId.label,
+                                            serverDataName: measurement.label,
                                             minThreshold: inputMinThreshold.value,
                                             maxThreshold: inputMaxThreshold.value
                                         };
