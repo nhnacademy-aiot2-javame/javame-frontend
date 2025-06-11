@@ -86,107 +86,157 @@
         </div>
     </div>
 </section>
-<!-- Portfolio Grid-->
 <section class="page-section bg-light" id="portfolio">
-    <div class="container">
-        <div class="text-center">
+    <div>
+        <div class="text-center mb-3">
             <h2 class="section-heading text-uppercase">Dashboard</h2>
-            <h3 id="m5" class="section-subheading text-muted">다양한 형태의 그래프를 제공합니다.</h3>
+            <h3 id="m202" class="section-subheading text-muted">모니터링 대시보드</h3>
         </div>
-        <div class="row">
-            <div class="col-lg-4 col-sm-6 mb-4">
-                <!-- Portfolio item 1-->
-                <div class="portfolio-item">
-                    <a class="portfolio-link" data-bs-toggle="modal" href="#portfolioModal1">
-                        <div class="portfolio-hover">
-                            <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
+        <div class="dashboard-slider-container">
+            <!-- ★★★ 대시보드 슬라이더 (로케일 적용 최종 버전) ★★★ -->
+            <div class="dashboard-slider">
+                <!-- 슬라이더 트랙 -->
+                <div class="dashboard-slider__wrapper">
+                    <!-- 슬라이드 1: 메인 대시보드 -->
+                    <div class="dashboard-slider__slide">
+                        <div class="dashboard-slider__content" role="region" aria-label="메인 대시보드 슬라이드">
+                            <div class="dashboard-slider__image-wrapper">
+                                <img  src="index/assets/img/portfolio/1.png" alt="메인 대시보드" class="dashboard-slider__image" />
+                            </div>
+                            <div class="dashboard-slider__info">
+                                <h4 id="m203" class="dashboard-slider__title"><i class="fas fa-tachometer-alt text-primary me-2"></i>메인 대시보드</h4>
+                                <p id="m204" class="dashboard-slider__description">실시간 서버 모니터링 및 시스템 상태 관리를 위한 통합 대시보드입니다.</p>
+                                <div class="dashboard-slider__tags">
+                                    <span id="m205" class="dashboard-slider__tag"><i class="fas fa-microchip"></i> CPU 모니터링</span>
+                                    <span id="m206" class="dashboard-slider__tag"><i class="fas fa-memory"></i> 메모리 추적</span>
+                                    <span id="m207" class="dashboard-slider__tag"><i class="fas fa-bell"></i> 알람 시스템</span>
+                                    <span id="m208" class="dashboard-slider__tag"><i class="fas fa-thermometer-half"></i> 온도 모니터링</span>
+                                </div>
+                            </div>
                         </div>
-                        <img class="img-fluid" src="index/assets/img/portfolio/1.png" alt="..." />
-                    </a>
-                    <div class="portfolio-caption">
-                        <div class="portfolio-caption-heading">Threads</div>
-                        <div class="portfolio-caption-subheading text-muted">Illustration</div>
+                    </div>
+
+                    <!-- 슬라이드 2: 트리 구조 분석 -->
+                    <div class="dashboard-slider__slide">
+                        <div class="dashboard-slider__content" role="region" aria-label="트리 구조 분석 슬라이드">
+                            <div class="dashboard-slider__image-wrapper">
+                                <img src="index/assets/img/portfolio/2.png" alt="트리 구조 분석" class="dashboard-slider__image" />
+                            </div>
+                            <div class="dashboard-slider__info">
+                                <h4 id="m209" class="dashboard-slider__title"><i class="fas fa-sitemap text-secondary me-2"></i>트리 구조 분석</h4>
+                                <p id="m210" class="dashboard-slider__description">계층적 데이터 분석 및 임계값 설정을 통한 세밀한 시스템 관리 도구입니다.</p>
+                                <div class="dashboard-slider__tags">
+                                    <span id="m211" class="dashboard-slider__tag"><i class="fas fa-project-diagram"></i> 계층적 구조</span>
+                                    <span id="m212" class="dashboard-slider__tag"><i class="fas fa-chart-pie"></i> 파이 차트</span>
+                                    <span id="m213" class="dashboard-slider__tag"><i class="fas fa-sliders-h"></i> 임계값 설정</span>
+                                    <span id="m214" class="dashboard-slider__tag"><i class="fas fa-sync-alt"></i> 실시간 업데이트</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 슬라이드 3: 비교 분석 대시보드 -->
+                    <div class="dashboard-slider__slide">
+                        <div class="dashboard-slider__content" role="region" aria-label="비교 분석 대시보드 슬라이드">
+                            <div class="dashboard-slider__image-wrapper">
+                                <img src="index/assets/img/portfolio/3.png" alt="비교 분석 대시보드" class="dashboard-slider__image" />
+                            </div>
+                            <div class="dashboard-slider__info">
+                                <h4 id="m215" class="dashboard-slider__title"><i class="fas fa-chart-bar text-success me-2"></i>비교 분석 대시보드</h4>
+                                <p id="m216" class="dashboard-slider__description">과거 대비 현재 성능 분석 및 트렌드 추적을 위한 전문 분석 도구입니다.</p>
+                                <div class="dashboard-slider__tags">
+                                    <span id="m217" class="dashboard-slider__tag"><i class="fas fa-clock"></i> 시간별 비교</span>
+                                    <span id="m218" class="dashboard-slider__tag"><i class="fas fa-chart-line"></i> 트렌드 분석</span>
+                                    <span id="m219" class="dashboard-slider__tag"><i class="fas fa-layer-group"></i> 콤보 차트</span>
+                                    <span id="m220" class="dashboard-slider__tag"><i class="fas fa-sync-alt"></i> 실시간 업데이트</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 슬라이드 4: 서비스 비교 대시보드 -->
+                    <div class="dashboard-slider__slide">
+                        <div class="dashboard-slider__content" role="region" aria-label="서비스 비교 대시보드 슬라이드">
+                            <div class="dashboard-slider__image-wrapper">
+                                <img src="index/assets/img/portfolio/4.png" alt="서비스 비교 대시보드" class="dashboard-slider__image" />
+                            </div>
+                            <div class="dashboard-slider__info">
+                                <h4 id="m221" class="dashboard-slider__title"><i class="fas fa-server text-info me-2"></i>서비스 비교 대시보드</h4>
+                                <p id="m222" class="dashboard-slider__description">멀티 서비스 성능 분석 및 비교를 통한 종합적인 시스템 관리 도구입니다.</p>
+                                <div class="dashboard-slider__tags">
+                                    <span id="m223" class="dashboard-slider__tag"><i class="fas fa-cubes"></i> 멀티 서비스</span>
+                                    <span id="m224" class="dashboard-slider__tag"><i class="fas fa-chart-area"></i> 자원 사용량</span>
+                                    <span id="m225" class="dashboard-slider__tag"><i class="fas fa-eye"></i> 동시 모니터링</span>
+                                    <span id="m226" class="dashboard-slider__tag"><i class="fas fa-calendar-alt"></i> 시간대별 추이</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 슬라이드 5: AI 분석 리포트 -->
+                    <div class="dashboard-slider__slide">
+                        <div class="dashboard-slider__content" role="region" aria-label="AI 분석 리포트 슬라이드">
+                            <div class="dashboard-slider__image-wrapper">
+                                <img src="index/assets/img/portfolio/5.png" alt="AI 분석 리포트" class="dashboard-slider__image" />
+                            </div>
+                            <div class="dashboard-slider__info">
+                                <h4 id="m227" class="dashboard-slider__title"><i class="fas fa-robot text-warning me-2"></i>AI 분석 리포트</h4>
+                                <p id="m228" class="dashboard-slider__description">자연어 기반 자동 리포트 생성 및 AI 분석을 통한 인사이트 도출 시스템입니다.</p>
+                                <div class="dashboard-slider__tags">
+                                    <span class="dashboard-slider__tag"><i class="fas fa-brain"></i> Gemini 2.5</span>
+                                    <span id="m229" class="dashboard-slider__tag"><i class="fas fa-comments"></i> 자연어 쿼리</span>
+                                    <span id="m230" class="dashboard-slider__tag"><i class="fas fa-file-alt"></i> 자동 리포트</span>
+                                    <span id="m231" class="dashboard-slider__tag"><i class="fas fa-chart-pie"></i> 차트 생성</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 슬라이드 6: 예측 분석 -->
+                    <div class="dashboard-slider__slide">
+                        <div class="dashboard-slider__content" role="region" aria-label="예측 분석 슬라이드">
+                            <div class="dashboard-slider__image-wrapper">
+                                <img src="index/assets/img/portfolio/6.png" alt="예측 분석" class="dashboard-slider__image" />
+                            </div>
+                            <div class="dashboard-slider__info">
+                                <h4 id="m232" class="dashboard-slider__title"><i class="fas fa-crystal-ball text-danger me-2"></i>예측 분석</h4>
+                                <p id="m238" class="dashboard-slider__description">AI 기반 미래 성능 예측 및 진단을 통한 사전 예방적 시스템 관리 도구입니다.</p>
+                                <div  class="dashboard-slider__tags">
+                                    <span id="m233" class="dashboard-slider__tag"><i class="fas fa-magic"></i> AI 예측</span>
+                                    <span id="m234" class="dashboard-slider__tag"><i class="fas fa-forward"></i> 미래 분석</span>
+                                    <span id="m235" class="dashboard-slider__tag"><i class="fas fa-stethoscope"></i> 자원 사용량 예측</span>
+                                    <span id="m236" class="dashboard-slider__tag"><i class="fas fa-toggle-on"></i> 정확도 분석</span>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-4 col-sm-6 mb-4">
-                <!-- Portfolio item 2-->
-                <div class="portfolio-item">
-                    <a class="portfolio-link" data-bs-toggle="modal" href="#portfolioModal2">
-                        <div class="portfolio-hover">
-                            <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
-                        </div>
-                        <img class="img-fluid" src="index/assets/img/portfolio/2.png" alt="..." />
-                    </a>
-                    <div class="portfolio-caption">
-                        <div class="portfolio-caption-heading">Explore</div>
-                        <div class="portfolio-caption-subheading text-muted">Graphic Design</div>
-                    </div>
+
+                <!-- ★★★ 네비게이션 컨트롤 ★★★ -->
+                <div class="dashboard-slider__controls">
+                    <button class="dashboard-slider__btn dashboard-slider__btn--prev" id="prevBtn" aria-label="이전 슬라이드">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="dashboard-slider__btn dashboard-slider__btn--next" id="nextBtn" aria-label="다음 슬라이드">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
                 </div>
-            </div>
-            <div class="col-lg-4 col-sm-6 mb-4">
-                <!-- Portfolio item 3-->
-                <div class="portfolio-item">
-                    <a class="portfolio-link" data-bs-toggle="modal" href="#portfolioModal3">
-                        <div class="portfolio-hover">
-                            <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
-                        </div>
-                        <img class="img-fluid" src="index/assets/img/portfolio/3.png" alt="..." />
-                    </a>
-                    <div class="portfolio-caption">
-                        <div class="portfolio-caption-heading">Finish</div>
-                        <div class="portfolio-caption-subheading text-muted">Identity</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-sm-6 mb-4 mb-lg-0">
-                <!-- Portfolio item 4-->
-                <div class="portfolio-item">
-                    <a class="portfolio-link" data-bs-toggle="modal" href="#portfolioModal4">
-                        <div class="portfolio-hover">
-                            <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
-                        </div>
-                        <img class="img-fluid" src="index/assets/img/portfolio/4.png" alt="..." />
-                    </a>
-                    <div class="portfolio-caption">
-                        <div class="portfolio-caption-heading">Lines</div>
-                        <div class="portfolio-caption-subheading text-muted">Branding</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-sm-6 mb-4 mb-sm-0">
-                <!-- Portfolio item 5-->
-                <div class="portfolio-item">
-                    <a class="portfolio-link" data-bs-toggle="modal" href="#portfolioModal5">
-                        <div class="portfolio-hover">
-                            <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
-                        </div>
-                        <img class="img-fluid" src="index/assets/img/portfolio/5.png" alt="..." />
-                    </a>
-                    <div class="portfolio-caption">
-                        <div class="portfolio-caption-heading">Southwest</div>
-                        <div class="portfolio-caption-subheading text-muted">Website Design</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-sm-6">
-                <!-- Portfolio item 6-->
-                <div class="portfolio-item">
-                    <a class="portfolio-link" data-bs-toggle="modal" href="#portfolioModal6">
-                        <div class="portfolio-hover">
-                            <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
-                        </div>
-                        <img class="img-fluid" src="index/assets/img/portfolio/6.png" alt="..." />
-                    </a>
-                    <div class="portfolio-caption">
-                        <div class="portfolio-caption-heading">Window</div>
-                        <div class="portfolio-caption-subheading text-muted">Photography</div>
-                    </div>
+
+                <!-- ★★★ 인디케이터 도트 ★★★ -->
+                <div class="dashboard-slider__indicators">
+                    <span class="dashboard-slider__indicator dashboard-slider__indicator--active" data-slide="0"></span>
+                    <span class="dashboard-slider__indicator" data-slide="1"></span>
+                    <span class="dashboard-slider__indicator" data-slide="2"></span>
+                    <span class="dashboard-slider__indicator" data-slide="3"></span>
+                    <span class="dashboard-slider__indicator" data-slide="4"></span>
+                    <span class="dashboard-slider__indicator" data-slide="5"></span>
                 </div>
             </div>
         </div>
     </div>
 </section>
+
 <!-- About-->
 <section class="page-section" id="about">
     <div class="container">
@@ -351,226 +401,14 @@
 </section>
 <!-- Footer-->
 <div th:replace="~{fragments/footer :: footer}"></div>
-
-<!-- Portfolio Modals-->
-<!-- Portfolio item 1 modal popup-->
-<div class="portfolio-modal modal fade" id="portfolioModal1" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="close-modal" data-bs-dismiss="modal"><img src="index/assets/img/close-icon.svg" alt="Close modal" /></div>
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-lg-8">
-                        <div class="modal-body">
-                            <!-- Project details-->
-                            <h2 class="text-uppercase">Project Name</h2>
-                            <p class="item-intro text-muted">Lorem ipsum dolor sit amet consectetur.</p>
-                            <img class="img-fluid d-block mx-auto" src="index/assets/img/portfolio/1.png" alt="..." />
-                            <p>Use this area to describe your project. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Est blanditiis dolorem culpa incidunt minus dignissimos deserunt repellat aperiam quasi sunt officia expedita beatae cupiditate, maiores repudiandae, nostrum, reiciendis facere nemo!</p>
-                            <ul class="list-inline">
-                                <li>
-                                    <strong>Client:</strong>
-                                    Threads
-                                </li>
-                                <li>
-                                    <strong>Category:</strong>
-                                    Illustration
-                                </li>
-                            </ul>
-                            <button class="btn btn-primary btn-xl text-uppercase" data-bs-dismiss="modal" type="button">
-                                <i class="fas fa-xmark me-1"></i>
-                                Close Project
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Portfolio item 2 modal popup-->
-<div class="portfolio-modal modal fade" id="portfolioModal2" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="close-modal" data-bs-dismiss="modal"><img src="index/assets/img/close-icon.svg" alt="Close modal" /></div>
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-lg-8">
-                        <div class="modal-body">
-                            <!-- Project details-->
-                            <h2 class="text-uppercase">Project Name</h2>
-                            <p class="item-intro text-muted">Lorem ipsum dolor sit amet consectetur.</p>
-                            <img class="img-fluid d-block mx-auto" src="index/assets/img/portfolio/2.png" alt="..." />
-                            <p>Use this area to describe your project. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Est blanditiis dolorem culpa incidunt minus dignissimos deserunt repellat aperiam quasi sunt officia expedita beatae cupiditate, maiores repudiandae, nostrum, reiciendis facere nemo!</p>
-                            <ul class="list-inline">
-                                <li>
-                                    <strong>Client:</strong>
-                                    Explore
-                                </li>
-                                <li>
-                                    <strong>Category:</strong>
-                                    Graphic Design
-                                </li>
-                            </ul>
-                            <button class="btn btn-primary btn-xl text-uppercase" data-bs-dismiss="modal" type="button">
-                                <i class="fas fa-xmark me-1"></i>
-                                Close Project
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Portfolio item 3 modal popup-->
-<div class="portfolio-modal modal fade" id="portfolioModal3" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="close-modal" data-bs-dismiss="modal"><img src="index/assets/img/close-icon.svg" alt="Close modal" /></div>
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-lg-8">
-                        <div class="modal-body">
-                            <!-- Project details-->
-                            <h2 class="text-uppercase">Project Name</h2>
-                            <p class="item-intro text-muted">Lorem ipsum dolor sit amet consectetur.</p>
-                            <img class="img-fluid d-block mx-auto" src="index/assets/img/portfolio/3.png" alt="..." />
-                            <p>Use this area to describe your project. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Est blanditiis dolorem culpa incidunt minus dignissimos deserunt repellat aperiam quasi sunt officia expedita beatae cupiditate, maiores repudiandae, nostrum, reiciendis facere nemo!</p>
-                            <ul class="list-inline">
-                                <li>
-                                    <strong>Client:</strong>
-                                    Finish
-                                </li>
-                                <li>
-                                    <strong>Category:</strong>
-                                    Identity
-                                </li>
-                            </ul>
-                            <button class="btn btn-primary btn-xl text-uppercase" data-bs-dismiss="modal" type="button">
-                                <i class="fas fa-xmark me-1"></i>
-                                Close Project
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Portfolio item 4 modal popup-->
-<div class="portfolio-modal modal fade" id="portfolioModal4" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="close-modal" data-bs-dismiss="modal"><img src="index/assets/img/close-icon.svg" alt="Close modal" /></div>
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-lg-8">
-                        <div class="modal-body">
-                            <!-- Project details-->
-                            <h2 class="text-uppercase">Project Name</h2>
-                            <p class="item-intro text-muted">Lorem ipsum dolor sit amet consectetur.</p>
-                            <img class="img-fluid d-block mx-auto" src="index/assets/img/portfolio/4.png" alt="..." />
-                            <p>Use this area to describe your project. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Est blanditiis dolorem culpa incidunt minus dignissimos deserunt repellat aperiam quasi sunt officia expedita beatae cupiditate, maiores repudiandae, nostrum, reiciendis facere nemo!</p>
-                            <ul class="list-inline">
-                                <li>
-                                    <strong>Client:</strong>
-                                    Lines
-                                </li>
-                                <li>
-                                    <strong>Category:</strong>
-                                    Branding
-                                </li>
-                            </ul>
-                            <button class="btn btn-primary btn-xl text-uppercase" data-bs-dismiss="modal" type="button">
-                                <i class="fas fa-xmark me-1"></i>
-                                Close Project
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Portfolio item 5 modal popup-->
-<div class="portfolio-modal modal fade" id="portfolioModal5" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="close-modal" data-bs-dismiss="modal"><img src="index/assets/img/close-icon.svg" alt="Close modal" /></div>
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-lg-8">
-                        <div class="modal-body">
-                            <!-- Project details-->
-                            <h2 class="text-uppercase">Project Name</h2>
-                            <p class="item-intro text-muted">Lorem ipsum dolor sit amet consectetur.</p>
-                            <img class="img-fluid d-block mx-auto" src="index/assets/img/portfolio/5.png" alt="..." />
-                            <p>Use this area to describe your project. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Est blanditiis dolorem culpa incidunt minus dignissimos deserunt repellat aperiam quasi sunt officia expedita beatae cupiditate, maiores repudiandae, nostrum, reiciendis facere nemo!</p>
-                            <ul class="list-inline">
-                                <li>
-                                    <strong>Client:</strong>
-                                    Southwest
-                                </li>
-                                <li>
-                                    <strong>Category:</strong>
-                                    Website Design
-                                </li>
-                            </ul>
-                            <button class="btn btn-primary btn-xl text-uppercase" data-bs-dismiss="modal" type="button">
-                                <i class="fas fa-xmark me-1"></i>
-                                Close Project
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Portfolio item 6 modal popup-->
-<div class="portfolio-modal modal fade" id="portfolioModal6" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="close-modal" data-bs-dismiss="modal"><img src="index/assets/img/close-icon.svg" alt="Close modal" /></div>
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-lg-8">
-                        <div class="modal-body">
-                            <!-- Project details-->
-                            <h2 class="text-uppercase">Project Name</h2>
-                            <p class="item-intro text-muted">Lorem ipsum dolor sit amet consectetur.</p>
-                            <img class="img-fluid d-block mx-auto" src="index/assets/img/portfolio/6.png" alt="..." />
-                            <p>Use this area to describe your project. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Est blanditiis dolorem culpa incidunt minus dignissimos deserunt repellat aperiam quasi sunt officia expedita beatae cupiditate, maiores repudiandae, nostrum, reiciendis facere nemo!</p>
-                            <ul class="list-inline">
-                                <li>
-                                    <strong>Client:</strong>
-                                    Window
-                                </li>
-                                <li>
-                                    <strong>Category:</strong>
-                                    Photography
-                                </li>
-                            </ul>
-                            <button class="btn btn-primary btn-xl text-uppercase" data-bs-dismiss="modal" type="button">
-                                <i class="fas fa-xmark me-1"></i>
-                                Close Project
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 <!-- Bootstrap core JS-->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 <!-- Core theme JS-->
 <script src="index/js/scripts.js"></script>
 <!--nav 관련 JS -->
 <script src="/index/js/nav.js" type="module"></script>
-
+<script src="/index/js/index.js" type="module"></script>
 <!--언어 전환용 JS-->
-<script src="/admin/js/locales-index.js"></script>
+<script src="/admin/js/locales-index.js" type="module"></script>
 </body>
 </html>

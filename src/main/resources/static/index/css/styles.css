@@ -11494,3 +11494,183 @@ section#contact .section-heading {
     width: 100%;
   }
 }
+/*
+  ==============================================
+  대시보드 슬라이더 스타일 (크기 확장 버전)
+  ==============================================
+*/
+
+/* 1. 기본 컨테이너 및 레이아웃 */
+.dashboard-slider {
+  position: relative;
+  max-width: 1600px; /* ★★★ 너비 확장 */
+  margin: 3rem auto;   /* ★★★ 상하 여백 및 중앙 정렬 */
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  background-color: #ffffff;
+  overflow: hidden;
+}
+
+.dashboard-slider__wrapper {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+}
+
+.dashboard-slider__slide {
+  flex: 0 0 100%;
+  box-sizing: border-box;
+}
+
+/* 2. 슬라이드 콘텐츠 (이미지/정보 수직 배치) */
+.dashboard-slider__content {
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-slider__image-wrapper {
+  width: 100%;
+  height: 700px; /* ★★★ 높이 확장 */
+  position: relative;
+  background-color: #f8f9fa;
+}
+
+.dashboard-slider__image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.dashboard-slider__info {
+  padding: 2rem 2.5rem 2.5rem;
+  border-top: 1px solid #e9ecef;
+}
+
+/* 3. 텍스트 및 태그 스타일 */
+.dashboard-slider__title {
+  font-size: 1.7rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: #212529;
+}
+
+.dashboard-slider__description {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #495057;
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-slider__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.dashboard-slider__tag {
+  display: inline-flex;
+  align-items: center;
+  background-color: #f1f3f5;
+  color: #495057;
+  padding: 0.5rem 1rem;
+  border-radius: 25px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  gap: 6px;
+}
+
+.dashboard-slider__tag i {
+  color: #868e96;
+}
+
+/* 4. 네비게이션 컨트롤 (버튼) */
+.dashboard-slider__controls {
+  position: absolute;
+  top: 350px; /* ★★★ 이미지 높이(700px)의 절반으로 재조정 */
+  transform: translateY(-50%);
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  pointer-events: none;
+}
+
+.dashboard-slider__btn {
+  pointer-events: auto;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid #dee2e6;
+  color: #343a40;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.4rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.dashboard-slider__btn:hover {
+  background-color: #fff;
+  transform: scale(1.1);
+}
+
+/* 5. 인디케이터 (도트) */
+.dashboard-slider__indicators {
+  position: absolute;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 8px 12px;
+  border-radius: 20px;
+}
+
+.dashboard-slider__indicator {
+  width: 10px;
+  height: 10px;
+  background-color: #ced4da;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.dashboard-slider__indicator:hover {
+  background-color: #adb5bd;
+}
+
+.dashboard-slider__indicator--active {
+  background-color: #0d6efd;
+  transform: scale(1.2);
+}
+
+/* 6. 반응형 디자인 (모바일) */
+@media (max-width: 768px) {
+  .dashboard-slider__image-wrapper {
+    height: 300px;
+  }
+
+  .dashboard-slider__controls {
+    top: 150px;
+  }
+
+  .dashboard-slider__btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .dashboard-slider__info {
+    padding: 1.5rem;
+  }
+
+  .dashboard-slider__title {
+    font-size: 1.5rem;
+  }
+}

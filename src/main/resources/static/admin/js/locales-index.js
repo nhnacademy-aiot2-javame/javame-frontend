@@ -36,6 +36,47 @@ export const messages = {
         m120: `연혁`,
         m121: `운영진 소개`,
         m122: `요금제`,
+        m202: `모니터링 대시보드`,
+        m203: `메인 대시보드`,
+        m204: `실시간 서버 모니터링 및 시스템 상태 관리를 위한 통합 대시보드입니다.`,
+        m205: `CPU 모니터링`,
+        m206: `메모리 추적`,
+        m207: `알람 시스템`,
+        m208: `온도 모니터링`,
+        m209: `트리 구조 분석`,
+        m210: `계층적 데이터 분석 및 임계값 설정을 통한 세밀한 시스템 관리 도구입니다.`,
+        m211: `계층적 구조`,
+        m212: `파이 차트`,
+        m213: `임계값 설정`,
+        m214: `실시간 업데이트`,
+        m215: `비교 분석 대시보드`,
+        m216: `과거 대비 현재 성능 분석 및 트렌드 추적을 위한 전문 분석 도구입니다.`,
+        m217: `시간별 비교`,
+        m218: `트랜드 분석`,
+        m219:`콤보 차트`,
+        m220: `실시간 업덷이트`,
+        m221: `서비스 비교 대시보드`,
+        m222: `멀티 서비스 성능 분석 및 비교를 통한 종합적인 시스템 관리 도구입니다.`,
+        m223: `멀티 서비스`,
+        m224: `자원 사용량`,
+        m225: `동시 모니터링`,
+        m226: `시간대별 추이`,
+        m227: `AI 분석 리포트`,
+        m228: `자연어 기반 자동 리포트 생성 및 AI 분석을 통한 인사이트 도출 시스템입니다.`,
+        m229: `자연어 쿼리`,
+        m230: `자동 리포트`,
+        m231: `차트 생성`,
+        m232:`예측 분석`,
+        m233: `AI 기반 미래 성능 예측 및 진단을 통한 사전 예방적 시스템 관리 도구입니다.`,
+        m234: `AI 예측`,
+        m235: `미래 분석`,
+        m236: `자원 사용량 예측`,
+        m237: `정확도 분석`,
+        m238: `AI 기반 미래 성능 예측 및 진단을 통한 사전 예방적 시스템 관리 도구입니다.`,
+
+
+
+
 
 
         login: `로그인`,
@@ -139,7 +180,6 @@ export const messages = {
         m112: `로그인`,
         m113: `Google로 로그인`,
         m114: `비밀번호 찾기`,
-
         m115: `홈으로 돌아가기`,
         // auth/register.html
         m116: `회원가입`,
@@ -147,7 +187,6 @@ export const messages = {
         m171: `이미 계정이 있으신가요?`,
         m172: `로그인`,
         m173: `홈으로 돌아가기`,
-
         // auth/purchase.html
         // auth/find-password.html
         // auth/callback.html
@@ -169,7 +208,6 @@ export const messages = {
         m137: `센서 및 데이터 등록`,
         m138: `센서리스트 조회`,
         m139: `로그인 계정`,
-
         // layout.html
         // dashboard/dashboard-main
         m141: `메인 대시보드`,
@@ -252,7 +290,6 @@ export const messages = {
 
 
 
-
     },
     en: {
         m1: `Prevent incidents in real-time, automated response, integrated monitoring
@@ -291,12 +328,10 @@ export const messages = {
         m120: `About`,
         m121: `Team`,
         m122: `Plan`,
-
         login: "login",
         logout: "logout",
         dashboard: "dashboard",
         signup: "signup",
-
         m30: `Privacy Policy`,
         m31: `Terms of Service`,
         m32: `Service Guide`,
@@ -312,6 +347,45 @@ export const messages = {
         m40: `Company Information Management`,
         m41: `User Approval`,
         m42: `Back to Main`,
+        m202: `Monitoring Dashboard`,
+        m203: `Main Dashboard`,
+        m204: "An integrated dashboard for real-time server monitoring and system status management.",
+        m205: "CPU Monitoring",
+        m206: "Memory Tracking",
+        m207: "Alarm System",
+        m208: "Temperature Monitoring",
+        m209: "Tree Structure Analysis",
+        m210: "A detailed system management tool through hierarchical data analysis and threshold settings.",
+        m211: "Hierarchical Structure",
+        m212: "Pie Chart",
+        m213: "Threshold Settings",
+        m214: "Real-Time Updates",
+        m215: "Comparative Analysis Dashboard",
+        m216: "A professional analysis tool for comparing current and past performance and tracking trends.",
+        m217: "Time-based Comparison",
+        m218: "Trend Analysis",
+        m219: "Combo Chart",
+        m220: "Real-Time Update", // 오타 '업덷이트' 수정하여 반영
+        m221: "Service Comparison Dashboard",
+        m222: "A comprehensive system management tool for analyzing and comparing multi-service performance.",
+        m223: "Multi-Service",
+        m224: "Resource Usage",
+        m225: "Simultaneous Monitoring",
+        m226: "Time Series Trends",
+        m227: "AI Analysis Report",
+        m228: "A system for generating automatic reports based on natural language and extracting insights through AI analysis.",
+        m229: "Natural Language Query",
+        m230: "Auto Report",
+        m231: "Chart Generation",
+        m232: "Predictive Analysis",
+        m233: "A proactive system management tool with AI-based future performance prediction and diagnostics.",
+        m234: "AI Prediction",
+        m235: "Future Analysis",
+        m236: "Resource Usage Forecast",
+        m237: "Accuracy Analysis",
+        m238: "A proactive system management tool with AI-based future performance prediction and diagnostics.",
+
+
         // sensor.html
         m43: `View Sensors`,
         m44: `Sensor List`,
@@ -393,14 +467,12 @@ export const messages = {
         m113: `Login with Google`,
         m114: `Find Password`,
         m115: `Back to Home`,
-
         // auth/register.html
         m116: `Sign Up`,
         m117: `Sign Up`,
         m171: `Already have an account?`,
         m172: `Login`,
         m173: `Back to Main`,
-
         // sidebar.html
         m123: `Core`,
         m124: `Main Dashboard`,
@@ -420,7 +492,6 @@ export const messages = {
         m138: `Sensor List View`,
         m139: `Login Account`,
         //layout.html
-
         // dashboard/dashboard-main
         m141: `Main Dashboard`,
         m142: `Overall Status`,
@@ -490,9 +561,6 @@ export const messages = {
     },
 };
 
-export function getCurrentLang() {
-    return localStorage.getItem('lang') || 'ko';
-}
 
 
  export function setLanguage(lang) {
@@ -509,16 +577,14 @@ export function getCurrentLang() {
         'm11','m13','m14','m15','m16','m17',
         'm18', 'm19','m20','m21','m22','m23',
         'm24','m25','m26','m27','m28','m29',
-
         'login', 'logout','dashboard','signup',
-        ...Array.from({length: 172}, (_, i) => `m${i+30}`)
+        ...Array.from({length: 209}, (_, i) => `m${i+30}`)
 
     ];
 
     ids.forEach(id => {
         setText(id, t[id])
     });
-
 
 
     function setHTML(id, text){
@@ -534,7 +600,6 @@ export function getCurrentLang() {
 
     // 언어 설정값 저장
     localStorage.setItem('lang', lang);
-
 
     // // 언어 설정한 시각도 같이 저장
     // localStorage.setItem('langSetAt', Date.now().toString());

@@ -5,10 +5,7 @@ import {
     createPieChart
 } from './chartUtils.js';
 
-const API_BASE_URL = 'http://localhost:10279/api/v1/environment/reports';
-
-// ★★★ 전역 변수 ★★★
-let currentChartInstances = [];
+const API_BASE_URL = 'https://javame.live/api/v1/environment/reports';
 
 // ★★★ 전역 변수 ★★★
 let currentChartInstances = [];
